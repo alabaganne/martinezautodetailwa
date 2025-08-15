@@ -1,6 +1,7 @@
+'use client'
 import React from 'react';
-import { services, vehicleTypes } from '../../../data/constants';
-import { getEstimatedPrice, getDuration, formatDate } from '../../../utils/booking';
+import { services, vehicleTypes } from '@/lib/data/constants';
+import { getEstimatedPrice, getDuration, formatDate } from '@/lib/utils/booking';
 
 const ReviewConfirm = ({ formData }) => {
   const estimatedPrice = getEstimatedPrice(formData.serviceType, formData.vehicleType, formData.vehicleCondition);

@@ -1,13 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)",
-      "WebFetch(domain:mcp.squareup.com)",
-      "Bash(mkdir:*)",
-      "Bash(touch:*)",
-      "Bash(*:*)",
-      "Bash(git init:*)",
-      "Bash(git remote add:*)"
+      "*",
+      "Bash(*)",
+      "Bash(rmdir:*)",
+      "Bash(**)",
+      "Bash(curl:*)",
+      "Bash(npm run dev:*)",
+      "Bash(node:*)",
+      "Bash([ -f .env.local ])",
+      "Bash(grep:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": [],

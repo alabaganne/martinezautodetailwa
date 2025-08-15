@@ -1,7 +1,9 @@
+'use client'
+
 import React, { useState } from 'react';
 import { Phone, MapPin } from 'lucide-react';
-import { initialFormData } from '../../data/constants';
-import ProgressBar from '../common/ProgressBar';
+import { initialFormData } from '@/lib/data/constants';
+import ProgressBar from '@/components/common/ProgressBar';
 import ServiceSelection from './steps/ServiceSelection';
 import ScheduleSelection from './steps/ScheduleSelection';
 import VehicleInfo from './steps/VehicleInfo';

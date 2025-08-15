@@ -1,14 +1,15 @@
+'use client'
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import { services, vehicleTypes } from '../../../data/constants';
-import { getEstimatedPrice, getDuration } from '../../../utils/booking';
+import { services, vehicleTypes } from '@/lib/data/constants';
+import { getEstimatedPrice, getDuration } from '@/lib/utils/booking';
 
 const ServiceSelection = ({ formData, setFormData }) => {
   const estimatedPrice = getEstimatedPrice(formData.serviceType, formData.vehicleType, formData.vehicleCondition);
   const duration = getDuration(formData.serviceType, formData.vehicleType);
 
   return (
-    <div>
+    <div className='text-gray-900'>
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Select Your Service</h2>
       <div className="grid gap-4">
         {Object.entries(services).map(([key, service]) => (

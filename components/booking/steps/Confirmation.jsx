@@ -1,6 +1,7 @@
+'use client'
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import { initialFormData } from '../../../data/constants';
+import { initialFormData } from '@/lib/data/constants';
 
 const Confirmation = ({ formData, setFormData, setStep }) => {
   const handleNewBooking = () => {

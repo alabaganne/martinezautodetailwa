@@ -1,6 +1,7 @@
+'use client'
 import React from 'react';
 import { Calendar, Clock, AlertCircle } from 'lucide-react';
-import { getMinDate, isWeekend } from '../../../utils/booking';
+import { getMinDate, isWeekend } from '@/lib/utils/booking';
 
 const ScheduleSelection = ({ formData, setFormData }) => {
   return (
