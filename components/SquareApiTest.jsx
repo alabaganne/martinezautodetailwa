@@ -23,11 +23,15 @@ import {
   testBookingsApi,
   runAllTests
 } from '@/lib/utils/testSquareApi';
+import { getLocationId, isSandbox } from '@/lib/config/square';
 
 const SquareApiTest = () => {
   const [results, setResults] = useState({});
   const [loading, setLoading] = useState({});
   const [runningAll, setRunningAll] = useState(false);
+  
+  // Get location ID from config
+  const locationId = getLocationId();
 
   const tests = [
     { 
@@ -42,7 +46,7 @@ const SquareApiTest = () => {
       name: 'Location Details', 
       icon: MapPin,
       description: 'Fetch business location information',
-      fn: testLocationDetails 
+      fn: () => testLocationDetails(locationId) 
     },
     { 
       id: 'customer', 
@@ -63,14 +67,14 @@ const SquareApiTest = () => {
       name: 'Team Members', 
       icon: Users,
       description: 'Check team member access',
-      fn: testTeamMembers 
+      fn: () => testTeamMembers(locationId) 
     },
     { 
       id: 'bookings', 
       name: 'Bookings API', 
       icon: Calendar,
       description: 'Verify bookings availability',
-      fn: testBookingsApi 
+      fn: () => testBookingsApi(locationId) 
     },
   ];
 
@@ -97,7 +101,7 @@ const SquareApiTest = () => {
     setResults({});
     setLoading({});
     
-    const allResults = await runAllTests();
+    const allResults = await runAllTests(locationId);
     const resultMap = {};
     
     allResults.forEach((result, index) => {
@@ -121,7 +125,7 @@ const SquareApiTest = () => {
     return <XCircle className="text-red-600" size={20} />;
   };
 
-  const isSandbox = process.env.NEXT_PUBLIC_SQUARE_ENVIRONMENT !== 'production';
+  const isSandboxMode = isSandbox();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
@@ -135,11 +139,11 @@ const SquareApiTest = () => {
             </div>
             <div className="flex items-center space-x-2">
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                isSandbox 
+                isSandboxMode 
                   ? 'bg-yellow-100 text-yellow-800' 
                   : 'bg-green-100 text-green-800'
               }`}>
-                {isSandbox ? 'Sandbox' : 'Production'}
+                {isSandboxMode ? 'Sandbox' : 'Production'}
               </span>
             </div>
           </div>
@@ -175,7 +179,7 @@ const SquareApiTest = () => {
 
 
         {/* Warning for Sandbox */}
-        {isSandbox && (
+        {isSandboxMode && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
             <div className="flex items-start">
               <AlertCircle className="text-amber-600 mt-0.5 mr-2 flex-shrink-0" size={20} />
