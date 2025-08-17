@@ -2,6 +2,7 @@
 import React from 'react';
 import { services, vehicleTypes } from '@/lib/data/constants';
 import { getEstimatedPrice, getDuration, formatDate } from '@/lib/utils/booking';
+import { displayPrice } from '@/lib/utils/currency';
 
 const ReviewConfirm = ({ formData }) => {
   const estimatedPrice = getEstimatedPrice(formData.serviceType, formData.vehicleType, formData.vehicleCondition);
@@ -82,7 +83,7 @@ const ReviewConfirm = ({ formData }) => {
           <div className="flex justify-between items-center">
             <span className="text-lg font-semibold text-blue-800">Total Estimate:</span>
             <span className="text-2xl font-bold text-blue-800">
-              ${estimatedPrice > 0 ? estimatedPrice : 0}
+              {displayPrice(estimatedPrice > 0 ? estimatedPrice : 0)}
             </span>
           </div>
           {estimatedPrice > 0 && (

@@ -3,6 +3,7 @@ import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import { services, vehicleTypes } from '@/lib/data/constants';
 import { getEstimatedPrice, getDuration } from '@/lib/utils/booking';
+import { displayPrice } from '@/lib/utils/currency';
 
 const ServiceSelection = ({ formData, setFormData }) => {
   const estimatedPrice = getEstimatedPrice(formData.serviceType, formData.vehicleType, formData.vehicleCondition);
@@ -27,7 +28,7 @@ const ServiceSelection = ({ formData, setFormData }) => {
                 <span className="text-3xl">{service.icon}</span>
                 <div>
                   <h3 className="text-lg font-semibold">{service.name}</h3>
-                  <p className="text-gray-600">Starting at ${service.basePrice}</p>
+                  <p className="text-gray-600">Starting at {displayPrice(service.basePrice)}</p>
                 </div>
               </div>
               {formData.serviceType === key && (
@@ -65,7 +66,7 @@ const ServiceSelection = ({ formData, setFormData }) => {
           </div>
           <div className="flex justify-between items-center mt-2">
             <span className="text-gray-700">Estimated Price:</span>
-            <span className="font-semibold text-lg">${estimatedPrice}</span>
+            <span className="font-semibold text-lg">{displayPrice(estimatedPrice)}</span>
           </div>
         </div>
       )}

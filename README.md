@@ -1,7 +1,7 @@
 
 # Car Wash Appointment Booking System
 
-A modern, responsive web application for Martinez Auto Detail that allows customers to book car detailing appointments online. Built with React, Vite, and Tailwind CSS.
+A modern, responsive web application for Martinez Auto Detail that allows customers to book car detailing appointments online. Built with Next.js, React, and Tailwind CSS.
 
 ## Features
 
@@ -21,31 +21,46 @@ A modern, responsive web application for Martinez Auto Detail that allows custom
 
 ## Tech Stack
 
-- **React 19** - UI framework
-- **Vite** - Build tool and dev server
+- **Next.js 15** - Full-stack React framework
+- **React 19** - UI library
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **Lucide React** - Icon library
+- **Square API** - Payment processing and appointment scheduling
 
 ## Project Structure
 
 ```
-src/
-├── components/
-│   ├── booking/
-│   │   ├── BookingSystem.jsx       # Main booking component
-│   │   └── steps/
-│   │       ├── ServiceSelection.jsx # Step 1: Service & vehicle type
-│   │       ├── ScheduleSelection.jsx # Step 2: Date & time
-│   │       ├── VehicleInfo.jsx      # Step 3: Customer & vehicle details
-│   │       ├── ReviewConfirm.jsx    # Step 4: Review booking
-│   │       └── Confirmation.jsx     # Step 5: Booking confirmation
-│   └── common/
-│       └── ProgressBar.jsx          # Progress indicator
+app/
+├── api/
+│   └── square/                      # Square API proxy endpoints
+│       └── [...path]/
+│           └── route.js
+├── globals.css                      # Global styles
+├── layout.jsx                       # Root layout
+└── page.jsx                         # Home page
+
+components/
+├── booking/
+│   ├── BookingSystem.jsx            # Main booking component
+│   └── steps/
+│       ├── ServiceSelection.jsx     # Step 1: Service & vehicle type
+│       ├── ScheduleSelection.jsx    # Step 2: Date & time
+│       ├── VehicleInfo.jsx          # Step 3: Customer & vehicle details
+│       ├── ReviewConfirm.jsx        # Step 4: Review booking
+│       └── Confirmation.jsx         # Step 5: Booking confirmation
+├── common/
+│   └── ProgressBar.jsx              # Progress indicator
+└── SquareApiTest.jsx                # Square API testing component
+
+lib/
+├── config/
+│   ├── env.js                       # Environment configuration
+│   └── square.js                    # Square SDK configuration
 ├── data/
 │   └── constants.js                 # Services, prices, durations
-├── utils/
-│   └── booking.js                   # Helper functions
-└── App.jsx                          # Root component
+└── utils/
+    ├── booking.js                   # Booking helper functions
+    └── squareClient.js              # Square API client utilities
 ```
 
 ## Getting Started
@@ -75,37 +90,12 @@ npm run dev
 
 4. Open your browser and navigate to:
 ```
-http://localhost:5173
+http://localhost:3000
 ```
 
 ### Available Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
-- `npm run preview` - Preview production build
+- `npm run start` - Start production server
 - `npm run lint` - Run ESLint
-
-## Pricing Structure
-
-### Base Prices
-- **Interior Only**: $120
-- **Exterior Only**: $100
-- **Full Detail**: $200
-
-### Vehicle Multipliers
-- **Small Car**: 1.0x
-- **Truck**: 1.2x
-- **Minivan**: 1.3x
-
-### Additional Charges
-- **Very Dirty Condition**: +$50
-
-## Business Hours
-
-- **Open**: Monday - Friday
-- **Drop-off Times**: 8:00 AM or 9:00 AM (same day) or evening before
-- **Pickup Time**: 5:00 PM
-
-## License
-
-All rights reserved - Martinez Auto Detail

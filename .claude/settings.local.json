@@ -11,7 +11,10 @@
       "Bash([ -f .env.local ])",
       "Bash(grep:*)",
       "Bash(git add:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "mcp__square__get_service_info",
+      "mcp__square__make_api_request",
+      "mcp__square__get_type_info"
     ],
     "deny": [],
     "ask": [],

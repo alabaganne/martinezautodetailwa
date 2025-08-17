@@ -99,7 +99,7 @@ const VehicleInfo = ({ formData, setFormData }) => {
                 : 'border-gray-200 hover:border-gray-300'
             }`}
           >
-            Very Dirty (+$50)
+            Very Dirty (+50 TND)
           </button>
         </div>
         {formData.vehicleCondition === 'very-dirty' && (
