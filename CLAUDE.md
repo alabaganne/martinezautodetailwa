@@ -26,60 +26,43 @@ The Square API is accessible through the MCP (Model Context Protocol) connection
 ## Catalog Structure
 
 ### Categories (3 total)
-| Category Name | Category ID | 
+| Category Name | Category ID |
 |--------------|-------------|
-| Small Car | ECC3W3WES4GBL6IH7LYOUR4L |
-| Truck | EV6ZSMMZFW4BYXQQT4TLW7YS |
-| Minivan | VM3MKKZQDRGVAXRB753RL6DG |
+| SMALL CAR | 7R5MAM7DHWRVRIMRG4C4LU7L |
+| TRUCK | 5ESS3TDJUOHN7MHVQNVTFF3J |
+| MINIVAN | GLMBAGUSM4ILGZCGEKMRUOKL |
 
 ### Service Items (9 total)
 
 #### Small Car Services
 | Service | Item ID | Normal Price | Very Dirty Price | Duration |
 |---------|---------|--------------|------------------|----------|
-| Interior Only | 4RLOIGSU4XSH2MGMIOZSEKHQ | 120 TND | 170 TND | 3h 30m |
-| Exterior Only | M4ILBX4XAORVF7CPHZ3VBZR7 | 100 TND | 150 TND | 3h |
-| Full Detail | GK73LVPMKT3HSMR6YAFETGNK | 200 TND | 250 TND | 4h |
+| Interior Only | 63C3R73LAN5XXIDYPKOYX4GE | $N/A USD | $N/A USD | 3h 30m |
+| Exterior Only | RUTBVBVNYUVKFLD664QCAMLO | $N/A USD | $N/A USD | 3h |
+| Full Detail | 2YUDZ7737LEMGLEKK2ER76SS | $N/A USD | $N/A USD | 4h |
 
 #### Truck Services
 | Service | Item ID | Normal Price | Very Dirty Price | Duration |
 |---------|---------|--------------|------------------|----------|
-| Interior Only | 4RUCE3VOVWCRTHMZJXIEWJVO | 144 TND | 194 TND | 4h 30m |
-| Exterior Only | HCWP4OUIAWFF533BDBHDG7BH | 120 TND | 170 TND | 3h 30m |
-| Full Detail | LQOMKWIYDL65CJUZ6RTJK6TI | 240 TND | 290 TND | 5h |
+| Interior Only | DXLVBL65CXRZBOPC7C5OLHJU | $N/A USD | $N/A USD | 4h 30m |
+| Exterior Only | INXNRSXX3SDWVCDYMRYT6HQH | $N/A USD | $N/A USD | 3h 30m |
+| Full Detail | JLPPYYFCSNPM3XQ6KCYKUBHZ | $N/A USD | $N/A USD | 5h |
 
 #### Minivan Services
 | Service | Item ID | Normal Price | Very Dirty Price | Duration |
 |---------|---------|--------------|------------------|----------|
-| Interior Only | T752W5ZIXDAOHUNJVHOZXLJZ | 156 TND | 206 TND | 5h |
-| Exterior Only | HAGUC6GAZYT22BVGF7ITVGIW | 130 TND | 180 TND | 3h 30m |
-| Full Detail | GJKDWM7EOOTGFEQBSOU4QGQI | 260 TND | 310 TND | 5h 30m |
+| Interior Only | AHEVPG7K5AQIVKBT7DUOLECG | $N/A USD | $N/A USD | 5h |
+| Exterior Only | ZZPBS4JZIWWKRO35JHQW7OBP | $N/A USD | $N/A USD | 3h 30m |
+| Full Detail | LTMB6IDA3LTZCDIQGE7IWLSD | $N/A USD | $N/A USD | 5h 30m |
 
 ### Item Variation IDs
 
 #### Small Car Variations
-- Interior Normal: R4QEQQKYH2ZTHK42N4PBWMBF (SKU: SC-INT-NORM)
-- Interior Dirty: WR626M3TBZ2OT76MGJBJPOKI (SKU: SC-INT-DIRTY)
-- Exterior Normal: OHWPHD2NSYU2W6P5UKRNBUXN (SKU: SC-EXT-NORM)
-- Exterior Dirty: 22ONJEQ6B6HTS7H3WOTZX47M (SKU: SC-EXT-DIRTY)
-- Full Normal: 7E5ZKY2MIB343XB5AK6PHKIP (SKU: SC-FULL-NORM)
-- Full Dirty: 25ONP2VLLAPY3LQK2JI3J5N5 (SKU: SC-FULL-DIRTY)
 
 #### Truck Variations
-- Interior Normal: RCV4CRPK3AG56E4WFZ7KGROL (SKU: TR-INT-NORM)
-- Interior Dirty: Z7DFI7JZGJS5CDDP42XNFXPZ (SKU: TR-INT-DIRTY)
-- Exterior Normal: HZ32HENMKPN355FFFO6QLUX7 (SKU: TR-EXT-NORM)
-- Exterior Dirty: XGMV365UPGWBAQYRLXO77IOS (SKU: TR-EXT-DIRTY)
-- Full Normal: RFQR3FBHIP6TDYBYWU6GKNQM (SKU: TR-FULL-NORM)
-- Full Dirty: 2ZDB37I3HBNL4CJVMAWVF63R (SKU: TR-FULL-DIRTY)
 
 #### Minivan Variations
-- Interior Normal: ECXZBRJ5SWWQM6I4Y57JSWV6 (SKU: MV-INT-NORM)
-- Interior Dirty: TH65Q3A4R2I444N6NU45HSEU (SKU: MV-INT-DIRTY)
-- Exterior Normal: MB77ISGXPXOOW7GUZDJLFTIN (SKU: MV-EXT-NORM)
-- Exterior Dirty: 75QB7F7JYWLDMHYP3PMLXY4W (SKU: MV-EXT-DIRTY)
-- Full Normal: SIM2MAXYMYJFEMT3NU53S4OV (SKU: MV-FULL-NORM)
-- Full Dirty: BK6U5KHH36KQEV7RJY5YENCM (SKU: MV-FULL-DIRTY)
+
 
 ## Important Notes for Booking Implementation
 

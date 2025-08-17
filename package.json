@@ -6,11 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "init:catalog": "node scripts/init-square-catalog.js",
+    "init:catalog:clean": "node scripts/init-square-catalog.js --clean",
+    "init:team": "node scripts/init-square-team.js",
+    "init:all": "node scripts/init-square-catalog.js && node scripts/init-square-team.js",
+    "clean:catalog": "node scripts/cleanup-catalog.js",
+    "clean:items": "node scripts/cleanup-catalog.js --items",
+    "force:delete:items": "node scripts/force-delete-items.js",
+    "reinit:catalog": "node scripts/init-square-catalog.js --clean"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.12",
     "autoprefixer": "^10.4.21",
+    "commander": "^14.0.0",
     "dotenv": "^17.2.1",
     "lucide-react": "^0.539.0",
     "next": "^15.4.6",

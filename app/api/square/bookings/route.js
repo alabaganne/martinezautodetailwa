@@ -63,7 +63,7 @@ export async function POST(request) {
       return handleSquareError(
         { 
           message: 'Bookings API requires Square Appointments to be enabled',
-          statusCode: 403 
+          statusCode: error.statusCode 
         },
         'Bookings API not available'
       );

@@ -30,7 +30,7 @@ export const catalogApi = client.catalog;
 export const customersApi = client.customers;
 export const locationsApi = client.locations;
 export const paymentsApi = client.payments;
-export const teamApi = client.team;
+export const teamMembersApi = client.teamMembers;
 
 // Export the full client if needed
 export default client;

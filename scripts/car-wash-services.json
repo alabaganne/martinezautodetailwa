@@ -1,0 +1,485 @@
+[
+  {
+    "type": "CATEGORY",
+    "id": "#SMALL_CAR",
+    "presentAtAllLocations": true,
+    "categoryData": {
+      "name": "Small Car"
+    }
+  },
+  {
+    "type": "CATEGORY",
+    "id": "#TRUCK",
+    "presentAtAllLocations": true,
+    "categoryData": {
+      "name": "Truck"
+    }
+  },
+  {
+    "type": "CATEGORY",
+    "id": "#MINIVAN",
+    "presentAtAllLocations": true,
+    "categoryData": {
+      "name": "Minivan"
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#SmallCarInterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Small Car - Interior Only",
+      "description": "Complete interior cleaning including vacuuming, dashboard cleaning, window cleaning, and air freshening for small cars",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#SMALL_CAR"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallCarInteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallCarInterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "10000",
+              "currency": "USD"
+            },
+            "serviceDuration": 12600000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallCarInteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallCarInterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "15000",
+              "currency": "USD"
+            },
+            "serviceDuration": 12600000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#SmallCarExterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Small Car - Exterior Only",
+      "description": "Thorough exterior wash including pre-rinse, soap application, scrubbing, rinse, and drying for small cars",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#SMALL_CAR"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallCarExteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallCarExterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "8000",
+              "currency": "USD"
+            },
+            "serviceDuration": 10800000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallCarExteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallCarExterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "13000",
+              "currency": "USD"
+            },
+            "serviceDuration": 10800000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#SmallCarFull",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Small Car - Full Detail",
+      "description": "Complete interior and exterior detailing including wash, wax, vacuum, leather treatment, and polish for small cars",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#SMALL_CAR"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallCarFullNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallCarFull",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "17000",
+              "currency": "USD"
+            },
+            "serviceDuration": 14400000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallCarFullVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallCarFull",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "22000",
+              "currency": "USD"
+            },
+            "serviceDuration": 14400000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#TruckInterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Truck - Interior Only",
+      "description": "Complete interior cleaning including vacuuming, dashboard cleaning, window cleaning, and air freshening for trucks",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#TRUCK"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#TruckInteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#TruckInterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "12000",
+              "currency": "USD"
+            },
+            "serviceDuration": 16200000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#TruckInteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#TruckInterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "17000",
+              "currency": "USD"
+            },
+            "serviceDuration": 16200000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#TruckExterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Truck - Exterior Only",
+      "description": "Thorough exterior wash including pre-rinse, soap application, scrubbing, rinse, and drying for trucks",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#TRUCK"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#TruckExteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#TruckExterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "10000",
+              "currency": "USD"
+            },
+            "serviceDuration": 12600000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#TruckExteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#TruckExterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "15000",
+              "currency": "USD"
+            },
+            "serviceDuration": 12600000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#TruckFull",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Truck - Full Detail",
+      "description": "Complete interior and exterior detailing including wash, wax, vacuum, leather treatment, and polish for trucks",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#TRUCK"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#TruckFullNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#TruckFull",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "20000",
+              "currency": "USD"
+            },
+            "serviceDuration": 18000000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#TruckFullVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#TruckFull",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "25000",
+              "currency": "USD"
+            },
+            "serviceDuration": 18000000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#MinivanInterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Minivan - Interior Only",
+      "description": "Complete interior cleaning including vacuuming, dashboard cleaning, window cleaning, and air freshening for minivans",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#MINIVAN"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#MinivanInteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#MinivanInterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "13000",
+              "currency": "USD"
+            },
+            "serviceDuration": 18000000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#MinivanInteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#MinivanInterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "18000",
+              "currency": "USD"
+            },
+            "serviceDuration": 18000000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#MinivanExterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Minivan - Exterior Only",
+      "description": "Thorough exterior wash including pre-rinse, soap application, scrubbing, rinse, and drying for minivans",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#MINIVAN"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#MinivanExteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#MinivanExterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "11000",
+              "currency": "USD"
+            },
+            "serviceDuration": 12600000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#MinivanExteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#MinivanExterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "16000",
+              "currency": "USD"
+            },
+            "serviceDuration": 12600000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#MinivanFull",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Minivan - Full Detail",
+      "description": "Complete interior and exterior detailing including wash, wax, vacuum, leather treatment, and polish for minivans",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#MINIVAN"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#MinivanFullNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#MinivanFull",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "22000",
+              "currency": "USD"
+            },
+            "serviceDuration": 19800000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#MinivanFullVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#MinivanFull",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "27000",
+              "currency": "USD"
+            },
+            "serviceDuration": 19800000
+          }
+        }
+      ]
+    }
+  }
+]
