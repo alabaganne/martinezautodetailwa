@@ -9,7 +9,7 @@ import { successResponse, handleSquareError } from '../lib/utils';
  * - types: Comma-separated list of object types (ITEM, CATEGORY, etc.)
  * - cursor: Pagination cursor
  */
-export async function GET(request) {
+export async function GET() {
   try {
     const catalog = await client.catalog.list({});
 
