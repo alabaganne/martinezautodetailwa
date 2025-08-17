@@ -1,0 +1,38 @@
+{
+  "bay-1-tech": {
+    "teamMember": {
+      "givenName": "Bay 1",
+      "familyName": "Technician",
+      "emailAddress": "bay1@carwash.local",
+      "phoneNumber": "+21600000001",
+      "referenceId": "bay-1-tech",
+      "assignedLocations": {
+        "assignmentType": "ALL_CURRENT_AND_FUTURE_LOCATIONS"
+      }
+    }
+  },
+  "bay-2-tech": {
+    "teamMember": {
+      "givenName": "Bay 2",
+      "familyName": "Technician",
+      "emailAddress": "bay2@carwash.local",
+      "phoneNumber": "+21600000002",
+      "referenceId": "bay-2-tech",
+      "assignedLocations": {
+        "assignmentType": "ALL_CURRENT_AND_FUTURE_LOCATIONS"
+      }
+    }
+  },
+  "bay-3-tech": {
+    "teamMember": {
+      "givenName": "Bay 3",
+      "familyName": "Technician",
+      "emailAddress": "bay3@carwash.local",
+      "phoneNumber": "+21600000003",
+      "referenceId": "bay-3-tech",
+      "assignedLocations": {
+        "assignmentType": "ALL_CURRENT_AND_FUTURE_LOCATIONS"
+      }
+    }
+  }
+}
