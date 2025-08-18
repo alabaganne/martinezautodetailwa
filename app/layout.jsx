@@ -1,4 +1,5 @@
 import './globals.css'
+import { BookingProvider } from '@/contexts/BookingProvider'
 
 // Next.js metadata export is allowed alongside components
 export const metadata = {
@@ -9,7 +10,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <BookingProvider>
+          {children}
+        </BookingProvider>
+      </body>
     </html>
   )
 }

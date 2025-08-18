@@ -21,7 +21,6 @@
     "ask": [],
     "defaultMode": "acceptEdits"
   },
-  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "square"
   ]
