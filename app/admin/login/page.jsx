@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [password, setPassword] = useState('');
@@ -130,5 +130,13 @@ export default function AdminLoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="p-4 py-12 md:px-8 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center rounded-2xl">Loading...</div>}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }
