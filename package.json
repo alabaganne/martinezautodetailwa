@@ -9,12 +9,9 @@
     "lint": "next lint",
     "init:catalog": "node scripts/init-square-catalog.js",
     "init:catalog:clean": "node scripts/init-square-catalog.js --clean",
-    "init:team": "node scripts/init-square-team.js",
+    "init:team": "node scripts/init-square-team.js create",
     "init:all": "node scripts/init-square-catalog.js && node scripts/init-square-team.js",
-    "clean:catalog": "node scripts/cleanup-catalog.js",
-    "clean:items": "node scripts/cleanup-catalog.js --items",
-    "force:delete:items": "node scripts/force-delete-items.js",
-    "reinit:catalog": "node scripts/init-square-catalog.js --clean"
+    "seed:bookings": "node scripts/seed-bookings.js create"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.12",
