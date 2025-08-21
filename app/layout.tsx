@@ -1,8 +1,6 @@
 import './globals.css'
 import { BookingProvider } from '@/contexts/BookingProvider'
-import { AdminAuthProvider } from '@/contexts/AdminAuthContext'
 import { CatalogProvider } from '@/contexts/CatalogContext'
-import FloatingDashboardButton from '@/components/FloatingDashboardButton'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -18,14 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AdminAuthProvider>
-          <CatalogProvider>
-            <BookingProvider>
-              <FloatingDashboardButton />
-              {children}
-            </BookingProvider>
-          </CatalogProvider>
-        </AdminAuthProvider>
+        <CatalogProvider>
+          <BookingProvider>
+            {children}
+          </BookingProvider>
+        </CatalogProvider>
       </body>
     </html>
   )

@@ -1,5 +1,4 @@
 import { bookingsApi } from '../square/lib/client';
-import { serverCache } from '../square/lib/server-cache';
 
 // Business rules
 const BUSINESS_RULES = {
@@ -11,17 +10,21 @@ const BUSINESS_RULES = {
 
 /**
  * GET /api/availability
- * Check availability for an entire month based on remaining hours
+ * Get available dates for a month based on service duration
  * 
  * Query parameters:
  * - month: The month number (1-12)
  * - year: The year (e.g., 2025)
+ * - duration: Required service duration in hours (e.g., 3.5, 4, 5.5)
+ * 
+ * Returns: Array of available date strings ['2025-01-09', '2025-01-10', ...]
  */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const month = parseInt(searchParams.get('month'));
     const year = parseInt(searchParams.get('year'));
+    const duration = parseFloat(searchParams.get('duration'));
 
     if (!month || !year) {
       return Response.json({ error: 'Month and year are required' }, { status: 400 });
@@ -29,6 +32,10 @@ export async function GET(request) {
 
     if (month < 1 || month > 12) {
       return Response.json({ error: 'Month must be between 1 and 12' }, { status: 400 });
+    }
+
+    if (!duration || duration <= 0) {
+      return Response.json({ error: 'Valid duration is required' }, { status: 400 });
     }
 
     // Calculate start and end of month
@@ -50,15 +57,15 @@ export async function GET(request) {
         endOfMonth.toISOString()
       );
       
-      monthBookings = response.result?.bookings || [];
+      monthBookings = response.bookings || [];
     } catch (error) {
       console.log('Square Bookings API not available, using empty bookings list');
       // If Square Bookings API is not available, we'll just use an empty list
       // This allows the system to work even without Square Appointments enabled
     }
 
-    // Build availability object for each day in the month
-    const availability = {};
+    // Build array of available dates
+    const availableDates = [];
     
     // Iterate through each day of the month
     for (let day = 1; day <= endOfMonth.getDate(); day++) {
@@ -67,6 +74,13 @@ export async function GET(request) {
       
       // Skip weekends
       if (!BUSINESS_RULES.operatingDays.includes(dayOfWeek)) {
+        continue;
+      }
+
+      // Skip past dates
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (currentDate < today) {
         continue;
       }
 
@@ -93,15 +107,13 @@ export async function GET(request) {
       const bookedHours = totalBookedMinutes / 60;
       const remainingHours = BUSINESS_RULES.totalDailyHours - bookedHours;
       
-      availability[dateStr] = {
-        totalHours: BUSINESS_RULES.totalDailyHours,
-        bookedHours: bookedHours,
-        remainingHours: Math.max(0, remainingHours), // Ensure non-negative
-        available: remainingHours > 0
-      };
+      // Only include date if it has enough remaining hours for the requested service
+      if (remainingHours >= duration) {
+        availableDates.push(dateStr);
+      }
     }
     
-    return Response.json(availability);
+    return Response.json(availableDates);
     
   } catch (error) {
     console.error('Availability check error:', error);

@@ -1,12 +1,11 @@
 'use client'
 import React from 'react';
 import { Check, CheckCircle } from 'lucide-react';
-import { initialFormData } from '@/lib/data/constants';
 
 const Confirmation = ({ formData, setFormData, setStep }) => {
   const handleNewBooking = () => {
     setStep(1);
-    setFormData(initialFormData);
+    // Reset form will be handled by the parent component
   };
 
   return (

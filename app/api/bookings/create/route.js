@@ -2,19 +2,6 @@ import { customersApi, bookingsApi } from '../../square/lib/client';
 import { serverCache } from '../../square/lib/server-cache';
 import crypto from 'crypto';
 
-// Map frontend values to Square catalog item IDs
-const SERVICE_CATALOG_IDS = {
-  'interior_small': '63C3R73LAN5XXIDYPKOYX4GE',
-  'exterior_small': 'RUTBVBVNYUVKFLD664QCAMLO',
-  'full_small': '2YUDZ7737LEMGLEKK2ER76SS',
-  'interior_truck': 'DXLVBL65CXRZBOPC7C5OLHJU',
-  'exterior_truck': 'INXNRSXX3SDWVCDYMRYT6HQH',
-  'full_truck': 'JLPPYYFCSNPM3XQ6KCYKUBHZ',
-  'interior_minivan': 'AHEVPG7K5AQIVKBT7DUOLECG',
-  'exterior_minivan': 'ZZPBS4JZIWWKRO35JHQW7OBP',
-  'full_minivan': 'LTMB6IDA3LTZCDIQGE7IWLSD',
-};
-
 function generateIdempotencyKey() {
   return crypto.randomBytes(16).toString('hex');
 }
@@ -153,7 +140,7 @@ export async function POST(request) {
         endOfDay.toISOString()
       );
       
-      const existingBookings = response.result?.bookings || [];
+      const existingBookings = response.bookings || [];
       
       // Calculate total booked hours for the day
       let totalBookedMinutes = 0;
@@ -185,9 +172,16 @@ export async function POST(request) {
       console.log('Could not validate availability, proceeding with booking');
     }
     
-    // Get catalog item ID from server cache
+    // Get service variation ID from server cache
     const serviceInfo = await serverCache.getServiceInfo(formData.serviceType, formData.vehicleType);
-    const catalogItemId = serviceInfo?.itemId || SERVICE_CATALOG_IDS[`${formData.serviceType}_${formData.vehicleType}`];
+    const serviceVariationId = serviceInfo?.variationId || serviceInfo?.itemId || null;
+
+    if(!serviceVariationId) {
+      return Response.json(
+        { error: 'Service variation not found for the selected service and vehicle type' },
+        { status: 422 }
+      );
+    }
     
     // Get default team member ID from server cache
     const teamMemberId = await serverCache.getDefaultTeamMemberId();
@@ -199,6 +193,21 @@ export async function POST(request) {
       console.log('Creating booking for customer:', customerId);
       console.log('Appointment date/time:', appointmentDate.toISOString());
       console.log('Service duration:', duration, 'minutes');
+      console.log('Service variation ID:', serviceVariationId);
+      console.log('Service info from cache:', serviceInfo);
+      
+      // Build appointment segment
+      const appointmentSegment = {
+        durationMinutes: duration,
+        teamMemberId: teamMemberId  // Use team member from server cache
+      };
+      
+      // Only add serviceVariationId if we have a valid one
+      // Square requires this to be a valid variation ID, not an item ID
+      if (serviceVariationId && serviceVariationId.includes('-')) {
+        appointmentSegment.serviceVariationId = serviceVariationId;
+        appointmentSegment.serviceVariationVersion = BigInt(Date.now());
+      }
       
       const bookingData = {
         idempotencyKey: generateIdempotencyKey(),
@@ -206,15 +215,8 @@ export async function POST(request) {
           startAt: appointmentDate.toISOString(),
           locationId: process.env.SQUARE_LOCATION_ID || 'LZ2Z250CXVH0A',
           customerId: customerId,
-          customerNote: formData.customerNote || `Service: ${formData.serviceType}, Vehicle: ${formData.vehicleType}`,
-          appointmentSegments: [
-            {
-              durationMinutes: duration,
-              serviceVariationId: catalogItemId,
-              serviceVariationVersion: BigInt(Date.now()),
-              teamMemberId: teamMemberId  // Use team member from server cache
-            }
-          ]
+          customerNote: `Service: ${formData.serviceType}, Vehicle: ${formData.vehicleType}, Details: ${formData.notes || 'N/A'}`,
+          appointmentSegments: [appointmentSegment]
         }
       };
       
@@ -235,7 +237,10 @@ export async function POST(request) {
       
     } catch (bookingError) {
       console.error('Booking creation error:', bookingError);
-      console.error('Booking error details:', bookingError.result?.errors || bookingError.message);
+      console.error('Booking error details:', 
+        'Status code:', bookingError.statusCode,
+        'Body:', JSON.stringify(bookingError.result || bookingError.body || bookingError, null, 2)
+      );
       
       // If Square Bookings API is not available or service variation is invalid, create a fallback response
       if (bookingError.statusCode === 403 || bookingError.statusCode === 404 || 
