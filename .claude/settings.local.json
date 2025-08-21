@@ -15,7 +15,9 @@
       "mcp__square__get_service_info",
       "mcp__square__make_api_request",
       "mcp__square__get_type_info",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebFetch(domain:developer.squareup.com)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": [],

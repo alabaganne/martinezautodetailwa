@@ -102,13 +102,11 @@ async function getLocationId() {
       return location.id;
     }
     
-    // Fallback for sandbox
-    console.log(`📍 Using default sandbox location ID: LV4DAD1RNRA50`);
-    return 'LV4DAD1RNRA50';
+    console.error('❌ No locations found in Square account');
+    process.exit(1);
   } catch (error) {
-    console.error('Location fetch error:', error.message);
-    // Use default sandbox location
-    return 'LV4DAD1RNRA50';
+    console.error('❌ Failed to fetch locations:', error.message);
+    process.exit(1);
   }
 }
 
@@ -166,13 +164,12 @@ async function getOrCreateCustomers(locationId) {
 /**
  * Get team members (bay technicians)
  */
-async function getTeamMembers(locationId) {
+async function getTeamMembers() {
   try {
     // Use the searchTeamMembers API
     const response = await client.teamMembers.search({
       query: {
         filter: {
-          locationIds: [locationId],
           status: 'ACTIVE'
         }
       }
@@ -357,7 +354,6 @@ async function createBookings(schedule, customers, teamMembers, catalog, locatio
             }
           ]
         },
-        idempotencyKey: generateIdempotencyKey()
       };
       
       // Create the booking
