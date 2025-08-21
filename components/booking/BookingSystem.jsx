@@ -6,6 +6,7 @@ import { initialFormData } from '@/lib/data/constants';
 import ProgressBar from '@/components/common/ProgressBar';
 import ServiceSelection from './steps/ServiceSelection';
 import ScheduleSelection from './steps/ScheduleSelection';
+import CustomerInfo from './steps/CustomerInfo';
 import VehicleInfo from './steps/VehicleInfo';
 import ReviewConfirm from './steps/ReviewConfirm';
 import Confirmation from './steps/Confirmation';
@@ -13,18 +14,90 @@ import Confirmation from './steps/Confirmation';
 const BookingSystem = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Validation functions for each step
+  const isStepValid = (stepNumber) => {
+    switch(stepNumber) {
+      case 1: // Service selection
+        return formData.serviceType && formData.vehicleType;
+      
+      case 2: // Schedule selection
+        return formData.appointmentDate && formData.dropOffTime;
+      
+      case 3: // Customer info
+        return formData.customerName && 
+               formData.email && 
+               formData.phone &&
+               formData.email.includes('@') &&
+               formData.phone.length >= 10;
+      
+      case 4: // Vehicle info
+        return formData.vehicleMake && 
+               formData.vehicleModel && 
+               formData.vehicleYear &&
+               formData.vehicleColor;
+      
+      case 5: // Review - all previous steps must be valid
+        return isStepValid(1) && isStepValid(2) && isStepValid(3) && isStepValid(4);
+      
+      default:
+        return true;
+    }
+  };
 
   const handleNext = () => {
-    if (step < 4) setStep(step + 1);
+    // Only allow next if current step is valid
+    if (isStepValid(step) && step < 5) {
+      setStep(step + 1);
+    }
   };
 
   const handleBack = () => {
     if (step > 1) setStep(step - 1);
   };
 
-  const handleSubmit = () => {
-    // In real app, this would call Square API
-    setStep(5);
+  const handleSubmit = async () => {
+    // Prevent submission if form is not valid
+    if (!isStepValid(5)) {
+      alert('Please complete all required fields before submitting');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      // Create the booking through API
+      const response = await fetch('/api/bookings/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create booking');
+      }
+
+      const result = await response.json();
+      
+      // Store booking details for confirmation page
+      setFormData({
+        ...formData,
+        bookingId: result.booking.id,
+        confirmationNumber: result.booking.id.slice(-6).toUpperCase()
+      });
+      
+      // Move to confirmation page
+      setStep(6);
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert(`Failed to create booking: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -34,10 +107,12 @@ const BookingSystem = () => {
       case 2:
         return <ScheduleSelection formData={formData} setFormData={setFormData} />;
       case 3:
-        return <VehicleInfo formData={formData} setFormData={setFormData} />;
+        return <CustomerInfo formData={formData} setFormData={setFormData} />;
       case 4:
-        return <ReviewConfirm formData={formData} />;
+        return <VehicleInfo formData={formData} setFormData={setFormData} />;
       case 5:
+        return <ReviewConfirm formData={formData} />;
+      case 6:
         return <Confirmation formData={formData} setFormData={setFormData} setStep={setStep} />;
       default:
         return null;
@@ -54,14 +129,14 @@ const BookingSystem = () => {
         </div>
 
         {/* Progress Bar */}
-        {step < 5 && <ProgressBar currentStep={step} />}
+        {step < 6 && <ProgressBar currentStep={step} totalSteps={5} />}
 
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {renderStep()}
 
           {/* Navigation Buttons */}
-          {step < 5 && (
+          {step < 6 && (
             <div className="flex justify-between mt-8">
               <button
                 onClick={handleBack}
@@ -75,10 +150,15 @@ const BookingSystem = () => {
                 Back
               </button>
               <button
-                onClick={step === 4 ? handleSubmit : handleNext}
-                className="px-6 py-3 rounded-lg font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-700"
+                onClick={step === 5 ? handleSubmit : handleNext}
+                disabled={!isStepValid(step) || (step === 5 && isSubmitting)}
+                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
+                  !isStepValid(step) || (step === 5 && isSubmitting)
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
               >
-                {step === 4 ? 'Confirm Booking' : 'Next'}
+                {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
               </button>
             </div>
           )}

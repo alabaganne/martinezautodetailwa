@@ -1,13 +1,14 @@
 'use client'
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { Check, CheckCircle } from 'lucide-react';
 
-const ProgressBar = ({ currentStep }) => {
+const ProgressBar = ({ currentStep, totalSteps = 5 }) => {
   const steps = [
     { number: 1, label: 'Service' },
     { number: 2, label: 'Schedule' },
-    { number: 3, label: 'Vehicle' },
-    { number: 4, label: 'Confirm' }
+    { number: 3, label: 'Contact' },
+    { number: 4, label: 'Vehicle' },
+    { number: 5, label: 'Confirm' }
   ];
 
   return (
@@ -33,7 +34,7 @@ const ProgressBar = ({ currentStep }) => {
                   ? 'bg-blue-600 text-white' 
                   : 'bg-gray-300 text-gray-600'
               }`}>
-                {currentStep > step.number ? <CheckCircle size={20} /> : step.number}
+                {currentStep > step.number ? <Check size={20} /> : step.number}
               </div>
               <span className="text-xs text-gray-600 mt-2">{step.label}</span>
             </div>

@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { Check, CheckCircle } from 'lucide-react';
 import { services, vehicleTypes } from '@/lib/data/constants';
 import { getEstimatedPrice, getDuration } from '@/lib/utils/booking';
 import { displayPrice } from '@/lib/utils/currency';
@@ -32,7 +32,7 @@ const ServiceSelection = ({ formData, setFormData }) => {
                 </div>
               </div>
               {formData.serviceType === key && (
-                <CheckCircle className="text-blue-600" size={24} />
+                <Check className="text-blue-600" size={24} />
               )}
             </div>
           </div>
