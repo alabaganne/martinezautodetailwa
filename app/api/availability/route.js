@@ -1,74 +1,44 @@
 import { bookingsApi } from '../square/lib/client';
+import { serverCache } from '../square/lib/server-cache';
 
 // Business rules
 const BUSINESS_RULES = {
-  maxConcurrentServices: 3, // 3 bays available
   operatingDays: [1, 2, 3, 4, 5], // Monday to Friday
-  dropOffTimes: ['08:00', '09:00'],
-  pickupTime: '17:00',
-};
-
-// Service durations in minutes
-const SERVICE_DURATIONS = {
-  'interior': {
-    'small': 210, // 3.5h
-    'truck': 270, // 4.5h
-    'minivan': 300 // 5h
-  },
-  'exterior': {
-    'small': 180, // 3h
-    'truck': 210, // 3.5h
-    'minivan': 210 // 3.5h
-  },
-  'full': {
-    'small': 240, // 4h
-    'truck': 300, // 5h
-    'minivan': 330 // 5.5h
-  }
+  openTime: '08:00',
+  closeTime: '17:00',
+  totalDailyHours: 9 // 08:00 to 17:00
 };
 
 /**
  * GET /api/availability
- * Check availability for a specific date and service
+ * Check availability for an entire month based on remaining hours
  * 
  * Query parameters:
- * - date: The date to check (YYYY-MM-DD)
- * - serviceType: Type of service (interior, exterior, full)
- * - vehicleType: Type of vehicle (small, truck, minivan)
+ * - month: The month number (1-12)
+ * - year: The year (e.g., 2025)
  */
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const date = searchParams.get('date');
-    const serviceType = searchParams.get('serviceType');
-    const vehicleType = searchParams.get('vehicleType');
+    const month = parseInt(searchParams.get('month'));
+    const year = parseInt(searchParams.get('year'));
 
-    if (!date) {
-      return Response.json({ error: 'Date is required' }, { status: 400 });
+    if (!month || !year) {
+      return Response.json({ error: 'Month and year are required' }, { status: 400 });
     }
 
-    // Check if date is a weekday
-    const checkDate = new Date(date);
-    const dayOfWeek = checkDate.getDay();
-    
-    if (!BUSINESS_RULES.operatingDays.includes(dayOfWeek)) {
-      return Response.json({
-        available: false,
-        reason: 'We are only open Monday through Friday',
-        slots: []
-      });
+    if (month < 1 || month > 12) {
+      return Response.json({ error: 'Month must be between 1 and 12' }, { status: 400 });
     }
 
-    // Get all bookings for the date
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Calculate start and end of month
+    const startOfMonth = new Date(year, month - 1, 1, 0, 0, 0, 0);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999);
 
     const locationId = process.env.SQUARE_LOCATION_ID || 'LZ2Z250CXVH0A';
 
-    let existingBookings = [];
+    // Fetch all bookings for the entire month
+    let monthBookings = [];
     
     try {
       const response = await bookingsApi.list(
@@ -76,67 +46,62 @@ export async function GET(request) {
         undefined,
         undefined,
         locationId,
-        startOfDay.toISOString(),
-        endOfDay.toISOString()
+        startOfMonth.toISOString(),
+        endOfMonth.toISOString()
       );
       
-      existingBookings = response.result?.bookings || [];
+      monthBookings = response.result?.bookings || [];
     } catch (error) {
       console.log('Square Bookings API not available, using empty bookings list');
       // If Square Bookings API is not available, we'll just use an empty list
       // This allows the system to work even without Square Appointments enabled
     }
 
-    // Calculate availability for each time slot
-    const slots = [];
+    // Build availability object for each day in the month
+    const availability = {};
     
-    for (const dropOffTime of BUSINESS_RULES.dropOffTimes) {
-      // Count bookings that would be active during this slot
-      const slotStart = new Date(date);
-      const [hours, minutes] = dropOffTime.split(':');
-      slotStart.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+    // Iterate through each day of the month
+    for (let day = 1; day <= endOfMonth.getDate(); day++) {
+      const currentDate = new Date(year, month - 1, day);
+      const dayOfWeek = currentDate.getDay();
       
-      const duration = serviceType && vehicleType 
-        ? SERVICE_DURATIONS[serviceType]?.[vehicleType] || 240 
-        : 240; // Default 4 hours
-        
-      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+      // Skip weekends
+      if (!BUSINESS_RULES.operatingDays.includes(dayOfWeek)) {
+        continue;
+      }
+
+      const dateStr = currentDate.toISOString().split('T')[0];
       
-      // Count overlapping bookings
-      const overlappingBookings = existingBookings.filter(booking => {
-        const bookingStart = new Date(booking.start_at || booking.startAt);
+      // Get bookings for this specific day
+      const dayBookings = monthBookings.filter(booking => {
+        const bookingDate = new Date(booking.start_at || booking.startAt);
+        return bookingDate.toISOString().split('T')[0] === dateStr;
+      });
+
+      // Calculate total booked hours for the day
+      let totalBookedMinutes = 0;
+      
+      for (const booking of dayBookings) {
+        // Get duration from booking
         const bookingDuration = booking.appointment_segments?.[0]?.duration_minutes || 
                               booking.appointmentSegments?.[0]?.durationMinutes || 
-                              240;
-        const bookingEnd = new Date(bookingStart.getTime() + bookingDuration * 60000);
+                              240; // Default 4 hours
         
-        // Check if this booking overlaps with our slot
-        return (bookingStart < slotEnd && bookingEnd > slotStart);
-      });
+        totalBookedMinutes += bookingDuration;
+      }
       
-      const available = overlappingBookings.length < BUSINESS_RULES.maxConcurrentServices;
-      const spotsLeft = BUSINESS_RULES.maxConcurrentServices - overlappingBookings.length;
+      const bookedHours = totalBookedMinutes / 60;
+      const remainingHours = BUSINESS_RULES.totalDailyHours - bookedHours;
       
-      slots.push({
-        time: dropOffTime,
-        available,
-        spotsLeft,
-        totalSpots: BUSINESS_RULES.maxConcurrentServices
-      });
+      availability[dateStr] = {
+        totalHours: BUSINESS_RULES.totalDailyHours,
+        bookedHours: bookedHours,
+        remainingHours: Math.max(0, remainingHours), // Ensure non-negative
+        available: remainingHours > 0
+      };
     }
     
-    // Check if any slots are available
-    const hasAvailability = slots.some(slot => slot.available);
-    
-    return Response.json({
-      date,
-      available: hasAvailability,
-      slots,
-      businessRules: {
-        maxConcurrentServices: BUSINESS_RULES.maxConcurrentServices,
-        pickupTime: BUSINESS_RULES.pickupTime
-      }
-    });
+    return Response.json(availability);
     
   } catch (error) {
     console.error('Availability check error:', error);

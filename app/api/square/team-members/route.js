@@ -3,7 +3,7 @@ import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
  * GET /api/square/team
- * List team members
+ * List team members directly from Square API
  */
 export async function GET(request) {
   try {

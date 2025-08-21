@@ -1,6 +1,7 @@
 import './globals.css'
 import { BookingProvider } from '@/contexts/BookingProvider'
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext'
+import { CatalogProvider } from '@/contexts/CatalogContext'
 import FloatingDashboardButton from '@/components/FloatingDashboardButton'
 import type { Metadata } from 'next'
 
@@ -18,10 +19,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AdminAuthProvider>
-          <BookingProvider>
-            <FloatingDashboardButton />
-            {children}
-          </BookingProvider>
+          <CatalogProvider>
+            <BookingProvider>
+              <FloatingDashboardButton />
+              {children}
+            </BookingProvider>
+          </CatalogProvider>
         </AdminAuthProvider>
       </body>
     </html>

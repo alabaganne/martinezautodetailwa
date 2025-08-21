@@ -35,8 +35,7 @@ const BookingSystem = () => {
       case 4: // Vehicle info
         return formData.vehicleMake && 
                formData.vehicleModel && 
-               formData.vehicleYear &&
-               formData.vehicleColor;
+               formData.vehicleYear;
       
       case 5: // Review - all previous steps must be valid
         return isStepValid(1) && isStepValid(2) && isStepValid(3) && isStepValid(4);

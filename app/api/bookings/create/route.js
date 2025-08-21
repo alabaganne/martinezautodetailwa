@@ -1,24 +1,6 @@
-import { customersApi, bookingsApi, catalogApi } from '../../square/lib/client';
+import { customersApi, bookingsApi } from '../../square/lib/client';
+import { serverCache } from '../../square/lib/server-cache';
 import crypto from 'crypto';
-
-// Service durations in minutes
-const SERVICE_DURATIONS = {
-  'interior': {
-    'small': 210, // 3.5h
-    'truck': 270, // 4.5h
-    'minivan': 300 // 5h
-  },
-  'exterior': {
-    'small': 180, // 3h
-    'truck': 210, // 3.5h
-    'minivan': 210 // 3.5h
-  },
-  'full': {
-    'small': 240, // 4h
-    'truck': 300, // 5h
-    'minivan': 330 // 5.5h
-  }
-};
 
 // Map frontend values to Square catalog item IDs
 const SERVICE_CATALOG_IDS = {
@@ -139,7 +121,7 @@ export async function POST(request) {
       );
     }
     
-    // Step 2: Check availability one more time
+    // Step 2: Validate availability
     const appointmentDate = new Date(formData.appointmentDate);
     const [dropOffHours, dropOffMinutes] = formData.dropOffTime.replace(' AM', '').replace(' PM', '').split(':');
     appointmentDate.setHours(
@@ -149,12 +131,66 @@ export async function POST(request) {
       0
     );
     
-    // Get service duration
-    const duration = SERVICE_DURATIONS[formData.serviceType]?.[formData.vehicleType] || 240;
+    // Get service duration from server cache
+    const duration = await serverCache.getServiceDuration(formData.serviceType, formData.vehicleType);
+    const durationHours = duration / 60;
     
-    // Get catalog item ID
-    const catalogKey = `${formData.serviceType}_${formData.vehicleType}`;
-    const catalogItemId = SERVICE_CATALOG_IDS[catalogKey];
+    // Check if there's enough time available for this booking
+    const dateStr = appointmentDate.toISOString().split('T')[0];
+    const startOfDay = new Date(dateStr);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(dateStr);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    try {
+      const locationId = process.env.SQUARE_LOCATION_ID || 'LZ2Z250CXVH0A';
+      const response = await bookingsApi.list(
+        100,
+        undefined,
+        undefined,
+        locationId,
+        startOfDay.toISOString(),
+        endOfDay.toISOString()
+      );
+      
+      const existingBookings = response.result?.bookings || [];
+      
+      // Calculate total booked hours for the day
+      let totalBookedMinutes = 0;
+      for (const booking of existingBookings) {
+        const bookingDuration = booking.appointment_segments?.[0]?.duration_minutes || 
+                              booking.appointmentSegments?.[0]?.durationMinutes || 
+                              240;
+        totalBookedMinutes += bookingDuration;
+      }
+      
+      const bookedHours = totalBookedMinutes / 60;
+      const remainingHours = 9 - bookedHours; // 9 hours = 08:00 to 17:00
+      
+      // Check if the new booking fits
+      if (durationHours > remainingHours) {
+        return Response.json(
+          { 
+            error: `Not enough time available on ${dateStr}. This service requires ${durationHours.toFixed(1)} hours but only ${remainingHours.toFixed(1)} hours remain.`,
+            details: {
+              required: durationHours,
+              available: remainingHours,
+              date: dateStr
+            }
+          },
+          { status: 422 }
+        );
+      }
+    } catch (error) {
+      console.log('Could not validate availability, proceeding with booking');
+    }
+    
+    // Get catalog item ID from server cache
+    const serviceInfo = await serverCache.getServiceInfo(formData.serviceType, formData.vehicleType);
+    const catalogItemId = serviceInfo?.itemId || SERVICE_CATALOG_IDS[`${formData.serviceType}_${formData.vehicleType}`];
+    
+    // Get default team member ID from server cache
+    const teamMemberId = await serverCache.getDefaultTeamMemberId();
     
     // Step 3: Create the booking
     try {
@@ -176,7 +212,7 @@ export async function POST(request) {
               durationMinutes: duration,
               serviceVariationId: catalogItemId,
               serviceVariationVersion: BigInt(Date.now()),
-              anyTeamMember: true  // Let Square assign any available team member
+              teamMemberId: teamMemberId  // Use team member from server cache
             }
           ]
         }
@@ -201,9 +237,11 @@ export async function POST(request) {
       console.error('Booking creation error:', bookingError);
       console.error('Booking error details:', bookingError.result?.errors || bookingError.message);
       
-      // If Square Bookings API is not available, create a fallback response
+      // If Square Bookings API is not available or service variation is invalid, create a fallback response
       if (bookingError.statusCode === 403 || bookingError.statusCode === 404 || 
-          bookingError.message?.includes('bookings') || bookingError.message?.includes('Bookings')) {
+          bookingError.statusCode === 400 ||
+          bookingError.message?.includes('bookings') || bookingError.message?.includes('Bookings') ||
+          bookingError.message?.includes('service_variation_id')) {
         // Create a mock booking for development/testing
         console.log('Creating mock booking for testing (Square Appointments not available)');
         

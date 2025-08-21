@@ -4,7 +4,7 @@ import { Calendar, Clock, AlertCircle, ChevronLeft, ChevronRight, Loader } from 
 
 const ScheduleSelection = ({ formData, setFormData }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [availability, setAvailability] = useState({});
+  const [monthAvailability, setMonthAvailability] = useState({});
   const [loading, setLoading] = useState(false);
   const [selectedDateSlots, setSelectedDateSlots] = useState(null);
   
@@ -39,49 +39,35 @@ const ScheduleSelection = ({ formData, setFormData }) => {
     return days;
   };
   
-  // Check availability for a specific date
-  const checkDateAvailability = async (date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    
-    // Skip if we already have this data
-    if (availability[dateStr]) return;
+  // Load availability for the entire month
+  const loadMonthAvailability = async () => {
+    const month = selectedMonth.getMonth() + 1; // JavaScript months are 0-indexed
+    const year = selectedMonth.getFullYear();
     
     try {
       const response = await fetch(
-        `/api/availability?date=${dateStr}&serviceType=${formData.serviceType}&vehicleType=${formData.vehicleType}`
+        `/api/availability?month=${month}&year=${year}`
       );
       const data = await response.json();
       
-      setAvailability(prev => ({
-        ...prev,
-        [dateStr]: data
-      }));
-      
+      setMonthAvailability(data);
       return data;
     } catch (error) {
-      console.error('Failed to check availability:', error);
-      return null;
+      console.error('Failed to load month availability:', error);
+      return {};
     }
   };
   
-  // Load availability for visible dates
+  // Load availability when month changes
   useEffect(() => {
-    const loadMonthAvailability = async () => {
+    const fetchAvailability = async () => {
       setLoading(true);
-      const days = getDaysInMonth().filter(d => d.isCurrentMonth);
-      
-      // Check availability for all days in the month
-      await Promise.all(
-        days.map(({ date }) => checkDateAvailability(date))
-      );
-      
+      await loadMonthAvailability();
       setLoading(false);
     };
     
-    if (formData.serviceType && formData.vehicleType) {
-      loadMonthAvailability();
-    }
-  }, [selectedMonth, formData.serviceType, formData.vehicleType]);
+    fetchAvailability();
+  }, [selectedMonth]);
   
   const navigateMonth = (direction) => {
     const newDate = new Date(selectedMonth);
@@ -102,41 +88,34 @@ const ScheduleSelection = ({ formData, setFormData }) => {
   
   const getDateStatus = (date) => {
     const dateStr = date.toISOString().split('T')[0];
-    const dateAvailability = availability[dateStr];
+    const dateAvailability = monthAvailability[dateStr];
     
     if (isPastDate(date)) return 'past';
     if (isWeekend(date)) return 'weekend';
-    if (!dateAvailability) return 'loading';
-    if (!dateAvailability.available) return 'full';
+    if (!dateAvailability) return 'closed'; // Not a business day
     
-    // Check if any slots are available
-    const hasAvailableSlots = dateAvailability.slots?.some(slot => slot.available);
-    return hasAvailableSlots ? 'available' : 'full';
+    // Check remaining hours
+    if (dateAvailability.remainingHours >= 3) return 'available'; // At least 3 hours for minimum service
+    if (dateAvailability.remainingHours > 0) return 'limited'; // Some availability but limited
+    return 'full'; // No hours remaining
   };
   
-  const handleDateSelect = async (date) => {
+  const handleDateSelect = (date) => {
     if (isPastDate(date) || isWeekend(date)) return;
     
     const dateStr = date.toISOString().split('T')[0];
-    setFormData({ ...formData, appointmentDate: dateStr });
+    const dateAvailability = monthAvailability[dateStr];
     
-    // Load or show slots for this date
-    const dateAvailability = availability[dateStr];
-    if (dateAvailability) {
-      setSelectedDateSlots(dateAvailability);
-    } else {
-      setLoading(true);
-      const data = await checkDateAvailability(date);
-      setSelectedDateSlots(data);
-      setLoading(false);
-    }
+    if (!dateAvailability || !dateAvailability.available) return;
+    
+    setFormData({ ...formData, appointmentDate: dateStr });
+    setSelectedDateSlots(dateAvailability);
   };
   
   const handleTimeSelect = (time) => {
     setFormData({ 
       ...formData, 
-      dropOffTime: time,
-      dropOffOption: 'same-day' 
+      dropOffTime: time
     });
   };
   
@@ -152,15 +131,6 @@ const ScheduleSelection = ({ formData, setFormData }) => {
     return date.toISOString().split('T')[0] === formData.appointmentDate;
   };
   
-  if (!formData.serviceType || !formData.vehicleType) {
-    return (
-      <div className="text-center py-8">
-        <AlertCircle className="mx-auto mb-4 text-amber-500" size={48} />
-        <h3 className="text-lg font-semibold mb-2">Please select a service first</h3>
-        <p className="text-gray-600">Go back to choose your service type and vehicle</p>
-      </div>
-    );
-  }
   
   return (
     <div>
@@ -188,10 +158,11 @@ const ScheduleSelection = ({ formData, setFormData }) => {
             </button>
           </div>
           
-          {/* Loading overlay */}
+          {/* Loading indicator */}
           {loading && (
-            <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
-              <Loader className="animate-spin" size={32} />
+            <div className="flex items-center justify-center py-2">
+              <Loader className="animate-spin mr-2" size={20} />
+              <span className="text-sm text-gray-500">Loading availability...</span>
             </div>
           )}
           
@@ -214,13 +185,14 @@ const ScheduleSelection = ({ formData, setFormData }) => {
                 <button
                   key={index}
                   onClick={() => handleDateSelect(date)}
-                  disabled={!isCurrentMonth || status === 'past' || status === 'weekend' || status === 'full'}
+                  disabled={!isCurrentMonth || status === 'past' || status === 'weekend' || status === 'closed' || status === 'full'}
                   className={`
                     relative p-2 h-12 rounded-lg text-sm font-medium transition-all
                     ${!isCurrentMonth ? 'text-gray-300' : ''}
                     ${status === 'past' ? 'text-gray-300 cursor-not-allowed' : ''}
-                    ${status === 'weekend' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : ''}
+                    ${status === 'weekend' || status === 'closed' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : ''}
                     ${status === 'full' ? 'bg-red-50 text-red-400 cursor-not-allowed line-through' : ''}
+                    ${status === 'limited' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : ''}
                     ${status === 'available' && !isSelected ? 'hover:bg-blue-50 text-gray-700' : ''}
                     ${isSelected ? 'bg-blue-600 text-white' : ''}
                   `}
@@ -228,6 +200,9 @@ const ScheduleSelection = ({ formData, setFormData }) => {
                   {date.getDate()}
                   {status === 'available' && isCurrentMonth && (
                     <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
+                  )}
+                  {status === 'limited' && isCurrentMonth && (
+                    <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-amber-500 rounded-full"></div>
                   )}
                 </button>
               );
@@ -241,6 +216,10 @@ const ScheduleSelection = ({ formData, setFormData }) => {
               <span>Available</span>
             </div>
             <div className="flex items-center">
+              <div className="w-3 h-3 bg-amber-500 rounded-full mr-1"></div>
+              <span>Limited</span>
+            </div>
+            <div className="flex items-center">
               <div className="w-3 h-3 bg-red-100 rounded-full mr-1"></div>
               <span>Full</span>
             </div>
@@ -252,71 +231,89 @@ const ScheduleSelection = ({ formData, setFormData }) => {
         </div>
       </div>
       
-      {/* Time Slot Selection */}
+      {/* Availability Details */}
       {formData.appointmentDate && selectedDateSlots && (
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <Clock className="inline w-4 h-4 mr-1" />
-            Select Drop-off Time
-          </label>
-          <div className="space-y-2">
-            {selectedDateSlots.slots?.map((slot) => (
-              <button
-                key={slot.time}
-                onClick={() => handleTimeSelect(`${slot.time} AM`)}
-                disabled={!slot.available}
-                className={`
-                  w-full p-3 rounded-lg border text-left transition-all
-                  ${!slot.available ? 'bg-gray-50 border-gray-200 cursor-not-allowed' : ''}
-                  ${slot.available && formData.dropOffTime === `${slot.time} AM` 
-                    ? 'bg-blue-50 border-blue-500' 
-                    : 'hover:bg-gray-50 border-gray-200'}
-                `}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <div className="font-medium">{slot.time} AM Drop-off</div>
-                    <div className="text-sm text-gray-600">Pick-up at 5:00 PM</div>
-                  </div>
-                  <div className="text-sm">
-                    {slot.available ? (
-                      <span className="text-green-600">
-                        {slot.spotsLeft} spot{slot.spotsLeft !== 1 ? 's' : ''} left
-                      </span>
-                    ) : (
-                      <span className="text-red-600">Full</span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-      
-      {/* Evening Drop-off Option */}
-      {formData.appointmentDate && (
-        <div className="mb-6">
-          <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-            <input
-              type="radio"
-              name="dropoff"
-              value="day-before"
-              checked={formData.dropOffOption === 'day-before'}
-              onChange={(e) => setFormData({
-                ...formData, 
-                dropOffOption: e.target.value, 
-                dropOffTime: 'Evening'
+          <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <h3 className="font-semibold mb-3">
+              Availability for {new Date(formData.appointmentDate).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
               })}
-              className="mr-3"
-            />
-            <div>
-              <div className="font-medium">Evening Before</div>
-              <div className="text-sm text-gray-600">
-                Drop off the evening before your appointment
+            </h3>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-gray-600">Total Daily Capacity</span>
+                <span className="font-medium">{selectedDateSlots.totalHours} hours</span>
+              </div>
+              
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-gray-600">Hours Booked</span>
+                <span className="font-medium text-blue-600">{selectedDateSlots.bookedHours} hours</span>
+              </div>
+              
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-600">Hours Available</span>
+                <span className={`font-medium ${
+                  selectedDateSlots.remainingHours >= 5 ? 'text-green-600' : 
+                  selectedDateSlots.remainingHours > 0 ? 'text-amber-600' : 'text-red-600'
+                }`}>
+                  {selectedDateSlots.remainingHours} hours
+                </span>
               </div>
             </div>
-          </label>
+            
+            {/* Drop-off Time Selection */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                <Clock className="inline w-4 h-4 mr-1" />
+                Select Drop-off Time
+              </label>
+              <div className="space-y-3">
+                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="dropOffTime"
+                    value="8:00 AM"
+                    checked={formData.dropOffTime === '8:00 AM'}
+                    onChange={() => handleTimeSelect('8:00 AM')}
+                    disabled={selectedDateSlots.remainingHours < 3}
+                    className="mr-3"
+                  />
+                  <div className="flex-1">
+                    <div className={`font-medium ${selectedDateSlots.remainingHours < 3 ? 'text-gray-400' : 'text-gray-900'}`}>
+                      Morning Drop-off
+                    </div>
+                    <div className={`text-sm ${selectedDateSlots.remainingHours < 3 ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Drop off at 8:00 AM on your appointment day
+                    </div>
+                  </div>
+                </label>
+                
+                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input
+                    type="radio"
+                    name="dropOffTime"
+                    value="Evening Before"
+                    checked={formData.dropOffTime === 'Evening Before'}
+                    onChange={() => handleTimeSelect('Evening Before')}
+                    className="mr-3"
+                  />
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">
+                      Evening Before
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      Drop off the evening before your appointment
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 mt-3">All vehicles are ready for pickup at 5:00 PM</p>
+            </div>
+          </div>
         </div>
       )}
       
