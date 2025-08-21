@@ -137,7 +137,7 @@ export async function PATCH(request, { params }) {
     
     // Handle different status change requests
     switch(status) {
-      case 'ACCEPTED':
+      case 'ACCEPTED': {
         // Square doesn't have an "accept" method - bookings are automatically accepted
         // Just return the current booking with accepted status for UI update
         const acceptResponse = await bookingsApi.retrieveBooking(id);
@@ -152,9 +152,10 @@ export async function PATCH(request, { params }) {
             status: 'ACCEPTED'
           }
         });
+      }
         
       case 'DECLINED':
-      case 'CANCELLED_BY_SELLER':
+      case 'CANCELLED_BY_SELLER': {
         // For decline or cancel, use the cancel method
         const retrieveResponse = await bookingsApi.retrieveBooking(id);
         const booking = retrieveResponse.result?.booking || retrieveResponse.booking;
@@ -181,6 +182,7 @@ export async function PATCH(request, { params }) {
             status: 'CANCELLED_BY_SELLER'
           }
         });
+      }
         
       default:
         return new Response(

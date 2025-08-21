@@ -23,12 +23,24 @@ export async function GET() {
     const cookieStore = await cookies();
     const sessionToken = cookieStore.get(SESSION_NAME);
     
-    if (sessionToken && activeSessions.has(sessionToken.value)) {
-      return Response.json({ authenticated: true });
+    // In development, accept any session cookie as valid
+    // In production, validate against the session store
+    if (process.env.NODE_ENV === 'development') {
+      if (sessionToken && sessionToken.value) {
+        console.log('[Auth] Dev mode: Session cookie found, treating as authenticated');
+        return Response.json({ authenticated: true });
+      }
+    } else {
+      // Production: validate against session store
+      if (sessionToken && activeSessions.has(sessionToken.value)) {
+        return Response.json({ authenticated: true });
+      }
     }
     
+    console.log('[Auth] No valid session found');
     return Response.json({ authenticated: false }, { status: 401 });
   } catch (error) {
+    console.error('[Auth] Check failed:', error);
     return Response.json({ error: 'Auth check failed' }, { status: 500 });
   }
 }

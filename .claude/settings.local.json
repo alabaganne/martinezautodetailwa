@@ -17,7 +17,8 @@
       "mcp__square__get_type_info",
       "Bash(mkdir:*)",
       "WebFetch(domain:developer.squareup.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": [],
