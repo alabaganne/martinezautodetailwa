@@ -15,32 +15,33 @@ export function useBookings(filters = {}) {
     
     if (filters.startDate) {
       result = result.filter(booking => 
-        new Date(booking.start_at) >= new Date(filters.startDate)
+        new Date(booking.startAt || booking.start_at) >= new Date(filters.startDate)
       );
     }
     
     if (filters.endDate) {
       result = result.filter(booking => 
-        new Date(booking.start_at) <= new Date(filters.endDate)
+        new Date(booking.startAt || booking.start_at) <= new Date(filters.endDate)
       );
     }
     
     if (filters.customerId) {
       result = result.filter(booking => 
-        booking.customer_id === filters.customerId
+        (booking.customerId || booking.customer_id) === filters.customerId
       );
     }
     
     if (filters.serviceVariationId) {
-      result = result.filter(booking => 
-        booking.appointment_segments?.some(segment => 
-          segment.service_variation_id === filters.serviceVariationId
-        )
-      );
+      result = result.filter(booking => {
+        const segments = booking.appointmentSegments || booking.appointment_segments;
+        return segments?.some(segment => 
+          (segment.serviceVariationId || segment.service_variation_id) === filters.serviceVariationId
+        );
+      });
     }
     
     // Sort by start time
-    result.sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+    result.sort((a, b) => new Date(a.startAt || a.start_at) - new Date(b.startAt || b.start_at));
     
     return result;
   }, [bookings, filters]);
@@ -121,11 +122,11 @@ export function useBookingStats() {
     const todaysPending = todaysBookings.filter(b => b.status === 'PENDING').length;
     const todaysAccepted = todaysBookings.filter(b => b.status === 'ACCEPTED').length;
     const todaysCompleted = todaysBookings.filter(b => 
-      new Date(b.start_at) < now && b.status === 'ACCEPTED'
+      new Date(b.startAt || b.start_at) < now && b.status === 'ACCEPTED'
     ).length;
     
     const upcomingToday = todaysBookings.filter(b => 
-      new Date(b.start_at) > now && 
+      new Date(b.startAt || b.start_at) > now && 
       (b.status === 'ACCEPTED' || b.status === 'PENDING')
     ).length;
     
@@ -170,11 +171,11 @@ export function useNextBooking() {
   const nextBooking = useMemo(() => {
     const now = new Date();
     const futureBookings = bookings.filter(b => 
-      new Date(b.start_at) > now && 
+      new Date(b.startAt || b.start_at) > now && 
       (b.status === 'ACCEPTED' || b.status === 'PENDING')
     );
     
-    futureBookings.sort((a, b) => new Date(a.start_at) - new Date(b.start_at));
+    futureBookings.sort((a, b) => new Date(a.startAt || a.start_at) - new Date(b.startAt || b.start_at));
     
     return futureBookings[0] || null;
   }, [bookings]);

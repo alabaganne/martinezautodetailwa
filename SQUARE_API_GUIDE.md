@@ -68,7 +68,7 @@ const location = locations[0];
 {
   "locations": [
     {
-      "id": "LGWK1MZK9Z7HD",
+      "id": "LZ2Z250CXVH0A",
       "name": "Car Wash",
       "currency": "USD",
       "timezone": "America/Los_Angeles",

@@ -3,7 +3,7 @@
 ## Square Account Information
 
 ### Production Account (MCP)
-- **Location ID**: `LGWK1MZK9Z7HD`
+- **Location ID**: `LZ2Z250CXVH0A`
 - **Merchant ID**: `ML81XE3XYV4TR`
 - **Business Name**: Car Wash
 - **Currency**: TND (Tunisian Dinar)
@@ -142,7 +142,7 @@ To create a booking through Square API, you'll need:
   "method": "create",
   "request": {
     "order": {
-      "location_id": "LGWK1MZK9Z7HD",
+      "location_id": "LZ2Z250CXVH0A",
       "line_items": [
         {
           "catalog_object_id": "VARIATION_ID_HERE",
@@ -188,10 +188,10 @@ NEXT_PUBLIC_SQUARE_LOCATION_ID=your_sandbox_location_id
 # For Production
 SQUARE_ACCESS_TOKEN=your_production_access_token
 SQUARE_ENVIRONMENT=production
-SQUARE_LOCATION_ID=LGWK1MZK9Z7HD
+SQUARE_LOCATION_ID=LZ2Z250CXVH0A
 SQUARE_APPLICATION_ID=sq0idp-xxxxx
 NEXT_PUBLIC_SQUARE_ENVIRONMENT=production
-NEXT_PUBLIC_SQUARE_LOCATION_ID=LGWK1MZK9Z7HD
+NEXT_PUBLIC_SQUARE_LOCATION_ID=LZ2Z250CXVH0A
 ```
 
 **Important:** After updating `.env.local`, restart your Next.js development server to load the new environment variables.

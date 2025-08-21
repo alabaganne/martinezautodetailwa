@@ -24,7 +24,7 @@ export async function GET(request) {
     endDate.setDate(endDate.getDate() + days);
     endDate.setHours(23, 59, 59, 999);
     
-    const locationId = process.env.SQUARE_LOCATION_ID || 'LGWK1MZK9Z7HD';
+    const locationId = process.env.SQUARE_LOCATION_ID || 'LZ2Z250CXVH0A';
     
     const response = await bookingsApi.list(
       100, // limit

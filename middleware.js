@@ -25,7 +25,7 @@ export async function middleware(request) {
   );
   
   if (isProtectedRoute && !isPublicRoute) {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionCookie = cookieStore.get(SESSION_NAME);
     
     // Check if user has a valid session

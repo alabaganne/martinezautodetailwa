@@ -19,21 +19,18 @@ export async function GET(request) {
     const limit = searchParams.get('limit');
     const cursor = searchParams.get('cursor');
     const locationId = searchParams.get('location_id');
-    const startAtMin = searchParams.get('start_at_min');
-    const startAtMax = searchParams.get('start_at_max');
     
     // Note: The bookings.list method parameters may vary based on SDK version
     // Adjust as needed based on your Square SDK version
     const response = await bookingsApi.list(
       limit ? parseInt(limit) : undefined,
       cursor,
-      undefined, // teamMemberId
+      undefined,
       locationId,
-      startAtMin,
-      startAtMax
+      new Date().toISOString(),
     );
     
-    return successResponse(response.result || response);
+    return successResponse(response.data || response);
   } catch (error) {
     // Bookings API might not be available in all Square accounts
     if (error.statusCode === 403 || error.statusCode === 404) {

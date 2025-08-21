@@ -96,8 +96,8 @@ async function getLocationId() {
   try {
     const response = await client.locations.list();
     
-    if (response.result?.locations && response.result.locations.length > 0) {
-      const location = response.result.locations[0];
+    if (response.locations && response.locations.length > 0) {
+      const location = response.locations[0];
       console.log(`📍 Using location: ${location.name} (${location.id})`);
       return location.id;
     }
@@ -377,8 +377,6 @@ async function createBookings(schedule, customers, teamMembers, catalog, locatio
 async function listBookings(locationId) {
   try {
     const startDate = new Date();
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 30);
     
     const response = await client.bookings.list(
       100,
@@ -386,10 +384,9 @@ async function listBookings(locationId) {
       undefined,
       locationId,
       startDate.toISOString(),
-      endDate.toISOString()
     );
     
-    const bookings = response.result?.bookings || [];
+    const bookings = response.data || [];
     
     console.log(`\n📅 Found ${bookings.length} upcoming bookings:\n`);
     

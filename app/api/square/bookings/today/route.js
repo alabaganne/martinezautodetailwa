@@ -13,7 +13,8 @@ export async function GET(request) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     
-    const locationId = process.env.SQUARE_LOCATION_ID || 'LGWK1MZK9Z7HD';
+    const locationId = process.env.SQUARE_LOCATION_ID || 'LZ2Z250CXVH0A';
+    // TODO: make location dynamic
     
     const response = await bookingsApi.list(
       100, // limit
