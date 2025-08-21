@@ -83,22 +83,24 @@ const GroupedBookingList: React.FC<GroupedBookingListProps> = React.memo(({
         const dayBookings = groupedBookings[dateKey];
         
         return (
-          <div key={dateKey}>
-            {/* Date Header */}
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
-                <Calendar size={18} className="text-gray-600" />
-                <h3 className="text-sm font-semibold text-gray-800">
+          <div key={dateKey} className="relative">
+            {/* Date Header with Enhanced Styling */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 rounded-xl border border-gray-200 shadow-sm">
+                <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <Calendar size={16} className="text-blue-600" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-800">
                   {formattedDate}
                 </h3>
                 {dayLabel && (
-                  <span className="ml-2 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
+                  <span className="ml-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-full shadow-sm">
                     {dayLabel}
                   </span>
                 )}
               </div>
-              <div className="flex-1 h-px bg-gray-200"></div>
-              <span className="text-sm text-gray-500">
+              <div className="flex-1 h-px bg-gradient-to-r from-gray-200 via-gray-300 to-transparent"></div>
+              <span className="text-sm font-medium text-gray-600 bg-white px-3 py-1 rounded-lg border border-gray-200">
                 {dayBookings.length} booking{dayBookings.length !== 1 ? 's' : ''}
               </span>
             </div>

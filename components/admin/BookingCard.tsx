@@ -27,18 +27,18 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
   const getStatusColor = (status: string) => {
     switch(status) {
       case BookingStatus.ACCEPTED: 
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300';
       case BookingStatus.PENDING: 
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300';
       case BookingStatus.DECLINED: 
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border-red-300';
       case BookingStatus.CANCELLED_BY_CUSTOMER:
       case BookingStatus.CANCELLED_BY_SELLER: 
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300';
       case BookingStatus.NO_SHOW: 
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border-orange-300';
       default: 
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300';
     }
   };
 
@@ -121,15 +121,19 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow p-4 flex flex-col h-full">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 p-5 flex flex-col h-full relative overflow-hidden group">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-blue-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        
+        <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <div className="mb-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className={`px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 border ${getStatusColor(booking.status)}`}>
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border shadow-sm ${getStatusColor(booking.status)}`}>
               {getStatusIcon(booking.status)}
               <span>{booking.status.replace(/_/g, ' ')}</span>
             </div>
-            <span className="text-xs text-gray-500">#{booking.id.slice(-6)}</span>
+            <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">#{booking.id.slice(-6)}</span>
           </div>
         </div>
 
@@ -158,7 +162,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
         )}
 
         {/* Appointment Details */}
-        <div className="border-t border-gray-300 pt-3 mt-auto">
+        <div className="border-t border-gray-200 pt-4 mt-auto">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Clock size={14} className="text-gray-400" />
@@ -171,8 +175,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
           </div>
 
           {booking.customerNote && (
-            <div className="p-2 bg-blue-50 rounded text-xs text-blue-800 mb-2">
-              <span className="font-medium">Note:</span> {booking.customerNote}
+            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg text-xs text-blue-800 mb-3 border border-blue-200">
+              <span className="font-semibold">Note:</span> {booking.customerNote}
             </div>
           )}
 
@@ -184,14 +188,14 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
                   <button
                     onClick={() => handleStatusChange(BookingStatus.ACCEPTED)}
                     disabled={updating}
-                    className="flex-1 px-2 py-1.5 bg-green-500 text-white rounded text-xs font-medium hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs font-bold hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
                   >
                     Accept
                   </button>
                   <button
                     onClick={() => handleStatusChange(BookingStatus.DECLINED)}
                     disabled={updating}
-                    className="flex-1 px-2 py-1.5 bg-gray-500 text-white rounded text-xs font-medium hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-gray-500 to-slate-600 text-white rounded-lg text-xs font-bold hover:from-gray-600 hover:to-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
                   >
                     Decline
                   </button>
@@ -200,12 +204,13 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
               <button
                 onClick={() => setShowCancelModal(true)}
                 disabled={updating}
-                className={`${booking.status === BookingStatus.PENDING ? '' : 'flex-1'} px-2 py-1.5 bg-red-500 text-white rounded text-xs font-medium hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
+                className={`${booking.status === BookingStatus.PENDING ? '' : 'flex-1'} px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg text-xs font-bold hover:from-red-600 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg`}
               >
                 Cancel
               </button>
             </div>
           )}
+        </div>
         </div>
       </div>
 

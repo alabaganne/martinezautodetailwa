@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, AlertCircle, Play, Loader2, RefreshCw, Shield, MapPin, Users, Package, Calendar, UserPlus } from 'lucide-react';
+import { CheckCircle, XCircle, AlertCircle, Play, Loader2, RefreshCw, Shield, MapPin, Users, Package, Calendar, UserPlus, Check } from 'lucide-react';
 import {
 	testConnection,
 	testLocationDetails,
@@ -129,7 +129,7 @@ const SquareApiTest = () => {
 	const getStatusIcon = (result) => {
 		if (!result) return null;
 		if (result.success) {
-			return <CheckCircle className="text-green-600" size={20} />;
+			return <Check className="text-green-600" size={20} />;
 		}
 		return <XCircle className="text-red-600" size={20} />;
 	};

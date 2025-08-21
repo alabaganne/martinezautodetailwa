@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { Check, CheckCircle } from 'lucide-react';
 import { initialFormData } from '@/lib/data/constants';
 
 const Confirmation = ({ formData, setFormData, setStep }) => {
@@ -12,8 +12,8 @@ const Confirmation = ({ formData, setFormData, setStep }) => {
   return (
     <div className="text-center py-8">
       <div className="mb-6">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="text-green-600" size={40} />
+        <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check className="text-green-50" size={40} />
         </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Booking Confirmed!</h2>
         <p className="text-gray-600">We've sent a confirmation email to {formData.email || 'your email'}</p>

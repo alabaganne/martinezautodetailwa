@@ -94,10 +94,9 @@ const ScheduleSelection = ({ formData, setFormData }) => {
     if (isWeekend(date)) return 'weekend';
     if (!dateAvailability) return 'closed'; // Not a business day
     
-    // Check remaining hours
+    // Check remaining hours - simplified logic
     if (dateAvailability.remainingHours >= 3) return 'available'; // At least 3 hours for minimum service
-    if (dateAvailability.remainingHours > 0) return 'limited'; // Some availability but limited
-    return 'full'; // No hours remaining
+    return 'full'; // No hours remaining or less than minimum service time
   };
   
   const handleDateSelect = (date) => {
@@ -191,8 +190,7 @@ const ScheduleSelection = ({ formData, setFormData }) => {
                     ${!isCurrentMonth ? 'text-gray-300' : ''}
                     ${status === 'past' ? 'text-gray-300 cursor-not-allowed' : ''}
                     ${status === 'weekend' || status === 'closed' ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : ''}
-                    ${status === 'full' ? 'bg-red-50 text-red-400 cursor-not-allowed line-through' : ''}
-                    ${status === 'limited' ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : ''}
+                    ${status === 'full' ? 'bg-red-100 text-red-600 cursor-not-allowed line-through' : ''}
                     ${status === 'available' && !isSelected ? 'hover:bg-blue-50 text-gray-700' : ''}
                     ${isSelected ? 'bg-blue-600 text-white' : ''}
                   `}
@@ -200,9 +198,6 @@ const ScheduleSelection = ({ formData, setFormData }) => {
                   {date.getDate()}
                   {status === 'available' && isCurrentMonth && (
                     <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></div>
-                  )}
-                  {status === 'limited' && isCurrentMonth && (
-                    <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-amber-500 rounded-full"></div>
                   )}
                 </button>
               );
@@ -216,63 +211,68 @@ const ScheduleSelection = ({ formData, setFormData }) => {
               <span>Available</span>
             </div>
             <div className="flex items-center">
-              <div className="w-3 h-3 bg-amber-500 rounded-full mr-1"></div>
-              <span>Limited</span>
-            </div>
-            <div className="flex items-center">
-              <div className="w-3 h-3 bg-red-100 rounded-full mr-1"></div>
+              <div className="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
               <span>Full</span>
             </div>
             <div className="flex items-center">
-              <div className="w-3 h-3 bg-gray-100 rounded-full mr-1"></div>
+              <div className="w-3 h-3 bg-gray-300 rounded-full mr-1"></div>
               <span>Closed</span>
             </div>
           </div>
         </div>
       </div>
       
-      {/* Availability Details */}
+      {/* Enhanced Availability Details */}
       {formData.appointmentDate && selectedDateSlots && (
         <div className="mb-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="font-semibold mb-3">
-              Availability for {new Date(formData.appointmentDate).toLocaleDateString('en-US', { 
+          <div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/30 rounded-2xl shadow-xl border border-gray-100 p-6 relative overflow-hidden">
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-200/20 to-blue-300/20 rounded-full blur-3xl"></div>
+            
+            <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
+              {new Date(formData.appointmentDate).toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 month: 'long', 
                 day: 'numeric' 
               })}
             </h3>
             
-            <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Total Daily Capacity</span>
-                <span className="font-medium">{selectedDateSlots.totalHours} hours</span>
-              </div>
-              
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Hours Booked</span>
-                <span className="font-medium text-blue-600">{selectedDateSlots.bookedHours} hours</span>
-              </div>
-              
-              <div className="flex justify-between items-center py-2">
-                <span className="text-gray-600">Hours Available</span>
-                <span className={`font-medium ${
-                  selectedDateSlots.remainingHours >= 5 ? 'text-green-600' : 
-                  selectedDateSlots.remainingHours > 0 ? 'text-amber-600' : 'text-red-600'
-                }`}>
-                  {selectedDateSlots.remainingHours} hours
+            {/* Availability Progress Bar */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium text-gray-700">Capacity Status</span>
+                <span className="text-sm font-bold text-gray-900">
+                  {selectedDateSlots.remainingHours} of {selectedDateSlots.totalHours} hours available
                 </span>
+              </div>
+              <div className="w-full h-4 bg-gray-200 rounded-full overflow-hidden relative">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500"
+                  style={{ width: `${((selectedDateSlots.totalHours - selectedDateSlots.remainingHours) / selectedDateSlots.totalHours) * 100}%` }}
+                ></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-bold text-gray-500 drop-shadow-sm">
+                    {selectedDateSlots.bookedHours} / {selectedDateSlots.totalHours} hours booked
+                  </span>
+                </div>
               </div>
             </div>
             
-            {/* Drop-off Time Selection */}
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                <Clock className="inline w-4 h-4 mr-1" />
-                Select Drop-off Time
+            {/* Drop-off Time Selection Cards */}
+            <div className="space-y-4">
+              <label className="text-sm font-bold text-gray-800 flex items-center mb-3">
+                <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mr-2">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                </div>
+                Select Your Drop-off Time
               </label>
-              <div className="space-y-3">
-                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              
+              <div className="grid gap-3">
+                <label className={`relative flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
+                  formData.dropOffTime === '8:00 AM' 
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
+                    : 'bg-white border-2 border-gray-200 hover:border-blue-300 hover:shadow-md'
+                } ${selectedDateSlots.remainingHours < 3 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <input
                     type="radio"
                     name="dropOffTime"
@@ -280,53 +280,116 @@ const ScheduleSelection = ({ formData, setFormData }) => {
                     checked={formData.dropOffTime === '8:00 AM'}
                     onChange={() => handleTimeSelect('8:00 AM')}
                     disabled={selectedDateSlots.remainingHours < 3}
-                    className="mr-3"
+                    className="sr-only"
                   />
-                  <div className="flex-1">
-                    <div className={`font-medium ${selectedDateSlots.remainingHours < 3 ? 'text-gray-400' : 'text-gray-900'}`}>
-                      Morning Drop-off
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <div className={`font-bold text-lg ${
+                        formData.dropOffTime === '8:00 AM' ? 'text-white' : 'text-gray-900'
+                      } ${selectedDateSlots.remainingHours < 3 ? 'text-gray-400' : ''}`}>
+                        Morning Drop-off
+                      </div>
+                      <div className={`text-sm mt-1 ${
+                        formData.dropOffTime === '8:00 AM' ? 'text-blue-100' : 'text-gray-600'
+                      } ${selectedDateSlots.remainingHours < 3 ? 'text-gray-400' : ''}`}>
+                        Drop off at 8:00 AM • Same day service
+                      </div>
                     </div>
-                    <div className={`text-sm ${selectedDateSlots.remainingHours < 3 ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Drop off at 8:00 AM on your appointment day
+                    <div className={`p-2 rounded-full ${
+                      formData.dropOffTime === '8:00 AM' ? 'bg-white/20' : 'bg-gray-100'
+                    }`}>
+                      <Clock className={`w-5 h-5 ${
+                        formData.dropOffTime === '8:00 AM' ? 'text-white' : 'text-gray-500'
+                      }`} />
                     </div>
                   </div>
+                  {selectedDateSlots.remainingHours < 3 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-xl">
+                      <span className="text-red-600 font-medium">Not Available</span>
+                    </div>
+                  )}
                 </label>
                 
-                <label className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                <label className={`relative flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
+                  formData.dropOffTime === 'Evening Before' 
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' 
+                    : 'bg-white border-2 border-gray-200 hover:border-blue-300 hover:shadow-md'
+                }`}>
                   <input
                     type="radio"
                     name="dropOffTime"
                     value="Evening Before"
                     checked={formData.dropOffTime === 'Evening Before'}
                     onChange={() => handleTimeSelect('Evening Before')}
-                    className="mr-3"
+                    className="sr-only"
                   />
-                  <div className="flex-1">
-                    <div className="font-medium text-gray-900">
-                      Evening Before
+                  <div className="flex items-center justify-between w-full">
+                    <div>
+                      <div className={`font-bold text-lg ${
+                        formData.dropOffTime === 'Evening Before' ? 'text-white' : 'text-gray-900'
+                      }`}>
+                        Evening Before
+                      </div>
+                      <div className={`text-sm mt-1 ${
+                        formData.dropOffTime === 'Evening Before' ? 'text-purple-100' : 'text-gray-600'
+                      }`}>
+                        Drop off the evening before • Convenient timing
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Drop off the evening before your appointment
+                    <div className={`p-2 rounded-full ${
+                      formData.dropOffTime === 'Evening Before' ? 'bg-white/20' : 'bg-gray-100'
+                    }`}>
+                      <Clock className={`w-5 h-5 ${
+                        formData.dropOffTime === 'Evening Before' ? 'text-white' : 'text-gray-500'
+                      }`} />
                     </div>
                   </div>
                 </label>
               </div>
-              <p className="text-xs text-gray-500 mt-3">All vehicles are ready for pickup at 5:00 PM</p>
             </div>
           </div>
         </div>
       )}
       
-      <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-        <div className="flex items-start">
-          <AlertCircle className="text-amber-600 mt-0.5 mr-2 flex-shrink-0" size={20} />
-          <div className="text-sm">
-            <p className="font-semibold text-amber-800">Important Information</p>
-            <ul className="text-amber-700 mt-1 space-y-1">
-              <li>• We're open Monday through Friday only</li>
-              <li>• Maximum 3 vehicles serviced at a time</li>
-              <li>• All vehicles are picked up at 5:00 PM</li>
-            </ul>
+      <div className="bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200/50 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-200/30 to-blue-200/30 rounded-full blur-2xl"></div>
+        <div className="relative">
+          <div className="flex items-center mb-4">
+            <div className="p-2.5 bg-gradient-to-br from-purple-100 to-blue-100 rounded-xl mr-3">
+              <AlertCircle className="text-purple-600" size={20} />
+            </div>
+            <h3 className="font-bold text-lg bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Important Information
+            </h3>
+          </div>
+          <div className="grid gap-3">
+            <div className="flex items-center">
+              <div className="mr-3">
+                <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+              </div>
+              <div>
+                <p className="text-gray-700 font-medium">Business Hours</p>
+                <p className="text-sm text-gray-600">Open Monday through Friday only</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="mr-3">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              </div>
+              <div>
+                <p className="text-gray-700 font-medium">Drop-off Times</p>
+                <p className="text-sm text-gray-600">Vehicles must be given at 8 AM or the evening before</p>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="mr-3">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+              </div>
+              <div>
+                <p className="text-gray-700 font-medium">Pickup Time</p>
+                <p className="text-sm text-gray-600">All vehicles ready at 5:00 PM</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

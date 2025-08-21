@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { User, Mail, Phone } from 'lucide-react';
+import { User, Mail, Phone, CheckCircle, Check } from 'lucide-react';
 
 const CustomerInfo = ({ formData, setFormData }) => {
   const handlePhoneChange = (e) => {
@@ -20,12 +20,11 @@ const CustomerInfo = ({ formData, setFormData }) => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Your Information</h2>
+      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">Your Information</h2>
       
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <User className="inline w-4 h-4 mr-1" />
+      <div className="space-y-6">
+        <div className="group">
+          <label className="flex items-center text-sm font-bold text-gray-700 mb-3">
             Full Name *
           </label>
           <input
@@ -33,14 +32,13 @@ const CustomerInfo = ({ formData, setFormData }) => {
             value={formData.customerName || ''}
             onChange={(e) => setFormData({...formData, customerName: e.target.value})}
             placeholder="John Smith"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
             required
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <Mail className="inline w-4 h-4 mr-1" />
+        <div className="group">
+          <label className="flex items-center text-sm font-bold text-gray-700 mb-3">
             Email Address *
           </label>
           <input
@@ -48,15 +46,14 @@ const CustomerInfo = ({ formData, setFormData }) => {
             value={formData.email || ''}
             onChange={(e) => setFormData({...formData, email: e.target.value})}
             placeholder="john@example.com"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
             required
           />
-          <p className="text-xs text-gray-500 mt-1">We'll send your booking confirmation here</p>
+          <p className="text-xs text-gray-500 mt-2 ml-2">We'll send your booking confirmation here</p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            <Phone className="inline w-4 h-4 mr-1" />
+        <div className="group">
+          <label className="flex items-center text-sm font-bold text-gray-700 mb-3">
             Phone Number *
           </label>
           <input
@@ -64,14 +61,14 @@ const CustomerInfo = ({ formData, setFormData }) => {
             value={formData.phone || ''}
             onChange={handlePhoneChange}
             placeholder="(555) 123-4567"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
             required
           />
-          <p className="text-xs text-gray-500 mt-1">We'll text you when your car is ready</p>
+          <p className="text-xs text-gray-500 mt-2 ml-2">We'll text you when your car is ready</p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="group">
+          <label className="block text-sm font-bold text-gray-700 mb-3">
             Special Instructions (Optional)
           </label>
           <textarea
@@ -79,17 +76,28 @@ const CustomerInfo = ({ formData, setFormData }) => {
             onChange={(e) => setFormData({...formData, customerNote: e.target.value})}
             placeholder="Any special requests or notes for our team..."
             rows={3}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white resize-none"
           />
         </div>
       </div>
 
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <h3 className="font-semibold text-blue-800 mb-2">Why we need this information:</h3>
-        <ul className="text-sm text-blue-700 space-y-1">
-          <li>• To send you booking confirmation and updates</li>
-          <li>• To contact you if we have questions about your vehicle</li>
-          <li>• To notify you when your car is ready for pickup</li>
+      <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200/50 shadow-lg">
+        <h3 className="font-bold text-blue-800 mb-3 flex items-center">
+          <div className="p-2 bg-blue-100 rounded-lg mr-2">
+            <Check className="w-4 h-4 text-blue-600" />
+          </div>
+          Why we need this information:
+        </h3>
+        <ul className="text-sm text-blue-700 space-y-2">
+          <li className="flex items-start">
+            To send you booking confirmation and updates
+          </li>
+          <li className="flex items-start">
+            To contact you if we have questions about your vehicle
+          </li>
+          <li className="flex items-start">
+            To notify you when your car is ready for pickup
+          </li>
         </ul>
       </div>
     </div>

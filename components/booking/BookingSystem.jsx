@@ -119,64 +119,85 @@ const BookingSystem = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Martinez Auto Detail</h1>
-          <p className="text-gray-600">Professional Car Detailing Services</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-blue-100 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{ animationDelay: '4s' }}></div>
+      </div>
+      
+      <div className="relative z-10 max-w-2xl mx-auto p-4">
+        {/* Enhanced Header */}
+        <div className="text-center mb-10 pt-8">
+          <div className="inline-block">
+            <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 bg-clip-text text-transparent mb-3 tracking-tight">
+              Martinez Auto Detail
+            </h1>
+            <div className="h-1 w-32 mx-auto bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mb-4"></div>
+          </div>
+          <p className="text-gray-700 text-lg font-medium">Professional Car Detailing Services</p>
+          <p className="text-gray-500 text-sm mt-2">Book your appointment in just a few steps</p>
         </div>
 
         {/* Progress Bar */}
         {step < 6 && <ProgressBar currentStep={step} totalSteps={5} />}
 
-        {/* Main Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {renderStep()}
+        {/* Enhanced Main Card */}
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100 relative overflow-hidden">
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-blue-100/50 pointer-events-none"></div>
+          
+          <div className="relative z-10">
+            {renderStep()}
 
-          {/* Navigation Buttons */}
-          {step < 6 && (
-            <div className="flex justify-between mt-8">
-              <button
-                onClick={handleBack}
-                disabled={step === 1}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
-                  step === 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Back
-              </button>
-              <button
-                onClick={step === 5 ? handleSubmit : handleNext}
-                disabled={!isStepValid(step) || (step === 5 && isSubmitting)}
-                className={`px-6 py-3 rounded-lg font-semibold transition-colors ${
-                  !isStepValid(step) || (step === 5 && isSubmitting)
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
-              </button>
-            </div>
-          )}
+            {/* Navigation Buttons */}
+            {step < 6 && (
+              <div className="flex justify-between mt-10 gap-4">
+                <button
+                  onClick={handleBack}
+                  disabled={step === 1}
+                  className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 ${
+                    step === 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 hover:from-gray-300 hover:to-gray-400 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  Back
+                </button>
+                <button
+                  onClick={step === 5 ? handleSubmit : handleNext}
+                  disabled={!isStepValid(step) || (step === 5 && isSubmitting)}
+                  className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 ${
+                    !isStepValid(step) || (step === 5 && isSubmitting)
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-sm text-gray-600">
-          <div className="flex items-center justify-center space-x-4 mb-2">
-            <a href="#" className="flex items-center hover:text-gray-800">
-              <Phone size={16} className="mr-1" />
-              (555) 123-4567
+        {/* Enhanced Footer */}
+        <div className="text-center mt-10 text-sm">
+          <div className="flex items-center justify-center space-x-6 mb-3">
+            <a href="tel:555-123-4567" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors duration-200 group">
+              <div className="p-2 bg-blue-100 rounded-lg mr-2 group-hover:bg-blue-200 transition-colors">
+                <Phone size={14} className="text-blue-600" />
+              </div>
+              <span className="font-medium">(555) 123-4567</span>
             </a>
-            <span>•</span>
-            <a href="#" className="flex items-center hover:text-gray-800">
-              <MapPin size={16} className="mr-1" />
-              123 Main St, City, ST 12345
+            <a href="#" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors duration-200 group">
+              <div className="p-2 bg-blue-100 rounded-lg mr-2 group-hover:bg-blue-200 transition-colors">
+                <MapPin size={14} className="text-blue-600" />
+              </div>
+              <span className="font-medium">123 Main St, City, ST 12345</span>
             </a>
           </div>
-          <p>© 2024 Martinez Auto Detail. All rights reserved.</p>
+          <p className="text-gray-500">© 2024 Martinez Auto Detail. All rights reserved.</p>
         </div>
       </div>
     </div>

@@ -57,13 +57,18 @@ const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-      <div className="flex flex-col lg:flex-row gap-4">
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 relative overflow-hidden">
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-100/30 pointer-events-none"></div>
+      
+      <div className="relative flex flex-col lg:flex-row gap-6">
         {/* Date Picker Section */}
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-3">
-            <Calendar className="text-gray-500" size={20} />
-            <span className="text-sm font-medium text-gray-700">Date Filter</span>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Calendar className="text-blue-600" size={18} />
+            </div>
+            <span className="text-sm font-semibold text-gray-800">Date Filter</span>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-2">
@@ -74,10 +79,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   onDateChange(addDays(selectedDate, -1));
                   onDateFilterTypeChange?.('custom');
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
                 aria-label="Previous day"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={20} className="group-hover:text-blue-600 transition-colors" />
               </button>
               
               <div className="relative">
@@ -88,7 +93,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     handleDateInputChange(e);
                     onDateFilterTypeChange?.('custom');
                   }}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  className="px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer bg-gray-50 hover:bg-white transition-all duration-200"
                 />
               </div>
               
@@ -97,10 +102,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   onDateChange(addDays(selectedDate, 1));
                   onDateFilterTypeChange?.('custom');
                 }}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-blue-50 rounded-lg transition-all duration-200 group"
                 aria-label="Next day"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={20} className="group-hover:text-blue-600 transition-colors" />
               </button>
             </div>
 
@@ -110,10 +115,10 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => {
                   onDateFilterTypeChange?.('all');
                 }}
-                className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
                   dateFilterType === 'all'
-                    ? 'bg-purple-500 text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-105' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 }`}
               >
                 All Bookings
@@ -122,32 +127,23 @@ const FilterBar: React.FC<FilterBarProps> = ({
                 onClick={() => {
                   onDateFilterTypeChange?.('week');
                 }}
-                className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
                   dateFilterType === 'week'
-                    ? 'bg-green-500 text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-105' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 }`}
               >
                 This Week
               </button>
               <button
                 onClick={() => {
-                  onDateChange(addDays(new Date(), -1));
-                  onDateFilterTypeChange?.('custom');
-                }}
-                className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              >
-                Yesterday
-              </button>
-              <button
-                onClick={() => {
                   onDateChange(new Date());
                   onDateFilterTypeChange?.('today');
                 }}
-                className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                className={`px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${
                   dateFilterType === 'today'
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md transform scale-105' 
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                 }`}
               >
                 Today
@@ -157,7 +153,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   onDateChange(addDays(new Date(), 1));
                   onDateFilterTypeChange?.('custom');
                 }}
-                className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                className="px-4 py-2.5 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-200"
               >
                 Tomorrow
               </button>
@@ -180,25 +176,27 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
         {/* Search Section */}
         <div className="lg:w-80">
-          <div className="flex items-center gap-2 mb-3">
-            <Search className="text-gray-500" size={20} />
-            <span className="text-sm font-medium text-gray-700">Search</span>
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Search className="text-purple-600" size={18} />
+            </div>
+            <span className="text-sm font-semibold text-gray-800">Search</span>
           </div>
           
-          <div className="relative">
+          <div className="relative group">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Search by name or phone..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-10 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50 hover:bg-white transition-all duration-200"
             />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-purple-500 transition-colors" size={18} />
             
             {searchQuery && (
               <button
                 onClick={() => onSearchChange('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-all duration-200"
               >
                 ✕
               </button>

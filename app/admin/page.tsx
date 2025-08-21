@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useBookings, useUpdateBookingStatus, useCancelBooking, useRefreshBookings } from '@/hooks/useBookings';
 import { useBookingFilters } from '@/hooks/useBookingFilters';
-import { FilterType } from '@/types/booking';
-import StatsCards from '@/components/admin/StatsCards';
 import FilterBar, { DateFilterType } from '@/components/admin/FilterBar';
 import GroupedBookingList from '@/components/admin/GroupedBookingList';
 import LoadingSkeleton from '@/components/admin/LoadingSkeleton';
@@ -16,17 +14,16 @@ export default function AdminDashboard() {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [dateFilterType, setDateFilterType] = useState<DateFilterType>('all');
-	const [activeStatFilter, setActiveStatFilter] = useState<FilterType>('all');
 
 	const { bookings, loading: isLoading, error } = useBookings();
 	const updateBookingStatus = useUpdateBookingStatus();
 	const cancelBooking = useCancelBooking();
 	const refreshBookings = useRefreshBookings();
 
-	const { filteredBookings, bookingStats, filterDescription } = useBookingFilters({
+	const { filteredBookings, filterDescription } = useBookingFilters({
 		bookings: bookings || [],
 		selectedDate,
-		activeStatFilter,
+		activeStatFilter: 'all',
 		searchQuery,
 		dateFilterType,
 	});
@@ -66,13 +63,6 @@ export default function AdminDashboard() {
 		}
 	};
 
-	const handleStatFilterChange = (filter: FilterType) => {
-		setActiveStatFilter(filter);
-		// Reset search when changing stat filter
-		if (filter !== activeStatFilter) {
-			setSearchQuery('');
-		}
-	};
 
 	if (error) {
 		return (
@@ -87,24 +77,35 @@ export default function AdminDashboard() {
 	}
 
 	return (
-		<div>
-			{/* Header */}
-			<div className="mb-8">
-				<div className="flex justify-between items-center mb-2">
-					<h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-					<button
-						onClick={handleRefresh}
-						disabled={isRefreshing}
-						className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-						<RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
-						{isRefreshing ? 'Refreshing...' : 'Refresh'}
-					</button>
+		<div className="min-h-screen">
+			{/* Enhanced Header with Gradient */}
+			<div className="relative mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 shadow-lg">
+				<div className="relative z-10">
+					<div className="flex justify-between items-start">
+						<div>
+							<h1 className="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
+							<p className="text-blue-100 text-lg">Manage your car wash appointments</p>
+							<div className="mt-4 text-sm text-blue-200">
+								{new Date().toLocaleDateString('en-US', { 
+									weekday: 'long', 
+									year: 'numeric', 
+									month: 'long', 
+									day: 'numeric' 
+								})}
+							</div>
+						</div>
+						<button
+							onClick={handleRefresh}
+							disabled={isRefreshing}
+							className="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-white/20">
+							<RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+							{isRefreshing ? 'Refreshing...' : 'Refresh'}
+						</button>
+					</div>
 				</div>
-				<p className="text-gray-600">Manage your car wash appointments</p>
+				{/* Decorative pattern */}
+				<div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
 			</div>
-
-			{/* Stats Cards */}
-			<StatsCards stats={bookingStats} activeFilter={activeStatFilter} onFilterChange={handleStatFilterChange} isLoading={isLoading} />
 
 			{/* Filter Bar */}
 			<FilterBar
@@ -119,14 +120,13 @@ export default function AdminDashboard() {
 			{/* Filter Description */}
 			<div className="mb-4 flex justify-between items-center">
 				<p className="text-sm text-gray-600">{filterDescription}</p>
-				{(activeStatFilter !== 'all' || searchQuery) && (
+				{searchQuery && (
 					<button
 						onClick={() => {
-							setActiveStatFilter('all');
 							setSearchQuery('');
 						}}
 						className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-						Clear all filters
+						Clear search
 					</button>
 				)}
 			</div>
@@ -139,10 +139,9 @@ export default function AdminDashboard() {
 			) : (
 				<EmptyState
 					searchQuery={searchQuery}
-					activeFilter={activeStatFilter}
+					activeFilter={'all'}
 					selectedDate={selectedDate}
 					onClearFilters={() => {
-						setActiveStatFilter('all');
 						setSearchQuery('');
 					}}
 				/>
