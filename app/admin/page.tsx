@@ -23,7 +23,6 @@ export default function AdminDashboard() {
 	const { filteredBookings, filterDescription } = useBookingFilters({
 		bookings: bookings || [],
 		selectedDate,
-		activeStatFilter: 'all',
 		searchQuery,
 		dateFilterType,
 	});
