@@ -54,9 +54,9 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
             <div
               key={service.key}
               onClick={() => setFormData({...formData, serviceType: service.key})}
-              className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl ${
+              className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
                 isSelected
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-xl scale-[1.02]'
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-[1.02]'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-300'
               }`}
             >
@@ -103,8 +103,8 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
                 onClick={() => setFormData({...formData, vehicleType: vehicle.key})}
                 className={`p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-105 relative ${
                   isSelected
-                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-50 shadow-lg'
-                    : 'border-gray-200 hover:border-blue-300 bg-white hover:shadow-md'
+                    ? 'border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-blue-50'
+                    : 'border-2 border-gray-200 hover:border-blue-300 bg-white'
                 }`}
               >
                 <div className={`font-bold ${isSelected ? 'text-blue-700' : 'text-gray-700'}`}>
@@ -128,7 +128,7 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
 
       {/* Summary */}
       {formData.serviceType && formData.vehicleType && (
-        <div className="mt-8 p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-xl">
+        <div className="mt-8 p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl">
           <div className="flex justify-between items-center text-white">
             <span className="text-blue-100">Estimated Duration:</span>
             <span className="font-bold text-lg">{formatDuration(duration)}</span>

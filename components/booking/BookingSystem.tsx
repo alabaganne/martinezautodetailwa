@@ -70,7 +70,7 @@ const BookingSystem: React.FC = () => {
         {step < 6 && <ProgressBar currentStep={step} totalSteps={5} />}
 
         {/* Main Card */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-100">
+        <div className="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-gray-200 p-8 md:p-10">
           <CurrentStep
             formData={formData}
             setFormData={setFormData}
@@ -93,7 +93,7 @@ const BookingSystem: React.FC = () => {
                 className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 ${
                   step === 1
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 hover:from-gray-300 hover:to-gray-400 shadow-lg'
+                    : 'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700 hover:from-gray-300 hover:to-gray-400'
                 }`}
               >
                 Back
@@ -104,7 +104,7 @@ const BookingSystem: React.FC = () => {
                 className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 ${
                   !isStepValid() || (step === 5 && isSubmitting)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg'
+                    : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
                 }`}
               >
                 {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}

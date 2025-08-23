@@ -61,7 +61,7 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       </div>
 
       {/* Info Box */}
-      <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200/50 shadow-lg">
+      <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200/50">
         <h3 className="font-bold text-blue-800 mb-3 flex items-center">
           <div className="p-2 bg-blue-100 rounded-lg mr-2">
             <Check className="w-4 h-4 text-blue-600" />

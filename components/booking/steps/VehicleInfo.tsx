@@ -72,8 +72,8 @@ const VehicleInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
                   onClick={() => setFormData({...formData, vehicleCondition: option.value as 'normal' | 'very-dirty'})}
                   className={`p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] ${
                     isSelected
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg border-blue-500'
-                      : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-md'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-2 border-transparent'
+                      : 'bg-white border-2 border-gray-200 hover:border-blue-300'
                   }`}
                 >
                   <div className={`font-bold ${isSelected ? 'text-white' : 'text-gray-700'}`}>
@@ -87,7 +87,7 @@ const VehicleInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
             })}
           </div>
           {formData.vehicleCondition === 'very-dirty' && (
-            <div className="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 shadow-sm">
+            <div className="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200">
               <p className="text-sm text-amber-800 font-medium flex items-start">
                 <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                 Very dirty vehicles may require additional time and will incur an extra charge of 50 TND
@@ -109,7 +109,7 @@ const VehicleInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       </div>
 
       {/* Info Box */}
-      <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200/50 shadow-lg">
+      <div className="mt-8 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200/50">
         <h3 className="font-bold text-blue-800 mb-3 flex items-center">
           <div className="p-2 bg-blue-100 rounded-lg mr-2">
             <Car className="w-4 h-4 text-blue-600" />

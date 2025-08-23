@@ -42,8 +42,8 @@ const ProgressBar = ({ currentStep, totalSteps = 5 }) => {
                 <div className={`
                   w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all duration-300 z-10 transform
                   ${isActive ? 'scale-110 ring-4 ring-blue-200 ring-offset-2' : ''}
-                  ${isCompleted ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg' : ''}
-                  ${isActive ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-xl' : ''}
+                  ${isCompleted ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-2 border-transparent' : ''}
+                  ${isActive ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-2 border-transparent' : ''}
                   ${isPending ? 'bg-gray-200 text-gray-500 group-hover:bg-gray-300' : ''}
                 `}>
                   {isCompleted ? (

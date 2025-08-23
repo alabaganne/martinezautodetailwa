@@ -175,8 +175,8 @@ export const FormRadioGroup: React.FC<FormRadioGroupProps> = ({
             key={option.value}
             className={`relative flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
               value === option.value
-                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
-                : 'bg-white border-2 border-gray-200 hover:border-blue-300 hover:shadow-md'
+                ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-2 border-transparent'
+                : 'bg-white border-2 border-gray-200 hover:border-blue-300'
             }`}
           >
             <input

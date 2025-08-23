@@ -105,7 +105,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
 
         {/* Total Estimate */}
         <div className="relative overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 shadow-2xl">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 border-2 border-transparent">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
             <div className="relative">
               <div className="flex justify-between items-start mb-4">
@@ -141,7 +141,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
         </div>
 
         {/* Drop-off Instructions */}
-        <div className="bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200/50 shadow-md">
+        <div className="bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200/50">
           <h4 className="font-bold text-lg bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
             Drop-off Instructions
           </h4>

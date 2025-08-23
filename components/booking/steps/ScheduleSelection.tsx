@@ -61,7 +61,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       </h2>
       
       {/* Calendar */}
-      <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
+      <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-6">
         {/* Navigation */}
         <div className="flex items-center justify-between mb-6">
           <button 
@@ -145,7 +145,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       {/* Time Selection */}
       {formData.appointmentDate && selectedDateSlots && (
         <div className="mt-6 animate-fadeIn">
-          <div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/30 rounded-2xl shadow-xl border border-gray-100 p-6">
+          <div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/30 rounded-2xl border-2 border-gray-200 p-6">
             <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
               {new Date(formData.appointmentDate).toLocaleDateString('en-US', { 
                 weekday: 'long', 
@@ -167,7 +167,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       )}
       
       {/* Info Box */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200/50 shadow-lg mt-6">
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200/50 mt-6">
         <h3 className="font-bold text-lg bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent mb-4">
           Important Information
         </h3>

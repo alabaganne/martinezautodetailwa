@@ -29,7 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64 relative">
         {/* Top bar */}
-        <div className="sticky top-0 z-30 flex items-center h-16 px-6 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+        <div className="sticky top-0 z-30 flex items-center h-16 px-6 bg-white/80 backdrop-blur-md border-b-2 border-gray-200/50">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-lg transition-all duration-200"
@@ -40,7 +40,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex-1" />
           <div className="flex items-center space-x-4">
             <span className="text-sm font-medium text-gray-700">Admin</span>
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full shadow-md" />
+            <div className="w-9 h-9 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-2 border-blue-300" />
           </div>
         </div>
         
