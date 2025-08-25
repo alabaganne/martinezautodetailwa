@@ -52,12 +52,19 @@ export interface BookingFormData {
   customerName: string;
   email: string;
   phone: string;
+  customerId?: string;
   
   // Vehicle Info
   vehicleYear: string;
   vehicleMake: string;
   vehicleModel: string;
   vehicleColor?: string;
+  
+  // Payment Info
+  paymentToken?: string;
+  verificationToken?: string;
+  paymentAmount?: number;
+  paymentId?: string;
   
   // Additional
   notes?: string;

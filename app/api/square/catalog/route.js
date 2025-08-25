@@ -15,10 +15,13 @@ export async function GET(request) {
     const types = searchParams.get('types');
     const cursor = searchParams.get('cursor');
     
-    const response = await catalogApi.list(
-      cursor || undefined,
-      types || undefined
-    );
+    const response = await catalogApi.list({
+      cursor: cursor || undefined,
+      types: types || undefined,
+      includeDeletedObjects: false,
+    });
+
+    console.log('Catalog API response:', response);
     
     return successResponse(response.result || response);
   } catch (error) {

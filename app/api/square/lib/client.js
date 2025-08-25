@@ -32,6 +32,14 @@ export const locationsApi = client.locations;
 export const paymentsApi = client.payments;
 export const teamMembersApi = client.teamMembers;
 
+const { locations } = await locationsApi.list();
+if (!locations || locations.length === 0) {
+  console.error('⚠️ No locations found in your Square account. Please create a location in the Square Dashboard.');
+  process.exit(1);
+}
+
+export const locationId = locations[0].id;
+
 // Export the full client if needed
 export default client;
 

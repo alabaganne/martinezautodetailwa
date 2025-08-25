@@ -7,10 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "init:catalog": "node scripts/init-square-catalog.js",
-    "init:catalog:clean": "node scripts/init-square-catalog.js --clean",
-    "init:team": "node scripts/init-square-team.js create",
-    "init:all": "node scripts/init-square-catalog.js && node scripts/init-square-team.js",
+    "view:catalog": "node scripts/view-catalog.js",
+    "view:team": "node scripts/view-team.js",
     "seed:bookings": "node scripts/seed-bookings.js create",
     "list:bookings": "node scripts/seed-bookings.js list"
   },
@@ -24,6 +22,7 @@
     "postcss": "^8.5.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-square-web-payments-sdk": "^3.2.4-beta.1",
     "square": "^43.0.1",
     "tailwindcss": "^4.1.12"
   },

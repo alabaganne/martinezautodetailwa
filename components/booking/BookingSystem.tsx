@@ -1,14 +1,16 @@
 'use client'
 
 import React from 'react';
-import { Phone, MapPin } from 'lucide-react';
 import { useBooking } from '@/hooks/useBooking';
 import ProgressBar from '@/components/common/ProgressBar';
+import BookingHeader from './BookingHeader';
+import BookingFooter from './BookingFooter';
 import ServiceSelection from './steps/ServiceSelection';
 import ScheduleSelection from './steps/ScheduleSelection';
 import CustomerInfo from './steps/CustomerInfo';
 import VehicleInfo from './steps/VehicleInfo';
 import ReviewConfirm from './steps/ReviewConfirm';
+import PaymentInfo from './steps/PaymentInfo';
 import Confirmation from './steps/Confirmation';
 
 const STEPS = [
@@ -16,7 +18,8 @@ const STEPS = [
   { Component: ScheduleSelection, name: 'Schedule', props: { isActive: true } },
   { Component: CustomerInfo, name: 'Contact' },
   { Component: VehicleInfo, name: 'Vehicle' },
-  { Component: ReviewConfirm, name: 'Confirm' },
+  { Component: ReviewConfirm, name: 'Review' },
+  { Component: PaymentInfo, name: 'Payment' },
   { Component: Confirmation, name: 'Complete' }
 ];
 
@@ -57,17 +60,10 @@ const BookingSystem: React.FC = () => {
       </div>
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 via-blue-600 to-blue-700 bg-clip-text text-transparent mb-3">
-            Martinez Auto Detail
-          </h1>
-          <div className="h-1 w-32 mx-auto bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mb-4" />
-          <p className="text-gray-700 text-lg font-medium">Professional Car Detailing Services</p>
-        </div>
+        <BookingHeader />
 
         {/* Progress Bar */}
-        {step < 6 && <ProgressBar currentStep={step} totalSteps={5} />}
+        {step < 7 && <ProgressBar currentStep={step} totalSteps={6} />}
 
         {/* Main Card */}
         <div className="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-gray-200 p-8 md:p-10">
@@ -85,7 +81,7 @@ const BookingSystem: React.FC = () => {
           />
 
           {/* Navigation Buttons */}
-          {step < 6 && (
+          {step < 7 && (
             <div className="flex justify-between mt-10 gap-4">
               <button
                 onClick={goBack}
@@ -99,38 +95,22 @@ const BookingSystem: React.FC = () => {
                 Back
               </button>
               <button
-                onClick={step === 5 ? handleSubmit : goNext}
-                disabled={!isStepValid() || (step === 5 && isSubmitting)}
+                onClick={step === 6 ? handleSubmit : goNext}
+                disabled={!isStepValid() || (step === 6 && isSubmitting)}
                 className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 ${
-                  !isStepValid() || (step === 5 && isSubmitting)
+                  !isStepValid() || (step === 6 && isSubmitting)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
                 }`}
               >
-                {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
+                {step === 6 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 
+                 step === 5 ? 'Continue to Payment' : 'Next'}
               </button>
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-10 text-sm">
-          <div className="flex items-center justify-center space-x-6 mb-3">
-            <a href="tel:555-123-4567" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors group">
-              <div className="p-2 bg-blue-100 rounded-lg mr-2 group-hover:bg-blue-200">
-                <Phone size={14} className="text-blue-600" />
-              </div>
-              <span className="font-medium">(555) 123-4567</span>
-            </a>
-            <a href="#" className="flex items-center text-gray-600 hover:text-blue-600 transition-colors group">
-              <div className="p-2 bg-blue-100 rounded-lg mr-2 group-hover:bg-blue-200">
-                <MapPin size={14} className="text-blue-600" />
-              </div>
-              <span className="font-medium">123 Main St, City, ST 12345</span>
-            </a>
-          </div>
-          <p className="text-gray-500">© 2024 Martinez Auto Detail. All rights reserved.</p>
-        </div>
+        <BookingFooter />
       </div>
     </div>
   );

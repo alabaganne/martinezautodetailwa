@@ -7,7 +7,6 @@ const { SquareClient } = require('square');
 
 const client = new SquareClient({
   token: process.env.SQUARE_ACCESS_TOKEN,
-  userAgentDetail: 'car-wash-app',
 });
 ```
 
@@ -103,25 +102,18 @@ const response = await client.teamMembers.search({
 const teamMembers = response.teamMembers || [];
 ```
 
+### Payment Flow
+1. Customer fills booking details
+2. Reviews booking summary
+3. Enters payment information (new step)
+4. Payment token generated via Web SDK
+5. Payment authorized (not captured)
+6. Booking created with payment reference
+7. Confirmation shown with payment status
+
 ## Implementation Checklist
 
-- [ ] Set up Square SDK authentication
-- [ ] Create catalog (categories, items, variations)
-- [ ] Implement customer management
-- [ ] Set up team members
-- [ ] Create booking flow
-- [ ] Add payment capture with Web Payments SDK
+- [x] Create booking flow
+- [x] Add payment capture with Web Payments SDK
 - [ ] Implement cancellation/refund logic
-- [ ] Create API routes at `/app/api/square/`
 - [ ] Add error handling and idempotency
-
-## Pricing Logic
-
-```javascript
-const basePrices = { interior: 120, exterior: 100, full: 200 }; // USD
-const multipliers = { small: 1.0, truck: 1.2, minivan: 1.3 };
-const veryDirtyExtra = 50; // USD
-
-const finalPrice = (basePrices[service] * multipliers[vehicle]) + (isVeryDirty ? veryDirtyExtra : 0);
-const priceInCents = BigInt(finalPrice * 100);
-```
