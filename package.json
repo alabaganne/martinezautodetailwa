@@ -9,8 +9,8 @@
     "lint": "next lint",
     "view:catalog": "node scripts/view-catalog.js",
     "view:team": "node scripts/view-team.js",
-    "seed:bookings": "node scripts/seed-bookings.js create",
-    "list:bookings": "node scripts/seed-bookings.js list"
+    "view:bookings": "node scripts/seed-bookings.js list",
+    "seed:bookings": "node scripts/seed-bookings.js create"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.12",

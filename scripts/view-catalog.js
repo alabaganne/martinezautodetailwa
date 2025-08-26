@@ -24,9 +24,6 @@ let environment = accessToken.startsWith('EAAA')
   ? SquareEnvironment.Sandbox 
   : SquareEnvironment.Production;
 
-accessToken = 'EAAAl7xq0Hh3Qj-5YGPND-_DrN8XqN5g9kqv8J00oHa5IVcoD9ogwuOqzSBdA3ih';
-environment = SquareEnvironment.Production;
-
 const client = new SquareClient({
   token: accessToken,
   environment,
