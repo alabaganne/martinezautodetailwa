@@ -57,7 +57,7 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
   const fetchCatalog = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/square/catalog?types=ITEM');
+      const response = await fetch('/api/catalog?types=ITEM');
       const data = await response.json();
       
       if (data.success) {

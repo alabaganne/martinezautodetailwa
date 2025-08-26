@@ -2,7 +2,7 @@ import { paymentsApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
- * POST /api/square/payments
+ * POST /api/payments
  * Create a payment with optional verification
  * 
  * Request body should include:
@@ -76,7 +76,7 @@ export async function POST(request) {
 }
 
 /**
- * GET /api/square/payments
+ * GET /api/payments
  * List payments
  * 
  * Query parameters:

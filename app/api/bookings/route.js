@@ -1,8 +1,9 @@
+import { getTeamMemberId } from '../lib/availability';
 import { bookingsApi, locationId, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
- * GET /api/square/bookings
+ * GET /api/bookings
  * List bookings
  *
  * Query parameters:
@@ -18,10 +19,15 @@ export async function GET(request) {
 
 		const limit = searchParams.get('limit');
 		const cursor = searchParams.get('cursor');
+		const locationIdParam = searchParams.get('location_id');
 
 		// Note: The bookings.list method parameters may vary based on SDK version
 		// Adjust as needed based on your Square SDK version
-		const response = await bookingsApi.list(limit ? parseInt(limit) : undefined, cursor, undefined, locationId, new Date().toISOString());
+		const response = await bookingsApi.list({
+			limit: limit ? parseInt(limit) : undefined,
+			cursor: cursor || undefined,
+			locationId: locationIdParam || locationId
+		});
 
 		return successResponse(response.data || response);
 	} catch (error) {
@@ -40,17 +46,42 @@ export async function GET(request) {
 }
 
 /**
- * POST /api/square/bookings
+ * POST /api/bookings
  * Create a new booking
+ * Required fields in the request body:
+ * - customerId: ID of the customer
+ * - startAt: Start time of the booking in ISO 8601 format
+ * - appointmentSegments: Array of appointment segments (exactly one required)
+ *  - Each segment must include serviceVariationId
+ * Optional fields:
+ * - customerNote: Note from the customer
+ * - teamMemberId: ID of the team member (if not provided, a random active team member will be assigned)
+ * If payment ID is provided, it will be added to the booking metadata
  */
 export async function POST(request) {
 	try {
 		const body = await request.json();
 
 		const { customerId, customerNote, appointmentSegments, startAt } = body;
-		if (!customerId || !startAt || !appointmentSegments || appointmentSegments.length !== 1 || !appointmentSegments[0].serviceVariationId) {
+		if (!customerId || !startAt) {
 			return new Response(
-				JSON.stringify({ error: 'customerId, startAt, and at least one appointment segment with serviceVariationId are required' }),
+				JSON.stringify({ error: 'customerId, startAt, and at least one appointment segment are required' }),
+				{
+					status: 400,
+					headers: { 'Content-Type': 'application/json' },
+				}
+			);
+		}
+		
+		// Extract day, month, and year from startAt
+		const startDate = new Date(startAt);
+		const day = startDate.getDate();
+		const month = startDate.getMonth() + 1; // getMonth() returns 0-11, so we add 1
+		const year = startDate.getFullYear();
+		
+		if (!appointmentSegments || appointmentSegments.length !== 1 || !appointmentSegments[0].serviceVariationId) {
+			return new Response(
+				JSON.stringify({ error: 'Exactly one appointment segment with serviceVariationId is required' }),
 				{
 					status: 400,
 					headers: { 'Content-Type': 'application/json' },
@@ -62,36 +93,28 @@ export async function POST(request) {
 
 		// Assign a random team member to appointment segment if none provided
 		if (!appointmentSegment.teamMemberId) {
-			const { teamMembers } = await teamMembersApi.search({
-				query: {
-					filter: {
-						status: 'ACTIVE',
-					},
-					limit: 1,
-				},
-			});
-
-			if (!teamMembers || teamMembers.length == 0) {
-				return new Response(JSON.stringify({ error: 'No active team members found. Please add a team member in Square Dashboard.' }), {
-					status: 400,
-					headers: { 'Content-Type': 'application/json' },
-				});
-			}
-
-			const teamMember = teamMembers[0];
-			appointmentSegment.teamMemberId = teamMember.id;
+			appointmentSegment.teamMemberId = await getTeamMemberId();
 		}
 
 		// If payment ID is provided, add it to the booking metadata
 		const bookingData = {
 			locationId,
 			customerId,
-			startAt,
+			startAt: startDate.toISOString(),
 			customerNote: customerNote || '',
-			appointmentSegments,
+			appointmentSegments: [
+				{
+					...appointmentSegment,
+					serviceVariationVersion: BigInt(1),
+				}
+			],
 		};
 
-		const response = await bookingsApi.create(bookingData);
+		console.log('Creating booking with data:', bookingData);
+
+		const response = await bookingsApi.create({
+			booking: bookingData,
+		});
 		return successResponse(response.result || response);
 	} catch (error) {
 		return handleSquareError(error, 'Failed to create booking');

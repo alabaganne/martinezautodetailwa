@@ -2,7 +2,7 @@ import { catalogApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
- * GET /api/square/catalog
+ * GET /api/catalog
  * List catalog items directly from Square API
  * 
  * Query parameters:

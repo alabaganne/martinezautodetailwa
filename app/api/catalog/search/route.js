@@ -2,7 +2,7 @@ import client from '../../lib/client';
 import { successResponse, handleSquareError } from '../../lib/utils';
 
 /**
- * POST /api/square/catalog/search
+ * POST /api/catalog/search
  * Search catalog items with advanced filtering
  * 
  * Request body:

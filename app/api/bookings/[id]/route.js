@@ -2,7 +2,7 @@ import { bookingsApi } from '../../lib/client';
 import { successResponse, handleSquareError } from '../../lib/utils';
 
 /**
- * GET /api/square/bookings/[id]
+ * GET /api/bookings/[id]
  * Get a specific booking by ID
  */
 export async function GET(request, { params }) {
@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
 }
 
 /**
- * DELETE /api/square/bookings/[id]
+ * DELETE /api/bookings/[id]
  * Cancel a booking
  */
 export async function DELETE(request, { params }) {

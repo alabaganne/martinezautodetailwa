@@ -2,7 +2,7 @@ import { teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
- * GET /api/square/team
+ * GET /api/team
  * List team members directly from Square API
  */
 export async function GET(request) {
@@ -33,7 +33,7 @@ export async function GET(request) {
 }
 
 /**
- * POST /api/square/team/search
+ * POST /api/team/search
  * Search team members with more complex filters
  */
 export async function POST(request) {

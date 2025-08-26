@@ -26,12 +26,11 @@ export function BookingProvider({ children }) {
       thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
       
       const params = new URLSearchParams({
-        location_id: process.env.NEXT_PUBLIC_SQUARE_LOCATION_ID || 'LZ2Z250CXVH0A',
         start_at_min: today.toISOString(),
         limit: '100'
       });
 
-      const response = await fetch(`/api/square/bookings?${params}`);
+      const response = await fetch(`/api/bookings?${params}`);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -52,7 +51,7 @@ export function BookingProvider({ children }) {
 
   const createBooking = useCallback(async (bookingData) => {
     try {
-      const response = await fetch('/api/square/bookings', {
+      const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +80,7 @@ export function BookingProvider({ children }) {
     try {
       // For ACCEPTED status, we just update the UI since Square doesn't have an accept method
       // For DECLINED, we use the PATCH method which will cancel the booking
-      const response = await fetch(`/api/square/bookings/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +113,7 @@ export function BookingProvider({ children }) {
 
   const cancelBooking = useCallback(async (bookingId, cancellationReason) => {
     try {
-      const response = await fetch(`/api/square/bookings/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

@@ -2,7 +2,7 @@ import { customersApi } from '../../lib/client';
 import { successResponse, handleSquareError } from '../../lib/utils';
 
 /**
- * GET /api/square/customers/[id]
+ * GET /api/customers/[id]
  * Get a specific customer by ID
  */
 export async function GET(request, { params }) {
@@ -26,7 +26,7 @@ export async function GET(request, { params }) {
 }
 
 /**
- * PUT /api/square/customers/[id]
+ * PUT /api/customers/[id]
  * Update a customer
  */
 export async function PUT(request, { params }) {
@@ -49,7 +49,7 @@ export async function PUT(request, { params }) {
 }
 
 /**
- * DELETE /api/square/customers/[id]
+ * DELETE /api/customers/[id]
  * Delete a customer
  */
 export async function DELETE(request, { params }) {

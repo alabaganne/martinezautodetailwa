@@ -25,7 +25,7 @@ const SquareApiTest = () => {
 
 	const fetchLocationInfo = async () => {
 		try {
-			const response = await fetch('/api/square/locations');
+			const response = await fetch('/api/locations');
 			const data = await response.json();
 			if (data.locations && data.locations.length > 0) {
 				const location = data.locations[0];

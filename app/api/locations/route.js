@@ -2,7 +2,7 @@ import { locationsApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
- * GET /api/square/locations
+ * GET /api/locations
  * List all Square locations
  */
 export async function GET() {

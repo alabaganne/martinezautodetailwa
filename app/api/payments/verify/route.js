@@ -2,7 +2,7 @@ import { paymentsApi } from '../../lib/client';
 import { successResponse, handleSquareError } from '../../lib/utils';
 
 /**
- * POST /api/square/payments/verify
+ * POST /api/payments/verify
  * Verify a payment token before processing
  * 
  * Request body should include:
@@ -84,7 +84,7 @@ export async function POST(request) {
 }
 
 /**
- * GET /api/square/payments/verify
+ * GET /api/payments/verify
  * Get payment verification status
  */
 export async function GET(request) {

@@ -78,7 +78,7 @@ export const useBooking = () => {
     try {
       // First, process the payment if token exists
       if (formData.paymentToken) {
-        const paymentResponse = await fetch('/api/square/payments', {
+        const paymentResponse = await fetch('/api/payments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

@@ -2,7 +2,7 @@ import { customersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
- * GET /api/square/customers
+ * GET /api/customers
  * List all customers
  */
 export async function GET(request) {
@@ -29,7 +29,7 @@ export async function GET(request) {
 }
 
 /**
- * POST /api/square/customers
+ * POST /api/customers
  * Create a new customer
  */
 export async function POST(request) {
@@ -43,7 +43,7 @@ export async function POST(request) {
 }
 
 /**
- * DELETE /api/square/customers
+ * DELETE /api/customers
  * Delete all customers
  * WARNING: This will permanently delete ALL customers
  */
