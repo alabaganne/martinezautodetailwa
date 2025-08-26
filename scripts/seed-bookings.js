@@ -57,19 +57,7 @@ const SERVICE_DURATIONS = {
   }
 };
 
-// Test customer names (will be determined after environment is set)
-const getTestCustomers = () => environment === SquareEnvironment.Production ? [
-  { given: 'John', family: 'Smith', email: 'john.smith@test.com', phone: '+21612345601' },
-  { given: 'Sarah', family: 'Johnson', email: 'sarah.j@test.com', phone: '+21612345602' },
-  { given: 'Michael', family: 'Brown', email: 'mbrown@test.com', phone: '+21612345603' },
-  { given: 'Emma', family: 'Davis', email: 'emma.d@test.com', phone: '+21612345604' },
-  { given: 'David', family: 'Wilson', email: 'dwilson@test.com', phone: '+21612345605' },
-  { given: 'Lisa', family: 'Garcia', email: 'lgarcia@test.com', phone: '+21612345606' },
-  { given: 'James', family: 'Martinez', email: 'jmart@test.com', phone: '+21612345607' },
-  { given: 'Maria', family: 'Anderson', email: 'manderson@test.com', phone: '+21612345608' },
-  { given: 'Robert', family: 'Taylor', email: 'rtaylor@test.com', phone: '+21612345609' },
-  { given: 'Jennifer', family: 'Thomas', email: 'jthomas@test.com', phone: '+21612345610' }
-] : [
+const getTestCustomers = () => [
   { given: 'John', family: 'Smith', email: 'john.smith@test.com', phone: '+14155551001' },
   { given: 'Sarah', family: 'Johnson', email: 'sarah.j@test.com', phone: '+14155551002' },
   { given: 'Michael', family: 'Brown', email: 'mbrown@test.com', phone: '+14155551003' },
@@ -128,8 +116,8 @@ async function getOrCreateCustomers(locationId) {
         }
       });
       
-      if (searchResponse.result?.customers?.length > 0) {
-        customers.push(searchResponse.result.customers[0]);
+      if (searchResponse.customers.length > 0) {
+        customers.push(searchResponse.customers[0]);
         console.log(`✓ Found existing customer: ${testCustomer.given} ${testCustomer.family}`);
       } else {
         // Create new customer
@@ -142,8 +130,8 @@ async function getOrCreateCustomers(locationId) {
           referenceId: `test-${testCustomer.given.toLowerCase()}-${Date.now()}`
         });
         
-        if (createResponse.result?.customer) {
-          customers.push(createResponse.result.customer);
+        if (createResponse?.customer) {
+          customers.push(createResponse.customer);
           console.log(`✓ Created customer: ${testCustomer.given} ${testCustomer.family}`);
         } else if (createResponse.customer) {
           // Sometimes the response is directly on the object
@@ -164,13 +152,14 @@ async function getOrCreateCustomers(locationId) {
 /**
  * Get team members (bay technicians)
  */
-async function getTeamMembers() {
+async function getTeamMember(locationId) {
   try {
     // Use the searchTeamMembers API
     const response = await client.teamMembers.search({
       query: {
         filter: {
-          status: 'ACTIVE'
+          status: 'ACTIVE',
+          locationIds: [locationId]
         }
       }
     });
@@ -181,12 +170,13 @@ async function getTeamMembers() {
     const teamMembers = allTeamMembers.filter(
       tm => !tm.isOwner
     );
-    
-    console.log(`✓ Found ${teamMembers.length} team member(s)`);
-    teamMembers.forEach(tm => {
-      console.log(`  - ${tm.givenName} ${tm.familyName || ''} (${tm.id})`);
-    });
-    return teamMembers;
+
+    if (teamMembers.length === 0) {
+      console.error('❌ No active team members found. Please create team members in the Square Dashboard.');
+      process.exit(1);
+    }
+  
+    return teamMembers[0];
   } catch (error) {
     console.error('Failed to get team members:', error.message);
     return [];
@@ -198,10 +188,18 @@ async function getTeamMembers() {
  */
 async function getCatalogItems() {
   try {
-    const response = await client.catalog.list('ITEM');
+    const response = await client.catalog.search({
+      objectTypes: ['ITEM'],
+      includeDeletedObjects: false,
+    });
     
-    const items = response.data || [];
+    let items = response.objects || [];
+    
+    // Filter out items with no category
+    items = items.filter(item => item.itemData?.categories);
+
     console.log(`Found ${items.length} catalog items`);
+
     
     // Organize by category and service type
     const catalog = {};
@@ -209,7 +207,7 @@ async function getCatalogItems() {
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       const name = item.itemData?.name.toUpperCase() || '';
-      const variations = item.itemData?.variations || [];
+      const variations = item.itemData.variations || [];
       
       // Parse name to get vehicle type and service type
       let vehicleType = null;
@@ -238,7 +236,6 @@ async function getCatalogItems() {
             price: v.itemVariationData?.priceMoney?.amount || 0
           }))
         };
-        console.log(`  Added: ${vehicleType} - ${serviceType}`);
       }
     }
     
@@ -318,13 +315,12 @@ function generateBookingSchedule() {
 /**
  * Create bookings in Square
  */
-async function createBookings(schedule, customers, teamMembers, catalog, locationId) {
+async function createBookings(schedule, customers, teamMember, catalog, locationId) {
   const createdBookings = [];
   
   for (const booking of schedule) {
     try {
       const customer = customers[booking.customerIndex];
-      const teamMember = teamMembers[booking.bayNumber - 1] || null;
       const catalogItem = catalog[booking.vehicleType]?.[booking.serviceType];
       
       if (!customer || !catalogItem) {
@@ -350,7 +346,7 @@ async function createBookings(schedule, customers, teamMembers, catalog, locatio
               durationMinutes: booking.duration,
               teamMemberId: teamMember.id,
               serviceVariationId: catalogItem.variations[0]?.id,
-              serviceVariationVersion: BigInt(Date.now())
+              serviceVariationVersion: BigInt(1599775456731)
             }
           ]
         },
@@ -364,7 +360,7 @@ async function createBookings(schedule, customers, teamMembers, catalog, locatio
         console.log(`✓ Created booking: ${booking.date.toDateString()} ${booking.dropOffTime} - ${customer.givenName} ${customer.familyName} - ${booking.vehicleType} ${booking.serviceType}`);
       }
     } catch (error) {
-      console.error(`Failed to create booking:`, error.message);
+      console.error(`Failed to create booking:`, error);
     }
   }
   
@@ -453,14 +449,14 @@ program
     try {
       const locationId = await getLocationId();
       const catalog = await getCatalogItems();
-      const teamMembers = await getTeamMembers(locationId);
+      const teamMember = await getTeamMember(locationId);
       const customers = await getOrCreateCustomers(locationId);
       
       console.log('\n📅 Generating booking schedule...\n');
       const schedule = generateBookingSchedule();
       
       console.log(`Creating ${schedule.length} bookings...\n`);
-      const createdBookings = await createBookings(schedule, customers, teamMembers, catalog, locationId);
+      const createdBookings = await createBookings(schedule, customers, teamMember, catalog, locationId);
       
       console.log(`\n✅ Successfully created ${createdBookings.length} bookings!`);
     } catch (error) {

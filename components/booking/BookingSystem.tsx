@@ -62,9 +62,6 @@ const BookingSystem: React.FC = () => {
       <div className="relative z-10 max-w-3xl mx-auto px-4 py-8">
         <BookingHeader />
 
-        {/* Progress Bar */}
-        {step < 7 && <ProgressBar currentStep={step} totalSteps={6} />}
-
         {/* Main Card */}
         <div className="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-gray-200 p-8 md:p-10">
           <CurrentStep
