@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useBooking } from '@/hooks/useBooking';
-import ProgressBar from '@/components/common/ProgressBar';
 import BookingHeader from './BookingHeader';
 import BookingFooter from './BookingFooter';
 import ServiceSelection from './steps/ServiceSelection';
@@ -28,10 +27,8 @@ const BookingSystem: React.FC = () => {
     formData,
     setFormData,
     isSubmitting,
-    validationErrors,
     goNext,
     goBack,
-    updateField,
     submitBooking,
     resetForm,
     isStepValid
