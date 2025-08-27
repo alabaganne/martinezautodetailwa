@@ -10,7 +10,6 @@ import ScheduleSelection from './steps/ScheduleSelection';
 import CustomerInfo from './steps/CustomerInfo';
 import VehicleInfo from './steps/VehicleInfo';
 import ReviewConfirm from './steps/ReviewConfirm';
-import PaymentInfo from './steps/PaymentInfo';
 import Confirmation from './steps/Confirmation';
 
 const STEPS = [
@@ -19,7 +18,6 @@ const STEPS = [
   { Component: CustomerInfo, name: 'Contact' },
   { Component: VehicleInfo, name: 'Vehicle' },
   { Component: ReviewConfirm, name: 'Review' },
-  { Component: PaymentInfo, name: 'Payment' },
   { Component: Confirmation, name: 'Complete' }
 ];
 
@@ -78,7 +76,7 @@ const BookingSystem: React.FC = () => {
           />
 
           {/* Navigation Buttons */}
-          {step < 7 && (
+          {step < 6 && (
             <div className="flex justify-between mt-10 gap-4">
               <button
                 onClick={goBack}
@@ -92,16 +90,15 @@ const BookingSystem: React.FC = () => {
                 Back
               </button>
               <button
-                onClick={step === 6 ? handleSubmit : goNext}
-                disabled={!isStepValid() || (step === 6 && isSubmitting)}
+                onClick={step === 5 ? handleSubmit : goNext}
+                disabled={!isStepValid() || (step === 5 && isSubmitting)}
                 className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 ${
-                  !isStepValid() || (step === 6 && isSubmitting)
+                  !isStepValid() || (step === 5 && isSubmitting)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
                 }`}
               >
-                {step === 6 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 
-                 step === 5 ? 'Continue to Payment' : 'Next'}
+                {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
               </button>
             </div>
           )}

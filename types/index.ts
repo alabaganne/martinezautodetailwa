@@ -60,12 +60,6 @@ export interface BookingFormData {
   vehicleModel: string;
   vehicleColor?: string;
   
-  // Payment Info
-  paymentToken?: string;
-  verificationToken?: string;
-  paymentAmount?: number;
-  paymentId?: string;
-  
   // Additional
   notes?: string;
 }

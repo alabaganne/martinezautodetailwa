@@ -54,11 +54,6 @@ export const validateStep = (step: number, formData: BookingFormData): Validatio
         isValid: step1.isValid && step2.isValid && step3.isValid && step4.isValid,
         errors: { ...step1.errors, ...step2.errors, ...step3.errors, ...step4.errors }
       };
-
-    case 6: // Payment
-      // Validate that payment token is present
-      if (!formData.paymentToken) errors.paymentToken = 'Payment authorization required';
-      break;
   }
 
   return {

@@ -29,7 +29,6 @@ export const bookingsApi = client.bookings;
 export const catalogApi = client.catalog;
 export const customersApi = client.customers;
 export const locationsApi = client.locations;
-export const paymentsApi = client.payments;
 export const teamMembersApi = client.teamMembers;
 
 const { locations } = await locationsApi.list();
