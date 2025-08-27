@@ -1,160 +1,129 @@
 'use client';
 
+import { cp } from 'fs';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { CatalogObject, CatalogObjectType } from 'square/api';
 
 interface ServiceInfo {
-  name: string;
-  vehicleType: string;
-  serviceType: string;
-  duration: number;
-  basePrice: number;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  ordinal: number;
-}
-
-interface CatalogData {
-  categories: Record<string, Category>;
-  simplifiedServices: Record<string, ServiceInfo>;
+	name: string;
+	vehicleType: string;
+	serviceType: string;
+	duration: number;
+	basePrice: number;
 }
 
 interface CatalogContextType {
-  catalog: CatalogData | null;
-  loading: boolean;
-  error: string | null;
-  calculatePrice: (vehicleType: string, serviceType: string, isVeryDirty?: boolean) => number;
-  getServiceDuration: (vehicleType: string, serviceType: string) => number;
-  formatDuration: (minutes: number) => string;
-  refreshCatalog: () => void;
+	catalog: CatalogObject[] | null;
+	loading: boolean;
+	error: string | null;
+	calculatePrice: (vehicleType: string, serviceType: string, isVeryDirty?: boolean) => number;
+	getServiceDuration: (vehicleType: string, serviceType: string) => number;
+	formatDuration: (minutes: number) => string;
+	refreshCatalog: () => void;
 }
 
 const CatalogContext = createContext<CatalogContextType | undefined>(undefined);
 
 export function useCatalog() {
-  const context = useContext(CatalogContext);
-  if (!context) {
-    throw new Error('useCatalog must be used within a CatalogProvider');
-  }
-  return context;
+	const context = useContext(CatalogContext);
+	if (!context) {
+		throw new Error('useCatalog must be used within a CatalogProvider');
+	}
+	return context;
 }
 
 interface CatalogProviderProps {
-  children: ReactNode;
+	children: ReactNode;
 }
 
 export function CatalogProvider({ children }: CatalogProviderProps) {
-  const [catalog, setCatalog] = useState<CatalogData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [catalog, setCatalog] = useState<CatalogObject[] | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCatalog();
-  }, []);
+	const [service, setService] = useState<ServiceInfo | null>(null);
 
-  const fetchCatalog = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/catalog?types=ITEM');
-      const data = await response.json();
-      
-      if (data.success) {
-        setCatalog(data.data);
-      } else {
-        setCatalog(getDefaultCatalog());
-        setError('Using offline catalog data');
-      }
-    } catch (err) {
-      console.error('Failed to fetch catalog:', err);
-      setError('Failed to load catalog');
-      setCatalog(getDefaultCatalog());
-    } finally {
-      setLoading(false);
-    }
-  };
+	useEffect(() => {
+		fetchCatalog();
+	}, []);
 
-  const getService = (vehicleType: string, serviceType: string): ServiceInfo | null => {
-    if (!catalog) return null;
-    const key = `${vehicleType}_${serviceType}`;
-    return catalog.simplifiedServices?.[key] || null;
-  };
+	const fetchCatalog = async () => {
+		try {
+			setLoading(true);
+			const response = await fetch('/api/catalog?types=ITEM');
+			const data = await response.json();
 
-  const calculatePrice = (vehicleType: string, serviceType: string, isVeryDirty = false): number => {
-    const service = getService(vehicleType, serviceType);
-    
-    if (!service) {
-      // Fallback pricing from Square API defaults
-      const basePrices: Record<string, number> = {
-        interior: 120,
-        exterior: 100,
-        full: 200
-      };
-      const multipliers: Record<string, number> = {
-        small: 1.0,
-        truck: 1.2,
-        minivan: 1.3
-      };
-      const basePrice = basePrices[serviceType] || 150;
-      const multiplier = multipliers[vehicleType] || 1.0;
-      const extra = isVeryDirty ? 50 : 0;
-      return Math.round((basePrice * multiplier) + extra);
-    }
-    
-    const basePrice = service.basePrice || 150;
-    const extra = isVeryDirty ? 50 : 0;
-    return basePrice + extra;
-  };
+			if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+				setCatalog(data.data);
+			} else {
+				setError('Using offline catalog data');
+			}
+		} catch (err) {
+			console.error('Failed to fetch catalog:', err);
+			setError('Failed to load catalog');
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const getServiceDuration = (vehicleType: string, serviceType: string): number => {
-    const service = getService(vehicleType, serviceType);
-    return service?.duration || 240;
-  };
+	const getService = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false): ServiceInfo | null => {
+		if (!catalog) return null;
 
-  const formatDuration = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    if (mins === 0) {
-      return `${hours}h`;
-    }
-    return `${hours}h ${mins}m`;
-  };
+		for (let i = 0; i < catalog.length; i++) {
+			const item: any = catalog[i];
+			const { itemData } = item;
+			const { name, variations } = itemData;
+			const lowerCaseName = name.toLowerCase();
 
-  const value: CatalogContextType = {
-    catalog,
-    loading,
-    error,
-    calculatePrice,
-    getServiceDuration,
-    formatDuration,
-    refreshCatalog: fetchCatalog
-  };
+			if (lowerCaseName.includes(vehicleType) && lowerCaseName.includes(serviceType)) {
+				const { itemVariationData } = variations[isVeryDirty ? 1 : 0];
 
-  return (
-    <CatalogContext.Provider value={value}>
-      {children}
-    </CatalogContext.Provider>
-  );
-}
+				return {
+					name: item.name,
+					vehicleType,
+					serviceType,
+					duration: itemVariationData.serviceDuration,
+					basePrice: itemVariationData.priceMoney.amount / 100,
+				};
+			}
+		}
 
-function getDefaultCatalog(): CatalogData {
-  return {
-    categories: {
-      'SMALL': { id: 'SMALL', name: 'Small Car', ordinal: 0 },
-      'TRUCK': { id: 'TRUCK', name: 'Truck', ordinal: 1 },
-      'MINIVAN': { id: 'MINIVAN', name: 'Minivan', ordinal: 2 }
-    },
-    simplifiedServices: {
-      'small_interior': { name: 'Interior Only', vehicleType: 'small', serviceType: 'interior', duration: 210, basePrice: 120 },
-      'small_exterior': { name: 'Exterior Only', vehicleType: 'small', serviceType: 'exterior', duration: 180, basePrice: 100 },
-      'small_full': { name: 'Full Detail', vehicleType: 'small', serviceType: 'full', duration: 240, basePrice: 200 },
-      'truck_interior': { name: 'Interior Only', vehicleType: 'truck', serviceType: 'interior', duration: 270, basePrice: 144 },
-      'truck_exterior': { name: 'Exterior Only', vehicleType: 'truck', serviceType: 'exterior', duration: 210, basePrice: 120 },
-      'truck_full': { name: 'Full Detail', vehicleType: 'truck', serviceType: 'full', duration: 300, basePrice: 240 },
-      'minivan_interior': { name: 'Interior Only', vehicleType: 'minivan', serviceType: 'interior', duration: 300, basePrice: 156 },
-      'minivan_exterior': { name: 'Exterior Only', vehicleType: 'minivan', serviceType: 'exterior', duration: 210, basePrice: 130 },
-      'minivan_full': { name: 'Full Detail', vehicleType: 'minivan', serviceType: 'full', duration: 330, basePrice: 260 }
-    }
-  };
+		return null;
+	};
+
+	const handleSelectService = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false) => {
+		const foundService = getService(vehicleType, serviceType, isVeryDirty);
+		setService(foundService || null);
+	};
+
+	const calculatePrice = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false): number => {
+		const service = getService(vehicleType, serviceType, isVeryDirty);
+		return service ? service.basePrice : null;
+	};
+
+	const getServiceDuration = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false): number => {
+		const service = getService(vehicleType, serviceType, isVeryDirty);
+		return service ? service.duration : 0;
+	};
+
+	const formatDuration = (minutes: number): string => {
+		const hours = Math.floor(minutes / 60);
+		const mins = minutes % 60;
+		if (mins === 0) {
+			return `${hours}h`;
+		}
+		return `${hours}h ${mins}m`;
+	};
+
+	const value: CatalogContextType = {
+		catalog,
+		loading,
+		error,
+		calculatePrice,
+		getServiceDuration,
+		formatDuration,
+		refreshCatalog: fetchCatalog,
+	};
+
+	return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;
 }

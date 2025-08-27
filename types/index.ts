@@ -11,9 +11,8 @@ export interface SquareBooking {
 
 export interface AppointmentSegment {
   durationMinutes: number;
-  teamMemberId?: string;
-  serviceVariationId?: string;
-  serviceVariationVersion?: bigint;
+  serviceVariationId: string;
+  serviceVariationVersion?: bigint; // Will be set on server
 }
 
 export interface SquareCustomer {
@@ -51,7 +50,7 @@ export interface BookingFormData {
   // Customer Info
   customerName: string;
   email: string;
-  phone: string;
+  phone?: string;
   customerId?: string;
   
   // Vehicle Info

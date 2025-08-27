@@ -47,7 +47,7 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
       {/* Service Cards */}
       <div className="grid gap-5">
         {SERVICES.map(service => {
-          const basePrice = calculatePrice(formData.vehicleType || 'small', service.key, false);
+          const basePrice = calculatePrice('small', service.key, false);
           const isSelected = formData.serviceType === service.key;
           
           return (
