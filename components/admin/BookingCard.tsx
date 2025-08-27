@@ -131,7 +131,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
           <div className="flex items-center justify-between mb-3">
             <div className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border shadow-sm ${getStatusColor(booking.status)}`}>
               {getStatusIcon(booking.status)}
-              <span>{booking.status.replace(/_/g, ' ')}</span>
+              <span>{booking.status.replace(/_/g, ' ').split(' ')[0]}</span>
             </div>
             <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">#{booking.id.slice(-6)}</span>
           </div>

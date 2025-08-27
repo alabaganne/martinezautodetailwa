@@ -27,4 +27,8 @@
   .select-primary {
     @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white appearance-none cursor-pointer;
   }
+
+  button {
+    @apply cursor-pointer;
+  }
 }

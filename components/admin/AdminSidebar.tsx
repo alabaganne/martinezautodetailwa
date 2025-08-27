@@ -55,7 +55,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
       {/* Mobile sidebar backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-gray-900/50 bg-opacity-50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
