@@ -1,18 +1,15 @@
 export interface Customer {
-  given_name?: string;
-  family_name?: string;
-  phone_number?: string;
-  email_address?: string;
+  givenName?: string;
+  familyName?: string;
+  phoneNumber?: string;
+  emailAddress?: string;
 }
 
 export interface AppointmentSegment {
   durationMinutes?: number;
   serviceVariationId?: string;
   serviceVariationVersion?: string;
-  service_variation_client_id?: string;
   teamMemberId?: string;
-  anyTeamMember?: boolean;
-  intermissionMinutes?: number;
 }
 
 export interface Booking {

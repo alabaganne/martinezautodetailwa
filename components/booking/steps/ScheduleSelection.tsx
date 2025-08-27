@@ -29,12 +29,11 @@ const TIME_OPTIONS = [
 const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActive = false }) => {
   const {
     selectedMonth,
-    selectedDateSlots,
     navigateMonth,
     getDaysInMonth,
     getDateStatus,
     selectDate,
-    isCurrentMonthLoading
+    loading
   } = useCalendar(formData.serviceType, formData.vehicleType, isActive);
 
   if (!formData.serviceType || !formData.vehicleType) {
@@ -67,7 +66,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
           <button 
             onClick={() => navigateMonth(-1)} 
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            disabled={isCurrentMonthLoading()}
+            disabled={loading}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -76,7 +75,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             <h3 className="text-xl font-bold text-gray-800">
               {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h3>
-            {isCurrentMonthLoading() && (
+            {loading && (
               <div className="flex items-center justify-center mt-2">
                 <Loader className="animate-spin mr-2" size={16} />
                 <span className="text-sm text-gray-500">Loading availability...</span>
@@ -87,7 +86,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
           <button 
             onClick={() => navigateMonth(1)} 
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            disabled={isCurrentMonthLoading()}
+            disabled={loading}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -103,7 +102,11 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
           
           {getDaysInMonth().map((dayInfo, index) => {
             const status = dayInfo.isCurrentMonth ? getDateStatus(dayInfo.date) : 'past';
-            const isSelected = formData.appointmentDate === dayInfo.date.toISOString().split('T')[0];
+            const year = dayInfo.date.getFullYear();
+            const month = String(dayInfo.date.getMonth() + 1).padStart(2, '0');
+            const day = String(dayInfo.date.getDate()).padStart(2, '0');
+            const dateKey = `${year}-${month}-${day}`;
+            const isSelected = formData.appointmentDate === dateKey;
             
             return (
               <div
@@ -143,7 +146,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       </div>
       
       {/* Time Selection */}
-      {formData.appointmentDate && selectedDateSlots && (
+      {formData.appointmentDate && (
         <div className="mt-6 animate-fadeIn">
           <div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/30 rounded-2xl border-2 border-gray-200 p-6">
             <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
@@ -157,7 +160,6 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             <FormRadioGroup
               label="Select Your Drop-off Time"
               icon={Clock}
-              name="dropOffTime"
               value={formData.dropOffTime}
               onChange={(value) => setFormData({ ...formData, dropOffTime: value })}
               options={TIME_OPTIONS}

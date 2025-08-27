@@ -10,13 +10,17 @@ interface ServiceInfo {
 	serviceType: string;
 	duration: number;
 	basePrice: number;
+	serviceVariationId: string;
 }
 
 interface CatalogContextType {
 	catalog: CatalogObject[] | null;
 	loading: boolean;
 	error: string | null;
+	selectedService: ServiceInfo | null;
+	setSelectedService: (service: ServiceInfo | null) => void;
 	calculatePrice: (vehicleType: string, serviceType: string, isVeryDirty?: boolean) => number;
+  getService: (vehicleType: string, serviceType: string, isVeryDirty?: boolean) => ServiceInfo;
 	getServiceDuration: (vehicleType: string, serviceType: string) => number;
 	formatDuration: (minutes: number) => string;
 	refreshCatalog: () => void;
@@ -40,8 +44,7 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 	const [catalog, setCatalog] = useState<CatalogObject[] | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-
-	const [service, setService] = useState<ServiceInfo | null>(null);
+	const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
 
 	useEffect(() => {
 		fetchCatalog();
@@ -76,24 +79,21 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 			const lowerCaseName = name.toLowerCase();
 
 			if (lowerCaseName.includes(vehicleType) && lowerCaseName.includes(serviceType)) {
-				const { itemVariationData } = variations[isVeryDirty ? 1 : 0];
+				const variation = variations[isVeryDirty ? 1 : 0];
+				const { itemVariationData } = variation;
 
 				return {
-					name: item.name,
+					name: itemData.name,
 					vehicleType,
 					serviceType,
 					duration: itemVariationData.serviceDuration,
 					basePrice: itemVariationData.priceMoney.amount / 100,
+					serviceVariationId: variation.id,
 				};
 			}
 		}
 
 		return null;
-	};
-
-	const handleSelectService = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false) => {
-		const foundService = getService(vehicleType, serviceType, isVeryDirty);
-		setService(foundService || null);
 	};
 
 	const calculatePrice = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false): number => {
@@ -119,7 +119,10 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 		catalog,
 		loading,
 		error,
+		selectedService,
+		setSelectedService,
 		calculatePrice,
+    getService,
 		getServiceDuration,
 		formatDuration,
 		refreshCatalog: fetchCatalog,

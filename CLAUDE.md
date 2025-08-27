@@ -111,9 +111,6 @@ const teamMembers = response.teamMembers || [];
 6. Booking created with payment reference
 7. Confirmation shown with payment status
 
-## Implementation Checklist
 
-- [x] Create booking flow
-- [x] Add payment capture with Web Payments SDK
-- [ ] Implement cancellation/refund logic
-- [ ] Add error handling and idempotency
+# To memorize
+- remember to keep things simple and not to do anything i didn't type it for you to do.

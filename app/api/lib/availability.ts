@@ -1,3 +1,4 @@
+import { Availability } from 'square/api';
 import { bookingsApi, locationId, teamMembersApi } from './client';
 
 /**
@@ -29,15 +30,9 @@ export async function getTeamMemberId() {
  * @param month - The month (1-indexed, 1-12)
  * @param serviceVariationId - The service variation ID
  * @param day - Optional day of the month (1-31). If not provided, searches entire month
- * @returns Array of available booking slots
+ * @returns Object with dates as keys and boolean availability as values
  */
-export async function searchAvailability(
-	year: number,
-	month: number,
-	serviceVariationId: string,
-	day?: number
-) {
-
+export async function searchAvailability(year: number, month: number, serviceVariationId: string, day?: number): Promise<Record<string, object>> {
 	if (month < 1 || month > 12) {
 		throw new Error('Month must be between 1 and 12');
 	}
@@ -47,11 +42,11 @@ export async function searchAvailability(
 
 	// Month is 1-indexed from the caller, JavaScript Date uses 0-indexed months
 	const monthIndex = month - 1;
-	
+
 	const today = new Date();
 	let startAt: Date;
 	let endAt: Date;
-	
+
 	if (day) {
 		// Search for specific day
 		startAt = new Date(year, monthIndex, day, 0, 0, 0);
@@ -61,16 +56,16 @@ export async function searchAvailability(
 		startAt = new Date(year, monthIndex, 1);
 		endAt = new Date(year, monthIndex + 1, 1);
 	}
-	
+
 	// Start date cannot be in the past
 	if (startAt < today) {
 		startAt = new Date(today);
 		// If searching for a specific day and it's in the past, return empty
 		if (day && endAt <= today) {
-			return [];
+			return {};
 		}
 	}
-	
+
 	const response = await bookingsApi.searchAvailability({
 		query: {
 			filter: {
@@ -87,6 +82,22 @@ export async function searchAvailability(
 			},
 		},
 	});
-	
-	return response.availabilities || [];
+
+	const availabilities: Availability[] = response.availabilities || [];
+
+	// Sort availabilities by startAt time
+	availabilities.sort((a, b) => {
+		return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+	});
+
+	// Create a date availability map
+	const dateAvailabilityMap: Record<string, object> = {};
+
+	availabilities.forEach((slot: any) => {
+		const dateKey = slot.startAt.split('T')[0];
+		if (!dateAvailabilityMap[dateKey])
+			dateAvailabilityMap[dateKey] = slot;
+	});
+
+	return dateAvailabilityMap;
 }

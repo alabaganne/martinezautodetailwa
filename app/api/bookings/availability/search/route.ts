@@ -14,16 +14,16 @@ export async function GET(request: NextRequest) {
 	}
 
 	try {
-		const availabilities = await searchAvailability(
+		const availability = await searchAvailability(
 			parseInt(year),
 			parseInt(month),
 			serviceVariationId,
 			day ? parseInt(day) : undefined
 		);
 
-		console.log('Fetched availabilities:', availabilities);
+		console.log('Fetched availability:', availability);
 
-		return successResponse({ availabilities });
+		return successResponse(availability);
 	} catch (err) {
 		return handleSquareError(err, 'Error fetching availability');
 	}

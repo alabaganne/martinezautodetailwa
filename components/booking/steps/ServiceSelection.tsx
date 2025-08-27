@@ -19,7 +19,7 @@ const VEHICLES = [
 ];
 
 const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
-  const { calculatePrice, getServiceDuration, formatDuration, loading } = useCatalog();
+  const { calculatePrice, getService, getServiceDuration, formatDuration, loading, setSelectedService } = useCatalog();
   
   const estimatedPrice = formData.serviceType && formData.vehicleType 
     ? calculatePrice(formData.vehicleType, formData.serviceType, formData.vehicleCondition === 'very-dirty')
@@ -53,7 +53,13 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
           return (
             <div
               key={service.key}
-              onClick={() => setFormData({...formData, serviceType: service.key})}
+              onClick={() => {
+                setFormData({...formData, serviceType: service.key});
+                if (formData.vehicleType) {
+                  const serviceInfo = getService(formData.vehicleType, service.key, formData.vehicleCondition === 'very-dirty');
+                  setSelectedService(serviceInfo);
+                }
+              }}
               className={`relative p-6 rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
                 isSelected
                   ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white scale-[1.02]'
@@ -100,7 +106,13 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
             return (
               <button
                 key={vehicle.key}
-                onClick={() => setFormData({...formData, vehicleType: vehicle.key})}
+                onClick={() => {
+                  setFormData({...formData, vehicleType: vehicle.key});
+                  if (formData.serviceType) {
+                    const serviceInfo = getService(vehicle.key, formData.serviceType, formData.vehicleCondition === 'very-dirty');
+                    setSelectedService(serviceInfo);
+                  }
+                }}
                 className={`p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-105 relative ${
                   isSelected
                     ? 'border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-blue-50'
