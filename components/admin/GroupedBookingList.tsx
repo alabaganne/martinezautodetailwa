@@ -110,12 +110,14 @@ const GroupedBookingList: React.FC<GroupedBookingListProps> = React.memo(({
               gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))'
             }}>
               {dayBookings.map((booking) => (
-                <BookingCard
-                  key={booking.id}
-                  booking={booking}
-                  onStatusUpdate={onStatusUpdate}
-                  onCancel={onCancel}
-                />
+                <div>
+                  <BookingCard
+                    key={booking.id}
+                    booking={booking}
+                    onStatusUpdate={onStatusUpdate}
+                    onCancel={onCancel}
+                  />
+                </div>
               ))}
             </div>
           </div>

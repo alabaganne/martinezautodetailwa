@@ -68,14 +68,6 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
     }
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    });
-  };
-
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -131,14 +123,12 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
 
   return (
     <>
-      <div className="bg-white rounded-xl border-2 border-gray-200 hover:border-gray-400 hover:scale-[1.02] transition-all duration-300 p-5 flex flex-col h-full relative overflow-hidden group">
-        {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-blue-100/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+      <div className="bg-white rounded-xl border-2 border-gray-100 hover:border-gray-300 hover:scale-[1.02] transition-all duration-300 p-5 flex flex-col relative overflow-hidden group">
         
         <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
         <div className="mb-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between">
             <div className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border ${getStatusColor(booking.status)}`}>
               {getStatusIcon(booking.status)}
               <span>{booking.status.replace(/_/g, ' ').split(' ')[0]}</span>
@@ -175,18 +165,16 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
         <div className="border-t border-gray-200 pt-4 mt-auto">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
-              <Clock size={14} className="text-gray-400" />
-              <span className="text-sm font-semibold text-gray-700">{formatTime(booking.startAt)}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
               <Car size={14} className="text-gray-400" />
               <span className="text-xs text-gray-600">{formatDuration(getTotalDuration())}</span>
             </div>
           </div>
 
           {booking.customerNote && (
-            <div className="p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg text-xs text-blue-800 mb-3 border border-blue-200">
-              <span className="font-semibold">Note:</span> {booking.customerNote}
+            <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-800 mb-3 border border-gray-200">
+              {booking.customerNote.split('|').map(note => (
+                <div>{note}</div>
+              ))}
             </div>
           )}
 

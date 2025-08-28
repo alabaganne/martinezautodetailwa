@@ -27,7 +27,7 @@ export async function GET(request) {
 		const response = await bookingsApi.list({
 			limit: limit ? parseInt(limit) : undefined,
 			cursor: cursor || undefined,
-			locationId: locationIdParam || locationId
+			locationId: locationIdParam || locationId,
 		});
 
 		return successResponse(response.data || response);
@@ -77,13 +77,10 @@ export async function POST(request) {
 
 		const { email, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear } = body;
 		if (!email || !startAt || !serviceVariationId) {
-			return new Response(
-				JSON.stringify({ error: 'customerId, startAt, and serviceVariationid are required' }),
-				{
-					status: 400,
-					headers: { 'Content-Type': 'application/json' },
-				}
-			);
+			return new Response(JSON.stringify({ error: 'customerId, startAt, and serviceVariationid are required' }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' },
+			});
 		}
 
 		const customer = await findOrCreateCustomer(email);
@@ -92,13 +89,21 @@ export async function POST(request) {
 			locationId,
 			customerId: customer.id,
 			startAt,
-			customerNote: [dropOffTime, vehicleMake, vehicleModel, vehicleMake, vehicleYear, vehicleColor, notes].join(' | ') || '',
+			customerNote:
+				[
+					`Drop-off Time: ${dropOffTime}`,
+					`Make: ${vehicleMake}`,
+					`Model: ${vehicleModel}`,
+					`Year: ${vehicleYear}`,
+					`Color: ${vehicleColor}`,
+					`Notes: ${notes}`,
+				].join(' | ') || '',
 			appointmentSegments: [
 				{
 					teamMemberId: await getTeamMemberId(),
 					serviceVariationId,
 					serviceVariationVersion: BigInt(1),
-				}
+				},
 			],
 		};
 
@@ -111,17 +116,16 @@ export async function POST(request) {
 	}
 }
 
-
 async function findOrCreateCustomer(email: string): Promise<Customer> {
 	const response = await customersApi.search({
 		query: {
 			filter: {
 				emailAddress: {
-					exact: email
-				}
+					exact: email,
+				},
 			},
 		},
-		limit: BigInt('1')
+		limit: BigInt('1'),
 	});
 
 	const { customers, errors } = response;
@@ -137,7 +141,7 @@ async function findOrCreateCustomer(email: string): Promise<Customer> {
 
 	// Create customer
 	const { customer, errors: createCustomerErrors } = await customersApi.create({
-		emailAddress: email
+		emailAddress: email,
 	});
 
 	if (createCustomerErrors) {
