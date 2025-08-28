@@ -25,7 +25,7 @@ export async function GET(request) {
 		// Note: The bookings.list method parameters may vary based on SDK version
 		// Adjust as needed based on your Square SDK version
 		const response = await bookingsApi.list({
-			limit: limit ? parseInt(limit) : undefined,
+			limit: limit ? parseInt(limit) : 100,
 			cursor: cursor || undefined,
 			locationId: locationIdParam || locationId,
 		});
@@ -91,8 +91,18 @@ export async function POST(request) {
 		const year = startDate.getFullYear();
 
 		const availability = await searchAvailability(serviceVariationId, year, month, day);
+		console.log('availability', availability);
+		
+		const availableSlots = Object.values(availability);
+		if (availableSlots.length === 0) {
+			return new Response(JSON.stringify({ error: 'No available slots for the selected date and service' }), {
+				status: 400,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+		
 		console.log('startAt Before', startAt);
-		startAt = Object.values(availability)[0].startAt;
+		startAt = availableSlots[0].startAt;
 		console.log('startAt After', startAt);
 
 		const customer = await findOrCreateCustomer(email);

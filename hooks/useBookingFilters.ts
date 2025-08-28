@@ -50,9 +50,9 @@ export const useBookingFilters = ({ bookings, selectedDate, searchQuery, dateFil
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase();
 			filtered = filtered.filter((booking) => {
-				const customerName = `${booking.customer?.given_name || ''} ${booking.customer?.family_name || ''}`.toLowerCase();
-				const phone = booking.customer?.phone_number?.toLowerCase() || '';
-				const email = booking.customer?.email_address?.toLowerCase() || '';
+				const customerName = `${booking.customer?.givenName || ''} ${booking.customer?.familyName || ''}`.toLowerCase();
+				const phone = booking.customer?.phone?.toLowerCase() || '';
+				const email = booking.customer?.email?.toLowerCase() || '';
 				const bookingId = booking.id.toLowerCase();
 
 				return customerName.includes(query) || phone.includes(query) || email.includes(query) || bookingId.includes(query);
