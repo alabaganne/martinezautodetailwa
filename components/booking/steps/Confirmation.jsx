@@ -16,6 +16,15 @@ const Confirmation = ({ formData, setFormData, setStep }) => {
         </div>
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Booking Confirmed!</h2>
         <p className="text-gray-600">We've sent a confirmation email to {formData.email || 'your email'}</p>
+        {formData.startAt && (
+          <p className="text-gray-700 mt-2 font-medium">
+            Appointment Date: {new Date(formData.startAt).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </p>
+        )}
       </div>
 
       <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">

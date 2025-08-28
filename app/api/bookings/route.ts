@@ -75,7 +75,7 @@ export async function POST(request) {
 	try {
 		const body: CreateBookingRequest = await request.json();
 
-		const { email, notes, startAt, serviceVariationId } = body;
+		const { email, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear } = body;
 		if (!email || !startAt || !serviceVariationId) {
 			return new Response(
 				JSON.stringify({ error: 'customerId, startAt, and serviceVariationid are required' }),
@@ -92,10 +92,11 @@ export async function POST(request) {
 			locationId,
 			customerId: customer.id,
 			startAt,
-			customerNote: notes || '',
+			customerNote: [dropOffTime, vehicleMake, vehicleModel, vehicleMake, vehicleYear, vehicleColor, notes].join(' | ') || '',
 			appointmentSegments: [
 				{
 					teamMemberId: await getTeamMemberId(),
+					serviceVariationId,
 					serviceVariationVersion: BigInt(1),
 				}
 			],
@@ -112,7 +113,7 @@ export async function POST(request) {
 
 
 async function findOrCreateCustomer(email: string): Promise<Customer> {
-	const { customers } = await customersApi.search({
+	const response = await customersApi.search({
 		query: {
 			filter: {
 				emailAddress: {
@@ -123,14 +124,26 @@ async function findOrCreateCustomer(email: string): Promise<Customer> {
 		limit: BigInt('1')
 	});
 
-	if (customers.length > 0) {
+	const { customers, errors } = response;
+
+	if (errors) {
+		console.error('Failed to find customer with email', errors);
+		return null;
+	}
+
+	if (customers && customers.length > 0) {
 		return customers[0];
 	}
 
 	// Create customer
-	const { customer } = await customersApi.create({
+	const { customer, errors: createCustomerErrors } = await customersApi.create({
 		emailAddress: email
 	});
+
+	if (createCustomerErrors) {
+		console.log('Failed to create a new customer', createCustomerErrors);
+		return null;
+	}
 
 	return customer;
 }
