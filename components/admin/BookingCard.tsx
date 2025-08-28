@@ -172,8 +172,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
 
           {booking.customerNote && (
             <div className="p-3 bg-gray-50 rounded-lg text-xs text-gray-800 mb-3 border border-gray-200">
-              {booking.customerNote.split('|').map(note => (
-                <div>{note}</div>
+              {booking.customerNote.split('|').map((note, index) => (
+                <div key={index}>{note}</div>
               ))}
             </div>
           )}

@@ -1,5 +1,5 @@
-import { Customer } from 'square/api';
-import { getTeamMemberId } from '../lib/availability';
+import { Customer, Availability } from 'square/api';
+import { getTeamMemberId, searchAvailability } from '../lib/availability';
 import { bookingsApi, customersApi, locationId, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
@@ -75,13 +75,25 @@ export async function POST(request) {
 	try {
 		const body: CreateBookingRequest = await request.json();
 
-		const { email, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear } = body;
+		console.log('Create booking request body', body);
+
+		let { email, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear } = body;
 		if (!email || !startAt || !serviceVariationId) {
 			return new Response(JSON.stringify({ error: 'customerId, startAt, and serviceVariationid are required' }), {
 				status: 400,
 				headers: { 'Content-Type': 'application/json' },
 			});
 		}
+
+		const startDate = new Date(startAt);
+		const day = startDate.getDate();
+		const month = startDate.getMonth() + 1;
+		const year = startDate.getFullYear();
+
+		const availability = await searchAvailability(serviceVariationId, year, month, day);
+		console.log('startAt Before', startAt);
+		startAt = Object.values(availability)[0].startAt;
+		console.log('startAt After', startAt);
 
 		const customer = await findOrCreateCustomer(email);
 

@@ -46,9 +46,9 @@ const Confirmation = ({ formData, setFormData, setStep }) => {
       </div>
 
       <div className="space-y-3">
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+        {/* <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
           Add to Calendar
-        </button>
+        </button> */}
         <button 
           onClick={handleNewBooking}
           className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"

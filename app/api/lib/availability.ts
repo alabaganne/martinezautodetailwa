@@ -32,7 +32,7 @@ export async function getTeamMemberId() {
  * @param day - Optional day of the month (1-31). If not provided, searches entire month
  * @returns Object with dates as keys and boolean availability as values
  */
-export async function searchAvailability(year: number, month: number, serviceVariationId: string, day?: number): Promise<Record<string, object>> {
+export async function searchAvailability(serviceVariationId: string, year: number, month: number, day?: number): Promise<Record<string, object>> {
 	if (month < 1 || month > 12) {
 		throw new Error('Month must be between 1 and 12');
 	}

@@ -15,9 +15,9 @@ export async function GET(request: NextRequest) {
 
 	try {
 		const availability = await searchAvailability(
+			serviceVariationId,
 			parseInt(year),
 			parseInt(month),
-			serviceVariationId,
 			day ? parseInt(day) : undefined
 		);
 

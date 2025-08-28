@@ -58,7 +58,7 @@ export default function AdminDashboard() {
 		return (
 			<div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
 				<h2 className="text-red-800 text-lg font-semibold mb-2">Error Loading Bookings</h2>
-				<p className="text-red-600">{error instanceof Error ? error.message : 'An unexpected error occurred'}</p>
+				<p className="text-red-600">{error && 'An unexpected error occurred'}</p>
 				<button onClick={handleRefresh} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
 					Try Again
 				</button>
