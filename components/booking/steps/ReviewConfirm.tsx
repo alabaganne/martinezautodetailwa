@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { BookingFormData } from '@/contexts/BookingContext';
+import { AlertBox } from '@/components/common/AlertBox';
 
 interface StepProps {
   formData: BookingFormData;
@@ -17,6 +18,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
   const { formatDuration, selectedService } = useCatalog();
   
   const estimatedPrice = selectedService ? selectedService.price : 0;
+  const noShowFee = estimatedPrice * 0.35;
   const duration = selectedService ? formatDuration(selectedService.duration) : 'N/A';
 
   return (
@@ -93,6 +95,32 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           </div>
         </div>
 
+        {/* Card on File Information */}
+        <div className="p-4 bg-gray-50 rounded-lg">
+          <h3 className="font-semibold mb-3">Card on File</h3>
+          <div className="space-y-2 text-sm">
+            {formData.cardBrand && formData.cardLastFour ? (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Card:</span>
+                <span className="font-medium">{formData.cardBrand} ending in {formData.cardLastFour}</span>
+              </div>
+            ) : (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Status:</span>
+                <span className="font-medium">Card information saved</span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-gray-600">Purpose:</span>
+              <span className="font-medium text-amber-600">No-show protection only</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Payment:</span>
+              <span className="font-medium text-green-600">Pay in store after service</span>
+            </div>
+          </div>
+        </div>
+
         {/* Total Estimate */}
         <div className="relative overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 border-2 border-transparent">
@@ -100,7 +128,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             <div className="relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium mb-1">Total Estimate</p>
+                  <p className="text-blue-100 text-sm font-medium mb-1">Service Total (Pay in Store)</p>
                   <div className="flex items-baseline">
                     <span className="text-4xl font-bold text-white">
                       {displayPrice(estimatedPrice)}
@@ -119,7 +147,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
                     <svg className="w-5 h-5 text-blue-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-blue-100">Payment collected after service</p>
+                    <p className="text-sm text-blue-100">Payment due in store after service</p>
                   </div>
                   <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white">
                     Cash or Card
@@ -129,6 +157,13 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             </div>
           </div>
         </div>
+
+        {/* No-Show Policy Reminder */}
+        <AlertBox
+          variant="warning"
+          title="No-Show Policy"
+          message={`If you miss your appointment without notice, a ${displayPrice(noShowFee)} fee (35% of service) will be charged to your card on file.`}
+        />
 
         {/* Drop-off Instructions */}
         <div className="bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200/50">

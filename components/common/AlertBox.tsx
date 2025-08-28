@@ -3,6 +3,7 @@ import { Check, AlertCircle, XCircle } from 'lucide-react';
 
 interface AlertBoxProps {
   variant: 'success' | 'warning' | 'error';
+  title?: string;
   message: string;
   icon?: React.ReactNode;
 }
@@ -25,16 +26,19 @@ const variantStyles = {
   }
 };
 
-export const AlertBox: React.FC<AlertBoxProps> = ({ variant, message, icon }) => {
+export const AlertBox: React.FC<AlertBoxProps> = ({ variant, title, message, icon }) => {
   const styles = variantStyles[variant];
   const displayIcon = icon || styles.defaultIcon;
 
   return (
     <div className={`mt-4 p-4 rounded-xl border ${styles.container}`}>
-      <p className={`text-sm font-medium flex items-start ${styles.text}`}>
+      <div className={`flex items-start ${styles.text}`}>
         {displayIcon}
-        {message}
-      </p>
+        <div className="text-sm">
+          {title && <p className="font-semibold">{title}</p>}
+          <p className={title ? 'mt-1' : 'font-medium'}>{message}</p>
+        </div>
+      </div>
     </div>
   );
 };

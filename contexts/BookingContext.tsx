@@ -14,6 +14,9 @@ export interface BookingFormData {
   vehicleColor?: string;
   notes?: string;
   serviceVariationId: string;
+  paymentToken?: string;
+  cardLastFour?: string;
+  cardBrand?: string;
 }
 
 export interface ValidationResult {
@@ -56,7 +59,10 @@ const initialFormData: BookingFormData = {
   vehicleModel: '',
   vehicleColor: '',
   notes: '',
-  serviceVariationId: ''
+  serviceVariationId: '',
+  paymentToken: '',
+  cardLastFour: '',
+  cardBrand: ''
 };
 
 interface BookingProviderProps {
@@ -88,7 +94,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
       // Update formData based on current step before moving to next
       // This ensures formData contains necessary booking data
       
-      if (step < 5) {
+      if (step < 6) {
         setStep(step + 1);
         setValidationErrors({});
       }

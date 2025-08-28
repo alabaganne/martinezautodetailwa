@@ -8,6 +8,7 @@ import ServiceSelection from './steps/ServiceSelection';
 import ScheduleSelection from './steps/ScheduleSelection';
 import CustomerInfo from './steps/CustomerInfo';
 import VehicleInfo from './steps/VehicleInfo';
+import Payment from './steps/Payment';
 import ReviewConfirm from './steps/ReviewConfirm';
 import Confirmation from './steps/Confirmation';
 
@@ -16,6 +17,7 @@ const STEPS = [
   { Component: ScheduleSelection, name: 'Schedule', props: { isActive: true } },
   { Component: CustomerInfo, name: 'Contact' },
   { Component: VehicleInfo, name: 'Vehicle' },
+  { Component: Payment, name: 'Card on File' },
   { Component: ReviewConfirm, name: 'Review' },
   { Component: Confirmation, name: 'Complete' }
 ];
@@ -73,7 +75,7 @@ const BookingSystem: React.FC = () => {
           />
 
           {/* Navigation Buttons */}
-          {step < 6 && (
+          {step < 7 && (
             <div className="flex justify-between mt-10 gap-4">
               <button
                 onClick={goBack}
@@ -87,15 +89,15 @@ const BookingSystem: React.FC = () => {
                 Back
               </button>
               <button
-                onClick={step === 5 ? handleSubmit : goNext}
-                disabled={!isStepValid() || (step === 5 && isSubmitting)}
+                onClick={step === 6 ? handleSubmit : goNext}
+                disabled={!isStepValid() || (step === 6 && isSubmitting)}
                 className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 ${
-                  !isStepValid() || (step === 5 && isSubmitting)
+                  !isStepValid() || (step === 6 && isSubmitting)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                     : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
                 }`}
               >
-                {step === 5 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
+                {step === 6 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}
               </button>
             </div>
           )}

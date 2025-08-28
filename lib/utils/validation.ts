@@ -34,16 +34,21 @@ export const validateStep = (step: number, formData: BookingFormData): Validatio
       if (!formData.vehicleModel?.trim()) errors.vehicleModel = 'Vehicle model is required';
       break;
 
-    case 5: // Review
+    case 5: // Payment
+      if (!formData.paymentToken) errors.paymentToken = 'Please provide payment information';
+      break;
+
+    case 6: // Review
       // Validate all previous steps
       const step1 = validateStep(1, formData);
       const step2 = validateStep(2, formData);
       const step3 = validateStep(3, formData);
       const step4 = validateStep(4, formData);
+      const step5 = validateStep(5, formData);
       
       return {
-        isValid: step1.isValid && step2.isValid && step3.isValid && step4.isValid,
-        errors: { ...step1.errors, ...step2.errors, ...step3.errors, ...step4.errors }
+        isValid: step1.isValid && step2.isValid && step3.isValid && step4.isValid && step5.isValid,
+        errors: { ...step1.errors, ...step2.errors, ...step3.errors, ...step4.errors, ...step5.errors }
       };
   }
 
