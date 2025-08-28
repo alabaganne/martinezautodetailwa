@@ -1,5 +1,6 @@
+import { Customer } from 'square/api';
 import { getTeamMemberId } from '../lib/availability';
-import { bookingsApi, locationId, teamMembersApi } from '../lib/client';
+import { bookingsApi, customersApi, locationId, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
@@ -58,30 +59,26 @@ export async function GET(request) {
  * - teamMemberId: ID of the team member (if not provided, a random active team member will be assigned)
  * If payment ID is provided, it will be added to the booking metadata
  */
+interface CreateBookingRequest {
+	dropOffTime: string;
+	notes: string;
+	email: string; // customer email
+	serviceVariationId: string;
+	startAt: string;
+	vehicleColor: string;
+	vehicleMake: string;
+	vehicleModel: string;
+	vehicleYear: string;
+}
+
 export async function POST(request) {
 	try {
-		const body = await request.json();
+		const body: CreateBookingRequest = await request.json();
 
-		const { customerId, customerNote, appointmentSegments, startAt } = body;
-		if (!customerId || !startAt) {
+		const { email, notes, startAt, serviceVariationId } = body;
+		if (!email || !startAt || !serviceVariationId) {
 			return new Response(
-				JSON.stringify({ error: 'customerId, startAt, and at least one appointment segment are required' }),
-				{
-					status: 400,
-					headers: { 'Content-Type': 'application/json' },
-				}
-			);
-		}
-		
-		// Extract day, month, and year from startAt
-		const startDate = new Date(startAt);
-		const day = startDate.getDate();
-		const month = startDate.getMonth() + 1; // getMonth() returns 0-11, so we add 1
-		const year = startDate.getFullYear();
-		
-		if (!appointmentSegments || appointmentSegments.length !== 1 || !appointmentSegments[0].serviceVariationId) {
-			return new Response(
-				JSON.stringify({ error: 'Exactly one appointment segment with serviceVariationId is required' }),
+				JSON.stringify({ error: 'customerId, startAt, and serviceVariationid are required' }),
 				{
 					status: 400,
 					headers: { 'Content-Type': 'application/json' },
@@ -89,34 +86,51 @@ export async function POST(request) {
 			);
 		}
 
-		const appointmentSegment = appointmentSegments[0];
+		const customer = await findOrCreateCustomer(email);
 
-		// Assign a random team member to appointment segment if none provided
-		if (!appointmentSegment.teamMemberId) {
-			appointmentSegment.teamMemberId = await getTeamMemberId();
-		}
-
-		// If payment ID is provided, add it to the booking metadata
 		const bookingData = {
 			locationId,
-			customerId,
-			startAt: startDate.toISOString(),
-			customerNote: customerNote || '',
+			customerId: customer.id,
+			startAt,
+			customerNote: notes || '',
 			appointmentSegments: [
 				{
-					...appointmentSegment,
+					teamMemberId: await getTeamMemberId(),
 					serviceVariationVersion: BigInt(1),
 				}
 			],
 		};
 
-		console.log('Creating booking with data:', bookingData);
-
 		const response = await bookingsApi.create({
 			booking: bookingData,
 		});
-		return successResponse(response.result || response);
+		return successResponse(response.booking || response);
 	} catch (error) {
 		return handleSquareError(error, 'Failed to create booking');
 	}
+}
+
+
+async function findOrCreateCustomer(email: string): Promise<Customer> {
+	const { customers } = await customersApi.search({
+		query: {
+			filter: {
+				emailAddress: {
+					exact: email
+				}
+			},
+		},
+		limit: BigInt('1')
+	});
+
+	if (customers.length > 0) {
+		return customers[0];
+	}
+
+	// Create customer
+	const { customer } = await customersApi.create({
+		emailAddress: email
+	});
+
+	return customer;
 }

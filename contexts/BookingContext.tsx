@@ -121,9 +121,12 @@ export function BookingProvider({ children }: BookingProviderProps) {
     if (!validateCurrentStep()) return;
 
     setIsSubmitting(true);
+
+    console.log('formData', formData);
+
     try {
       // Create the booking
-      const response = await fetch('/api/bookings/create', {
+      const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

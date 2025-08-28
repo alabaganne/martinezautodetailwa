@@ -39,7 +39,8 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
     getDaysInMonth,
     getDateStatus,
     selectDate,
-    loading
+    loading,
+    availability
   } = useCalendar(isActive);
 
   if (!formData.serviceVariationId) {
@@ -56,7 +57,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
     if (status === 'available') {
       const dateStr = selectDate(date);
       console.log('dateStr', dateStr);
-      setFormData({ ...formData, startAt: dateStr });
+      setFormData({ ...formData, startAt: availability[dateStr].startAt });
     }
   };
 
@@ -113,7 +114,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             const month = String(dayInfo.date.getMonth() + 1).padStart(2, '0');
             const day = String(dayInfo.date.getDate()).padStart(2, '0');
             const dateKey = `${year}-${month}-${day}`;
-            const isSelected = formData.startAt === dateKey;
+            const isSelected = formData.startAt === availability[dateKey]?.startAt;
             
             return (
               <div
@@ -186,12 +187,9 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             { title: 'Drop-off Times', desc: 'Vehicles must be given at 8 AM or the evening before' },
             { title: 'Pickup Time', desc: 'All vehicles ready at 5:00 PM' }
           ].map((info, idx) => (
-            <div key={idx} className="flex items-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mr-3" />
-              <div>
+            <div key={idx}>
                 <p className="text-gray-700 font-medium">{info.title}</p>
                 <p className="text-sm text-gray-600">{info.desc}</p>
-              </div>
             </div>
           ))}
         </div>
