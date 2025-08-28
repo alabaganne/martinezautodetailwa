@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useBookings } from '@/hooks/useBookings';
 import { Calendar, Clock, User, Car, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Booking } from '@/lib/types/admin';
+import AdminHeader from '@/components/admin/AdminHeader';
 
 interface DayInfo {
 	date: Date;
@@ -122,38 +123,13 @@ export default function CalendarPage() {
 
 	return (
 		<div className="min-h-screen">
-			{/* Enhanced Header with Gradient */}
-			<div className="relative mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 shadow-lg">
-				<div className="relative z-10">
-					<div className="flex justify-between items-start">
-						<div>
-							<h1 className="text-4xl font-bold text-white mb-2">Calendar View</h1>
-							<p className="text-blue-100 text-lg">View and manage bookings in calendar format</p>
-							<div className="mt-4 text-sm text-blue-200">
-								{new Date().toLocaleDateString('en-US', { 
-									weekday: 'long', 
-									year: 'numeric', 
-									month: 'long', 
-									day: 'numeric' 
-								})}
-							</div>
-						</div>
-						<div className="flex items-center space-x-3">
-							<button 
-								onClick={() => setSelectedDate(new Date())}
-								className="px-5 py-2.5 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 transition-all duration-200 border border-white/20 font-medium"
-							>
-								Today
-							</button>
-						</div>
-					</div>
-				</div>
-				{/* Decorative pattern */}
-				<div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
-			</div>
+			<AdminHeader 
+				title="Calendar View"
+				subtitle="View and manage bookings in calendar format"
+			/>
 
 			{/* Calendar Controls with Enhanced Styling */}
-			<div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 relative overflow-hidden">
+			<div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-6 relative overflow-hidden">
 				<div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-100/30 pointer-events-none"></div>
 				<div className="relative flex items-center justify-between">
 					<div className="flex items-center space-x-4">
@@ -184,7 +160,7 @@ export default function CalendarPage() {
 			</div>
 
 			{/* Calendar Grid with Enhanced Styling */}
-			<div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+			<div className="bg-white rounded-2xl border-2 border-gray-200 overflow-hidden">
 				<div className="grid grid-cols-7">
 					{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, idx) => (
 						<div key={day} className={`px-3 py-4 bg-gradient-to-b from-gray-50 to-gray-100 border-b border-gray-200 text-center ${idx < 6 ? 'border-r' : ''}`}>
@@ -201,7 +177,7 @@ export default function CalendarPage() {
 						return (
 							<div
 								key={index}
-								className={`min-h-[100px] p-2 border-b border-gray-200 ${index % 7 < 6 ? 'border-r' : ''} ${
+								className={`min-h-[100px] p-2 ${index < 35 ? 'border-b' : ''} border-gray-200 ${index % 7 < 6 ? 'border-r' : ''} ${
 									!isCurrentMonth ? 'bg-gray-50' : 'bg-white'
 								} ${isToday(date) ? 'bg-blue-50' : ''}`}>
 								<div className="flex justify-between items-start mb-1">
@@ -245,11 +221,11 @@ export default function CalendarPage() {
 			{/* Legend */}
 			<div className="mt-6 flex items-center space-x-6 text-sm text-gray-600">
 				<div className="flex items-center space-x-2">
-					<div className="w-4 h-4 bg-blue-50 border border-gray-300 rounded"></div>
+					<div className="w-4 h-4 bg-blue-100 rounded"></div>
 					<span>Today</span>
 				</div>
 				<div className="flex items-center space-x-2">
-					<div className="w-4 h-4 bg-blue-100 rounded"></div>
+					<div className="w-4 h-4 bg-blue-500 rounded"></div>
 					<span>Has Bookings</span>
 				</div>
 			</div>
