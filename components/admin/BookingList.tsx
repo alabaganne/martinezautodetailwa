@@ -1,6 +1,6 @@
 import React from 'react';
 import BookingCard from './BookingCard';
-import { Booking } from '@/types/booking';
+import { Booking } from '@/lib/types/admin';
 
 interface BookingListProps {
   bookings: Booking[];

@@ -1,4 +1,4 @@
-import { BookingFormData, ValidationResult } from '@/types';
+import { BookingFormData, ValidationResult } from '@/contexts/BookingContext';
 
 // Email validation regex
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -12,28 +12,19 @@ export const validateStep = (step: number, formData: BookingFormData): Validatio
 
   switch (step) {
     case 1: // Service Selection
-      if (!formData.serviceType) errors.serviceType = 'Please select a service';
-      if (!formData.vehicleType) errors.vehicleType = 'Please select vehicle type';
+      if (!formData.serviceVariationId) errors.serviceVariationId = 'Please select a service';
       break;
 
     case 2: // Schedule Selection
-      if (!formData.appointmentDate) errors.appointmentDate = 'Please select a date';
+      if (!formData.startAt) errors.startAt = 'Please select a date and time';
       if (!formData.dropOffTime) errors.dropOffTime = 'Please select drop-off time';
       break;
 
     case 3: // Customer Info
-      if (!formData.customerName?.trim()) {
-        errors.customerName = 'Name is required';
-      }
       if (!formData.email?.trim()) {
         errors.email = 'Email is required';
       } else if (!EMAIL_REGEX.test(formData.email)) {
         errors.email = 'Please enter a valid email';
-      }
-      if (!formData.phone?.trim()) {
-        errors.phone = 'Phone is required';
-      } else if (!PHONE_REGEX.test(formData.phone.replace(/\D/g, ''))) {
-        errors.phone = 'Phone must have at least 10 digits';
       }
       break;
 
@@ -80,16 +71,6 @@ export const validateField = (field: keyof BookingFormData, value: any): string 
       if (!EMAIL_REGEX.test(value)) return 'Invalid email format';
       break;
     
-    case 'phone':
-      if (!value?.trim()) return 'Phone is required';
-      const digits = value.replace(/\D/g, '');
-      if (digits.length < 10) return 'Phone must have at least 10 digits';
-      break;
-    
-    case 'customerName':
-      if (!value?.trim()) return 'Name is required';
-      break;
-    
     case 'vehicleYear':
       if (!value?.trim()) return 'Year is required';
       const year = parseInt(value);
@@ -97,6 +78,14 @@ export const validateField = (field: keyof BookingFormData, value: any): string 
       if (isNaN(year) || year < 1900 || year > currentYear + 1) {
         return 'Please enter a valid year';
       }
+      break;
+      
+    case 'vehicleMake':
+      if (!value?.trim()) return 'Make is required';
+      break;
+      
+    case 'vehicleModel':
+      if (!value?.trim()) return 'Model is required';
       break;
   }
   

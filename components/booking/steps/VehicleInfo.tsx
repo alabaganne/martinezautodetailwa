@@ -1,8 +1,14 @@
 'use client'
 
 import React from 'react';
-import { Car, Palette, FileText, AlertCircle } from 'lucide-react';
-import { StepProps } from '@/types';
+import { Car, Palette, FileText } from 'lucide-react';
+import { BookingFormData } from '@/contexts/BookingContext';
+
+interface StepProps {
+  formData: BookingFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BookingFormData>>;
+  isActive?: boolean;
+}
 import { FormInput, FormTextarea } from '@/components/common/FormComponents';
 
 const VehicleInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
@@ -51,50 +57,6 @@ const VehicleInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
           placeholder="Silver, Black, White, etc."
         />
 
-        {/* Condition */}
-        <div className="group">
-          <label className="flex items-center label-primary">
-            <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mr-2">
-              <Car className="w-4 h-4 text-blue-600" />
-            </div>
-            Vehicle Condition *
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { value: 'normal', label: 'Normal Condition', desc: 'Standard cleaning' },
-              { value: 'very-dirty', label: 'Very Dirty', desc: '+50 TND extra' }
-            ].map(option => {
-              const isSelected = formData.vehicleCondition === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setFormData({...formData, vehicleCondition: option.value as 'normal' | 'very-dirty'})}
-                  className={`p-4 rounded-xl border-2 transition-all duration-200 transform hover:scale-[1.02] ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-2 border-transparent'
-                      : 'bg-white border-2 border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                  <div className={`font-bold ${isSelected ? 'text-white' : 'text-gray-700'}`}>
-                    {option.label}
-                  </div>
-                  <div className={`text-xs mt-1 ${isSelected ? 'text-blue-100' : 'text-gray-500'}`}>
-                    {option.desc}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          {formData.vehicleCondition === 'very-dirty' && (
-            <div className="mt-4 p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-200">
-              <p className="text-sm text-amber-800 font-medium flex items-start">
-                <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
-                Very dirty vehicles may require additional time and will incur an extra charge of 50 TND
-              </p>
-            </div>
-          )}
-        </div>
 
         {/* Notes */}
         <FormTextarea

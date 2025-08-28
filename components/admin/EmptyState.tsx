@@ -1,6 +1,6 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
-import { FilterType } from '@/types/booking';
+import { FilterType } from '@/lib/types/admin';
 
 interface EmptyStateProps {
   searchQuery: string;

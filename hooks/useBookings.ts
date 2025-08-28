@@ -1,13 +1,38 @@
 'use client'
 
 import { useMemo } from 'react';
-import { useBookingContext } from '@/contexts/BookingProvider';
 
-export function useBookings(filters = {}) {
+// Mock implementation - replace with actual context when available
+const useBookingContext = () => {
+  // This should be replaced with actual booking context implementation
+  return {
+    bookings: [],
+    loading: false,
+    error: null,
+    createBooking: async (data: any) => {
+      console.log('Creating booking:', data);
+      // Implement actual API call
+    },
+    updateBookingStatus: async (id: string, status: string) => {
+      console.log('Updating booking status:', id, status);
+      // Implement actual API call
+    },
+    cancelBooking: async (id: string) => {
+      console.log('Cancelling booking:', id);
+      // Implement actual API call
+    },
+    refreshBookings: async () => {
+      console.log('Refreshing bookings');
+      // Implement actual refresh logic
+    }
+  };
+};
+
+export function useBookings(filters: any = {}) {
   const { bookings, loading, error } = useBookingContext();
   
   const filteredBookings = useMemo(() => {
-    let result = [...bookings];
+    let result: any = [...bookings];
     
     if (filters.status) {
       result = result.filter(booking => booking.status === filters.status);
@@ -41,7 +66,7 @@ export function useBookings(filters = {}) {
     }
     
     // Sort by start time
-    result.sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+    result.sort((a: any, b: any) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
     
     return result;
   }, [bookings, filters]);

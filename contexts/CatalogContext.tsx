@@ -9,7 +9,7 @@ interface ServiceInfo {
 	vehicleType: string;
 	serviceType: string;
 	duration: number;
-	basePrice: number;
+	price: number;
 	serviceVariationId: string;
 }
 
@@ -19,9 +19,9 @@ interface CatalogContextType {
 	error: string | null;
 	selectedService: ServiceInfo | null;
 	setSelectedService: (service: ServiceInfo | null) => void;
-	calculatePrice: (vehicleType: string, serviceType: string, isVeryDirty?: boolean) => number;
+	calculatePrice: (vehicleType?: string, serviceType?: string, isVeryDirty?: boolean) => number;
   getService: (vehicleType: string, serviceType: string, isVeryDirty?: boolean) => ServiceInfo;
-	getServiceDuration: (vehicleType: string, serviceType: string) => number;
+	getServiceDuration: (vehicleType?: string, serviceType?: string) => number;
 	formatDuration: (minutes: number) => string;
 	refreshCatalog: () => void;
 }
@@ -86,8 +86,8 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 					name: itemData.name,
 					vehicleType,
 					serviceType,
-					duration: itemVariationData.serviceDuration,
-					basePrice: itemVariationData.priceMoney.amount / 100,
+					duration: parseInt(itemVariationData.serviceDuration),
+					price: itemVariationData.priceMoney.amount / 100,
 					serviceVariationId: variation.id,
 				};
 			}
@@ -96,19 +96,35 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 		return null;
 	};
 
-	const calculatePrice = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false): number => {
+	const calculatePrice = (vehicleType?: string, serviceType?: string, isVeryDirty: boolean = false): number => {
+		if (!vehicleType && !serviceType) {
+			return selectedService.price;
+		}
+
 		const service = getService(vehicleType, serviceType, isVeryDirty);
-		return service ? service.basePrice : null;
+		return service ? service.price : null;
 	};
 
-	const getServiceDuration = (vehicleType: string, serviceType: string, isVeryDirty: boolean = false): number => {
+	const getServiceDuration = (vehicleType?: string, serviceType?: string, isVeryDirty: boolean = false): number => {
+		if (!vehicleType && !serviceType) {
+			return selectedService.duration; // duration in milliseconds here
+		}
+
 		const service = getService(vehicleType, serviceType, isVeryDirty);
 		return service ? service.duration : 0;
 	};
 
-	const formatDuration = (minutes: number): string => {
-		const hours = Math.floor(minutes / 60);
-		const mins = minutes % 60;
+	const formatDuration = (milliseconds: number): string => {
+		if (typeof milliseconds !== 'number') {
+			throw new Error('milliseconds is not a number');
+		}
+
+		// Convert milliseconds to minutes
+		const totalMinutes = Math.floor(milliseconds / (1000 * 60));
+		
+		const hours = Math.floor(totalMinutes / 60);
+		const mins = totalMinutes % 60;
+		
 		if (mins === 0) {
 			return `${hours}h`;
 		}

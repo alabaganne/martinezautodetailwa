@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useBookings } from '@/hooks/useBookings';
 import { Calendar, Clock, User, Car, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Booking } from '@/types/booking';
+import type { Booking } from '@/lib/types/admin';
 
 interface DayInfo {
 	date: Date;

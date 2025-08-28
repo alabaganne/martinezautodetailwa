@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Check
 } from 'lucide-react';
-import { Booking, BookingStatus } from '@/types/booking';
+import { Booking } from '@/lib/types/admin';
+import { BookingStatus } from 'square/api/types';
 
 interface BookingCardProps {
   booking: Booking;
@@ -26,16 +27,16 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
   
   const getStatusColor = (status: string) => {
     switch(status) {
-      case BookingStatus.ACCEPTED: 
+      case BookingStatus.Accepted: 
         return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300';
-      case BookingStatus.PENDING: 
+      case BookingStatus.Pending: 
         return 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300';
-      case BookingStatus.DECLINED: 
+      case BookingStatus.Declined: 
         return 'bg-gradient-to-r from-red-100 to-rose-100 text-red-800 border-red-300';
-      case BookingStatus.CANCELLED_BY_CUSTOMER:
-      case BookingStatus.CANCELLED_BY_SELLER: 
+      case BookingStatus.CancelledByCustomer:
+      case BookingStatus.CancelledBySeller: 
         return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300';
-      case BookingStatus.NO_SHOW: 
+      case BookingStatus.NoShow: 
         return 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-800 border-orange-300';
       default: 
         return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800 border-gray-300';
@@ -44,14 +45,14 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
 
   const getStatusIcon = (status: string) => {
     switch(status) {
-      case BookingStatus.ACCEPTED: 
+      case BookingStatus.Accepted: 
         return <Check size={16} />;
-      case BookingStatus.PENDING: 
+      case BookingStatus.Pending: 
         return <AlertCircle size={16} />;
-      case BookingStatus.DECLINED:
-      case BookingStatus.CANCELLED_BY_CUSTOMER:
-      case BookingStatus.CANCELLED_BY_SELLER:
-      case BookingStatus.NO_SHOW:
+      case BookingStatus.Declined:
+      case BookingStatus.CancelledByCustomer:
+      case BookingStatus.CancelledBySeller:
+      case BookingStatus.NoShow:
         return <XCircle size={16} />;
       default: 
         return <AlertCircle size={16} />;
@@ -117,7 +118,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
     }
   };
 
-  const isActive = booking.status === BookingStatus.ACCEPTED || booking.status === BookingStatus.PENDING;
+  const isActive = booking.status === BookingStatus.Accepted || booking.status === BookingStatus.Pending;
 
   return (
     <>
@@ -143,19 +144,19 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
             <div className="flex items-center gap-1.5 mb-1">
               <User size={14} className="text-gray-400" />
               <span className="text-sm font-medium text-gray-700">
-                {booking.customer.given_name} {booking.customer.family_name}
+                {booking.customer.givenName} {booking.customer.familyName}
               </span>
             </div>
-            {booking.customer.phone_number && (
+            {booking.customer.phone && (
               <div className="flex items-center gap-1.5 mb-1">
                 <Phone size={14} className="text-gray-400" />
-                <span className="text-xs text-gray-600">{booking.customer.phone_number}</span>
+                <span className="text-xs text-gray-600">{booking.customer.phone}</span>
               </div>
             )}
-            {booking.customer.email_address && (
+            {booking.customer.email && (
               <div className="flex items-center gap-1.5">
                 <Mail size={14} className="text-gray-400" />
-                <span className="text-xs text-gray-600 truncate">{booking.customer.email_address}</span>
+                <span className="text-xs text-gray-600 truncate">{booking.customer.email}</span>
               </div>
             )}
           </div>
@@ -183,17 +184,17 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
           {/* Action Buttons */}
           {isActive && (
             <div className="flex gap-2">
-              {booking.status === BookingStatus.PENDING && (
+              {booking.status === BookingStatus.Pending && (
                 <>
                   <button
-                    onClick={() => handleStatusChange(BookingStatus.ACCEPTED)}
+                    onClick={() => handleStatusChange(BookingStatus.Accepted)}
                     disabled={updating}
                     className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs font-bold hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
                   >
                     Accept
                   </button>
                   <button
-                    onClick={() => handleStatusChange(BookingStatus.DECLINED)}
+                    onClick={() => handleStatusChange(BookingStatus.Declined)}
                     disabled={updating}
                     className="flex-1 px-3 py-2 bg-gradient-to-r from-gray-500 to-slate-600 text-white rounded-lg text-xs font-bold hover:from-gray-600 hover:to-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
                   >
@@ -204,7 +205,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
               <button
                 onClick={() => setShowCancelModal(true)}
                 disabled={updating}
-                className={`${booking.status === BookingStatus.PENDING ? '' : 'flex-1'} px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg text-xs font-bold hover:from-red-600 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer`}
+                className={`${booking.status === BookingStatus.Pending ? '' : 'flex-1'} px-3 py-2 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-lg text-xs font-bold hover:from-red-600 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer`}
               >
                 Cancel
               </button>

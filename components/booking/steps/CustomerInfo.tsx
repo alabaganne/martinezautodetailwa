@@ -1,16 +1,17 @@
 'use client'
 
 import React from 'react';
-import { User, Mail, Phone, Check } from 'lucide-react';
-import { StepProps } from '@/types';
+import { Mail, Check } from 'lucide-react';
+import { BookingFormData } from '@/contexts/BookingContext';
 import { FormInput, FormTextarea } from '@/components/common/FormComponents';
-import { formatPhoneNumber } from '@/lib/utils/validation';
+
+interface StepProps {
+  formData: BookingFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BookingFormData>>;
+  isActive?: boolean;
+}
 
 const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setFormData({ ...formData, phone: formatted });
-  };
 
   return (
     <div>
@@ -20,16 +21,6 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       
       <div className="space-y-6">
         <FormInput
-          label="Full Name *"
-          icon={User}
-          type="text"
-          value={formData.customerName}
-          onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-          placeholder="John Smith"
-          required
-        />
-
-        <FormInput
           label="Email Address *"
           icon={Mail}
           type="email"
@@ -37,17 +28,6 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           placeholder="john@example.com"
           helpText="We'll send your booking confirmation here"
-          required
-        />
-
-        <FormInput
-          label="Phone Number *"
-          icon={Phone}
-          type="tel"
-          value={formData.phone}
-          onChange={handlePhoneChange}
-          placeholder="(555) 123-4567"
-          helpText="We'll text you when your car is ready"
           required
         />
 

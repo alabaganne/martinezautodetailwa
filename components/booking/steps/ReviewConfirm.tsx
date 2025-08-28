@@ -1,33 +1,23 @@
 'use client'
 
 import React from 'react';
-import { StepProps } from '@/types';
+import { BookingFormData } from '@/contexts/BookingContext';
+
+interface StepProps {
+  formData: BookingFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BookingFormData>>;
+  isActive?: boolean;
+}
 import { formatDate } from '@/lib/utils/booking';
 import { displayPrice } from '@/lib/utils/currency';
 import { useCatalog } from '@/contexts/CatalogContext';
 
-const SERVICES: Record<string, string> = {
-  interior: 'Interior Only',
-  exterior: 'Exterior Only',
-  full: 'Full Detail'
-};
-
-const VEHICLES: Record<string, string> = {
-  small: 'Small Car',
-  truck: 'Truck',
-  minivan: 'Minivan'
-};
 
 const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
-  const { calculatePrice, getServiceDuration, formatDuration } = useCatalog();
+  const { formatDuration, selectedService } = useCatalog();
   
-  const estimatedPrice = formData.serviceType && formData.vehicleType 
-    ? calculatePrice(formData.vehicleType, formData.serviceType, formData.vehicleCondition === 'very-dirty')
-    : 0;
-    
-  const duration = formData.serviceType && formData.vehicleType
-    ? formatDuration(getServiceDuration(formData.vehicleType, formData.serviceType))
-    : 'Not selected';
+  const estimatedPrice = selectedService ? selectedService.price : 0;
+  const duration = selectedService ? formatDuration(selectedService.duration) : 'N/A';
 
   return (
     <div>
@@ -43,13 +33,13 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             <div className="flex justify-between">
               <span className="text-gray-600">Service:</span>
               <span className="font-medium">
-                {formData.serviceType ? SERVICES[formData.serviceType] : 'Not selected'}
+                {selectedService ? selectedService.name : 'Not selected'}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Vehicle:</span>
+              <span className="text-gray-600">Vehicle Type:</span>
               <span className="font-medium">
-                {formData.vehicleType ? VEHICLES[formData.vehicleType] : 'Not selected'}
+                {selectedService ? selectedService.vehicleType : 'Not selected'}
               </span>
             </div>
             <div className="flex justify-between">
@@ -65,7 +55,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-gray-600">Date:</span>
-              <span className="font-medium">{formatDate(formData.appointmentDate)}</span>
+              <span className="font-medium">{formData.startAt ? formatDate(formData.startAt) : 'Not selected'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Drop-off:</span>
@@ -83,8 +73,8 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           <h3 className="font-semibold mb-3">Vehicle Information</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-600">Owner:</span>
-              <span className="font-medium">{formData.customerName || 'Not provided'}</span>
+              <span className="text-gray-600">Email:</span>
+              <span className="font-medium">{formData.email || 'Not provided'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Vehicle:</span>
@@ -94,12 +84,12 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
                   : 'Not provided'}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Condition:</span>
-              <span className="font-medium">
-                {formData.vehicleCondition === 'very-dirty' ? 'Very Dirty' : 'Normal'}
-              </span>
-            </div>
+            {formData.vehicleColor && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Color:</span>
+                <span className="font-medium">{formData.vehicleColor}</span>
+              </div>
+            )}
           </div>
         </div>
 

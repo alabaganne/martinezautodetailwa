@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Booking, FilterType, BookingStatus } from '@/types/booking';
+import { Booking, FilterType, BookingStatus } from '@/lib/types/admin';
 import { DateFilterType } from '@/components/admin/FilterBar';
 
 interface UseBookingFiltersProps {

@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { useBooking } from '@/hooks/useBooking';
+import { useBooking } from '@/contexts/BookingContext';
 import BookingHeader from './BookingHeader';
 import BookingFooter from './BookingFooter';
 import ServiceSelection from './steps/ServiceSelection';

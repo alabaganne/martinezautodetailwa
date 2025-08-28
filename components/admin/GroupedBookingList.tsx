@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import BookingCard from './BookingCard';
-import { Booking } from '@/types/booking';
+import { Booking } from '@/lib/types/admin';
 import { Calendar } from 'lucide-react';
 
 interface GroupedBookingListProps {

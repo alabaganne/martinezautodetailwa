@@ -1,25 +1,69 @@
-import { useState, useCallback } from 'react';
-import { BookingFormData, ValidationResult } from '@/types';
+'use client';
+
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { validateStep } from '@/lib/utils/validation';
+
+// Simplified Booking Form Data
+export interface BookingFormData {
+  startAt: string;
+  email: string;
+  dropOffTime: string;
+  vehicleYear: string;
+  vehicleMake: string;
+  vehicleModel: string;
+  vehicleColor?: string;
+  notes?: string;
+  serviceVariationId: string;
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+interface BookingContextType {
+  step: number;
+  setStep: (step: number) => void;
+  formData: BookingFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BookingFormData>>;
+  isSubmitting: boolean;
+  validationErrors: Record<string, string>;
+  goNext: () => void;
+  goBack: () => void;
+  updateField: (field: keyof BookingFormData, value: any) => void;
+  submitBooking: () => Promise<any>;
+  resetForm: () => void;
+  isStepValid: () => boolean;
+}
+
+const BookingContext = createContext<BookingContextType | undefined>(undefined);
+
+export function useBooking() {
+  const context = useContext(BookingContext);
+  if (!context) {
+    throw new Error('useBooking must be used within a BookingProvider');
+  }
+  return context;
+}
 
 // Initial form data
 const initialFormData: BookingFormData = {
-  serviceType: '',
-  vehicleType: '',
-  vehicleCondition: 'normal',
-  appointmentDate: '',
-  dropOffTime: '8:00 AM',
-  customerName: '',
-  phone: '',
+  startAt: '',
   email: '',
+  dropOffTime: '8:00 AM',
   vehicleYear: '',
   vehicleMake: '',
   vehicleModel: '',
   vehicleColor: '',
-  notes: ''
+  notes: '',
+  serviceVariationId: ''
 };
 
-export const useBooking = () => {
+interface BookingProviderProps {
+  children: ReactNode;
+}
+
+export function BookingProvider({ children }: BookingProviderProps) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<BookingFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,9 +84,14 @@ export const useBooking = () => {
 
   // Navigate to next step
   const goNext = useCallback(() => {
-    if (validateCurrentStep() && step < 5) {
-      setStep(step + 1);
-      setValidationErrors({});
+    if (validateCurrentStep()) {
+      // Update formData based on current step before moving to next
+      // This ensures formData contains necessary booking data
+      
+      if (step < 5) {
+        setStep(step + 1);
+        setValidationErrors({});
+      }
     }
   }, [step, validateCurrentStep]);
 
@@ -104,7 +153,7 @@ export const useBooking = () => {
     setIsSubmitting(false);
   }, []);
 
-  return {
+  const value: BookingContextType = {
     step,
     setStep,
     formData,
@@ -118,4 +167,6 @@ export const useBooking = () => {
     resetForm,
     isStepValid
   };
-};
+
+  return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>;
+}

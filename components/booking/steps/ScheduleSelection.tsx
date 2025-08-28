@@ -2,7 +2,13 @@
 
 import React from 'react';
 import { Calendar, Clock, AlertCircle, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
-import { StepProps } from '@/types';
+import { BookingFormData } from '@/contexts/BookingContext';
+
+interface StepProps {
+  formData: BookingFormData;
+  setFormData: React.Dispatch<React.SetStateAction<BookingFormData>>;
+  isActive?: boolean;
+}
 import { useCalendar } from '@/hooks/useCalendar';
 import { FormRadioGroup } from '@/components/common/FormComponents';
 
@@ -34,9 +40,9 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
     getDateStatus,
     selectDate,
     loading
-  } = useCalendar(formData.serviceType, formData.vehicleType, isActive);
+  } = useCalendar(isActive);
 
-  if (!formData.serviceType || !formData.vehicleType) {
+  if (!formData.serviceVariationId) {
     return (
       <div className="text-center py-8">
         <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
@@ -49,7 +55,8 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
     const status = getDateStatus(date);
     if (status === 'available') {
       const dateStr = selectDate(date);
-      setFormData({ ...formData, appointmentDate: dateStr });
+      console.log('dateStr', dateStr);
+      setFormData({ ...formData, startAt: dateStr });
     }
   };
 
@@ -106,7 +113,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             const month = String(dayInfo.date.getMonth() + 1).padStart(2, '0');
             const day = String(dayInfo.date.getDate()).padStart(2, '0');
             const dateKey = `${year}-${month}-${day}`;
-            const isSelected = formData.appointmentDate === dateKey;
+            const isSelected = formData.startAt === dateKey;
             
             return (
               <div
@@ -146,11 +153,11 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       </div>
       
       {/* Time Selection */}
-      {formData.appointmentDate && (
+      {formData.startAt && (
         <div className="mt-6 animate-fadeIn">
           <div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/30 rounded-2xl border-2 border-gray-200 p-6">
             <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
-              {new Date(formData.appointmentDate).toLocaleDateString('en-US', { 
+              {new Date(formData.startAt).toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 month: 'long', 
                 day: 'numeric' 
@@ -160,7 +167,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             <FormRadioGroup
               label="Select Your Drop-off Time"
               icon={Clock}
-              value={formData.dropOffTime}
+              value={formData.dropOffTime || ''}
               onChange={(value) => setFormData({ ...formData, dropOffTime: value })}
               options={TIME_OPTIONS}
             />

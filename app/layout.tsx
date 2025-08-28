@@ -1,5 +1,5 @@
 import './globals.css'
-import { BookingProvider } from '@/contexts/BookingProvider'
+import { BookingProvider } from '@/contexts/BookingContext'
 import { CatalogProvider } from '@/contexts/CatalogContext'
 import type { Metadata } from 'next'
 
