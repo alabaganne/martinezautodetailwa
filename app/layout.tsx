@@ -1,6 +1,7 @@
 import './globals.css'
 import { BookingProvider } from '@/contexts/BookingContext'
 import { CatalogProvider } from '@/contexts/CatalogContext'
+import { LocationProvider } from '@/contexts/LocationContext'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -16,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <CatalogProvider>
-          <BookingProvider>
-            {children}
-          </BookingProvider>
-        </CatalogProvider>
+        <LocationProvider>
+          <CatalogProvider>
+            <BookingProvider>
+              {children}
+            </BookingProvider>
+          </CatalogProvider>
+        </LocationProvider>
       </body>
     </html>
   )
