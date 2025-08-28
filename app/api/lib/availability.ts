@@ -1,5 +1,5 @@
 import { Availability } from 'square/api';
-import { bookingsApi, locationId, teamMembersApi } from './client';
+import { bookingsApi, getLocationId, teamMembersApi } from './client';
 
 /**
  * Get the first active team member ID for the location
@@ -8,10 +8,11 @@ import { bookingsApi, locationId, teamMembersApi } from './client';
  */
 export async function getTeamMemberId() {
 	// Fetch active team members for the location
+	const defaultLocationId = await getLocationId();
 	const teamMembersResponse = await teamMembersApi.search({
 		query: {
 			filter: {
-				locationIds: [locationId],
+				locationIds: [defaultLocationId],
 				status: 'ACTIVE',
 			},
 		},
@@ -66,11 +67,12 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 		}
 	}
 
+	const defaultLocationId = await getLocationId();
 	const response = await bookingsApi.searchAvailability({
 		query: {
 			filter: {
 				startAtRange: { startAt: startAt.toISOString(), endAt: endAt.toISOString() },
-				locationId: locationId,
+				locationId: defaultLocationId,
 				segmentFilters: [
 					{
 						serviceVariationId,

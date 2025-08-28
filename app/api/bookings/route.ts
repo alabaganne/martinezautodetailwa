@@ -1,6 +1,6 @@
 import { Customer, Availability } from 'square/api';
 import { getTeamMemberId, searchAvailability } from '../lib/availability';
-import { bookingsApi, customersApi, locationId, teamMembersApi } from '../lib/client';
+import { bookingsApi, customersApi, getLocationId, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
@@ -24,10 +24,11 @@ export async function GET(request) {
 
 		// Note: The bookings.list method parameters may vary based on SDK version
 		// Adjust as needed based on your Square SDK version
+		const defaultLocationId = await getLocationId();
 		const response = await bookingsApi.list({
 			limit: limit ? parseInt(limit) : 100,
 			cursor: cursor || undefined,
-			locationId: locationIdParam || locationId,
+			locationId: locationIdParam || defaultLocationId,
 		});
 
 		return successResponse(response.data || response);
@@ -106,9 +107,10 @@ export async function POST(request) {
 		console.log('startAt After', startAt);
 
 		const customer = await findOrCreateCustomer(email);
+		const defaultLocationId = await getLocationId();
 
 		const bookingData = {
-			locationId,
+			locationId: defaultLocationId,
 			customerId: customer.id,
 			startAt,
 			customerNote:

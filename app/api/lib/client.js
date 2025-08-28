@@ -2,8 +2,6 @@ import { SquareClient, SquareEnvironment } from 'square';
 
 const accessToken = process.env.SQUARE_ACCESS_TOKEN;
 
-console.log('Square Access Token:', accessToken);
-
 if (!accessToken) {
   throw new Error('SQUARE_ACCESS_TOKEN environment variable is not set');
 }
@@ -31,13 +29,29 @@ export const customersApi = client.customers;
 export const locationsApi = client.locations;
 export const teamMembersApi = client.teamMembers;
 
-const { locations } = await locationsApi.list();
-if (!locations || locations.length === 0) {
-  console.error('⚠️ No locations found in your Square account. Please create a location in the Square Dashboard.');
-  process.exit(1);
-}
+// Cache for location ID to avoid repeated API calls
+let cachedLocationId = null;
 
-export const locationId = locations[0].id;
+// Function to get location ID lazily at runtime
+export async function getLocationId() {
+  if (cachedLocationId) {
+    return cachedLocationId;
+  }
+  
+  try {
+    const { locations } = await locationsApi.list();
+    if (!locations || locations.length === 0) {
+      console.error('⚠️ No locations found in your Square account. Please create a location in the Square Dashboard.');
+      throw new Error('No Square locations found');
+    }
+    
+    cachedLocationId = locations[0].id;
+    return cachedLocationId;
+  } catch (error) {
+    console.error('Failed to fetch Square location:', error);
+    throw error;
+  }
+}
 
 // Export the full client if needed
 export default client;
