@@ -1,38 +1,47 @@
 'use client'
 
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Booking } from '@/lib/types/admin';
 
-// Mock implementation - replace with actual context when available
-const useBookingContext = () => {
-  // This should be replaced with actual booking context implementation
-  return {
-    bookings: [],
-    loading: false,
-    error: null,
-    createBooking: async (data: any) => {
-      console.log('Creating booking:', data);
-      // Implement actual API call
-    },
-    updateBookingStatus: async (id: string, status: string) => {
-      console.log('Updating booking status:', id, status);
-      // Implement actual API call
-    },
-    cancelBooking: async (id: string) => {
-      console.log('Cancelling booking:', id);
-      // Implement actual API call
-    },
-    refreshBookings: async () => {
-      console.log('Refreshing bookings');
-      // Implement actual refresh logic
-    }
-  };
-};
-
+// Main hook for fetching and managing bookings
 export function useBookings(filters: any = {}) {
-  const { bookings, loading, error } = useBookingContext();
-  
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch bookings from API
+  const fetchBookings = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch('/api/bookings');
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch bookings');
+      }
+      
+      // Handle the response structure from Square API
+      const bookingsList = data.bookings || data.data || data || [];
+      setBookings(Array.isArray(bookingsList) ? bookingsList : []);
+    } catch (err) {
+      console.error('Error fetching bookings:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch bookings');
+      setBookings([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Fetch bookings on mount
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
+  // Filter bookings based on provided filters
   const filteredBookings = useMemo(() => {
-    let result: any = [...bookings];
+    let result = [...bookings];
     
     if (filters.status) {
       result = result.filter(booking => booking.status === filters.status);
@@ -52,33 +61,69 @@ export function useBookings(filters: any = {}) {
     
     if (filters.customerId) {
       result = result.filter(booking => 
-        (booking.customerId || booking.customer_id) === filters.customerId
+        booking.customerId === filters.customerId
       );
     }
     
     if (filters.serviceVariationId) {
       result = result.filter(booking => {
-        const segments = booking.appointmentSegments || booking.appointment_segments;
-        return segments?.some(segment => 
-          (segment.serviceVariationId) === filters.serviceVariationId
+        const segments = booking.appointmentSegments;
+        return segments?.some((segment: any) => 
+          segment.serviceVariationId === filters.serviceVariationId
         );
       });
     }
     
     // Sort by start time
-    result.sort((a: any, b: any) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
+    result.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
     
     return result;
   }, [bookings, filters]);
+
+  // Cancel booking
+  const cancelBooking = useCallback(async (bookingId: string, reason?: string) => {
+    try {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to cancel booking');
+      }
+      
+      // Refresh bookings after cancellation
+      await fetchBookings();
+      
+      return { success: true };
+    } catch (err) {
+      console.error('Error cancelling booking:', err);
+      return { 
+        success: false, 
+        error: err instanceof Error ? err.message : 'Failed to cancel booking' 
+      };
+    }
+  }, [fetchBookings]);
+
+  // Refresh bookings
+  const refreshBookings = useCallback(async () => {
+    await fetchBookings();
+  }, [fetchBookings]);
   
   return {
     bookings: filteredBookings,
     loading,
     error,
-    count: filteredBookings.length
+    count: filteredBookings.length,
+    cancelBooking,
+    refreshBookings
   };
 }
 
+// Convenience hooks for specific use cases
 export function useTodaysBookings() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -105,26 +150,17 @@ export function useUpcomingBookings(days = 7) {
   });
 }
 
-export function useBookingsByStatus(status) {
+export function useBookingsByStatus(status: string) {
   return useBookings({ status });
 }
 
-export function useCreateBooking() {
-  const { createBooking } = useBookingContext();
-  return createBooking;
-}
-
-export function useUpdateBookingStatus() {
-  const { updateBookingStatus } = useBookingContext();
-  return updateBookingStatus;
-}
-
+// Export individual functions for backward compatibility
 export function useCancelBooking() {
-  const { cancelBooking } = useBookingContext();
+  const { cancelBooking } = useBookings();
   return cancelBooking;
 }
 
 export function useRefreshBookings() {
-  const { refreshBookings } = useBookingContext();
+  const { refreshBookings } = useBookings();
   return refreshBookings;
 }

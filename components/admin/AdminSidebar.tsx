@@ -68,7 +68,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
           <h2 className="text-xl font-semibold text-white">Admin Panel</h2>
           <button
             onClick={onClose}
-            className="lg:hidden text-gray-400 hover:text-white transition-colors"
+            className="lg:hidden text-white transition-opacity opacity-50 hover:opacity-100"
             aria-label="Close sidebar"
           >
             <X size={24} />

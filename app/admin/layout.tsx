@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Menu } from 'lucide-react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { AdminAuthProvider } from '@/contexts/AdminAuthContext';
-import AdminHeader from '../../components/admin/AdminHeader';
+import AdminNav from '../../components/admin/AdminNav';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -30,7 +30,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64 relative">
         {/* Top bar */}
-        <AdminHeader setSidebarOpen={() => setSidebarOpen(true)} />
+        <AdminNav setSidebarOpen={() => setSidebarOpen(true)} />
         
         {/* Page content */}
         <main className="min-h-[calc(100vh-4rem)]">

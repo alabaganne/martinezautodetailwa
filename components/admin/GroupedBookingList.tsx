@@ -86,8 +86,8 @@ const GroupedBookingList: React.FC<GroupedBookingListProps> = React.memo(({
           <div key={dateKey} className="relative">
             {/* Date Header with Enhanced Styling */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-gray-50 to-gray-100 px-5 py-3 rounded-xl border border-gray-200 shadow-sm">
-                <div className="p-2 bg-white rounded-lg shadow-sm">
+              <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border-2 border-gray-200">
+                <div className="p-2 bg-gray-100 rounded-lg">
                   <Calendar size={16} className="text-blue-600" />
                 </div>
                 <h3 className="text-sm font-bold text-gray-800">

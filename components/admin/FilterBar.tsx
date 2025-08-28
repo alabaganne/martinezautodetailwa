@@ -57,7 +57,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	};
 
 	return (
-		<div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6 relative overflow-hidden">
+		<div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-6 relative overflow-hidden">
 			{/* Subtle gradient overlay */}
 			<div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-100/30 pointer-events-none"></div>
 
@@ -151,7 +151,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							}}
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'all'
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							All Bookings
@@ -162,7 +162,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							}}
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'week'
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							This Week
@@ -174,7 +174,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							}}
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'today'
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							Today
@@ -187,7 +187,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'custom' &&
 								new Date(selectedDate.toDateString()).getTime() === new Date(addDays(new Date(), 1).toDateString()).getTime()
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							Tomorrow

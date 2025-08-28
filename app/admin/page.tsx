@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { RefreshCw } from 'lucide-react';
-import { useBookings, useUpdateBookingStatus, useCancelBooking, useRefreshBookings } from '@/hooks/useBookings';
 import { useBookingFilters } from '@/hooks/useBookingFilters';
+import { useBookings } from '@/hooks/useBookings';
 import FilterBar, { DateFilterType } from '@/components/admin/FilterBar';
 import GroupedBookingList from '@/components/admin/GroupedBookingList';
 import LoadingSkeleton from '@/components/admin/LoadingSkeleton';
 import EmptyState from '@/components/admin/EmptyState';
+import AdminHeader from '@/components/admin/AdminHeader';
 
 export default function AdminDashboard() {
 	const [selectedDate, setSelectedDate] = useState(new Date());
@@ -15,10 +15,7 @@ export default function AdminDashboard() {
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [dateFilterType, setDateFilterType] = useState<DateFilterType>('all');
 
-	const { bookings, loading: isLoading, error } = useBookings();
-	const updateBookingStatus = useUpdateBookingStatus();
-	const cancelBooking = useCancelBooking();
-	const refreshBookings = useRefreshBookings();
+	const { bookings, loading: isLoading, error, cancelBooking, refreshBookings } = useBookings();
 
 	const { filteredBookings, filterDescription } = useBookingFilters({
 		bookings: bookings || [],
@@ -27,21 +24,15 @@ export default function AdminDashboard() {
 		dateFilterType,
 	});
 
+	// Status update removed - only cancel is needed
 	const handleStatusUpdate = async (bookingId: string, newStatus: string) => {
-		try {
-			const result = await updateBookingStatus(bookingId, newStatus);
-			if (!result.success) {
-				throw new Error(result.error);
-			}
-		} catch (error) {
-			console.error('Failed to update booking status:', error);
-			throw error;
-		}
+		// Not implemented - only cancel is supported
+		console.log('Status update not supported, only cancel');
 	};
 
 	const handleCancel = async (bookingId: string, reason: string) => {
 		try {
-			const result = await cancelBooking(bookingId, reason);
+			const result = await cancelBooking(bookingId, reason || 'Cancelled by admin');
 			if (!result.success) {
 				throw new Error(result.error);
 			}
@@ -77,34 +68,10 @@ export default function AdminDashboard() {
 
 	return (
 		<div className="min-h-screen">
-			{/* Enhanced Header with Gradient */}
-			<div className="relative mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 shadow-lg">
-				<div className="relative z-10">
-					<div className="flex justify-between items-start">
-						<div>
-							<h1 className="text-4xl font-bold text-white mb-2">Admin Dashboard</h1>
-							<p className="text-blue-100 text-lg">Manage your car wash appointments</p>
-							<div className="mt-4 text-sm text-blue-200">
-								{new Date().toLocaleDateString('en-US', { 
-									weekday: 'long', 
-									year: 'numeric', 
-									month: 'long', 
-									day: 'numeric' 
-								})}
-							</div>
-						</div>
-						<button
-							onClick={handleRefresh}
-							disabled={isRefreshing}
-							className="flex items-center gap-2 px-5 py-2.5 bg-white/20 backdrop-blur-sm text-white rounded-xl hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 border border-white/20">
-							<RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
-							{isRefreshing ? 'Refreshing...' : 'Refresh'}
-						</button>
-					</div>
-				</div>
-				{/* Decorative pattern */}
-				<div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
-			</div>
+			<AdminHeader 
+				onRefresh={handleRefresh}
+				isRefreshing={isRefreshing}
+			/>
 
 			{/* Filter Bar */}
 			<FilterBar

@@ -1,4 +1,14 @@
-import { BookingStatus } from "square/api";
+// BookingStatus enum values from Square API
+export const BookingStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED',
+  DECLINED: 'DECLINED',
+  CANCELLED_BY_CUSTOMER: 'CANCELLED_BY_CUSTOMER',
+  CANCELLED_BY_SELLER: 'CANCELLED_BY_SELLER',
+  NO_SHOW: 'NO_SHOW'
+} as const;
+
+export type BookingStatusType = typeof BookingStatus[keyof typeof BookingStatus];
 
 // Admin component types
 export interface Booking {
@@ -14,7 +24,7 @@ export interface Booking {
   startAt: string;
   locationId: string;
   customerNote?: string;
-  status: BookingStatus;
+  status: BookingStatusType;
   appointmentSegments?: Array<{
     durationMinutes: number;
     serviceVariationId: string;
@@ -26,3 +36,5 @@ export interface Booking {
   serviceType?: string;
   vehicleType?: string;
 }
+
+export type FilterType = 'all' | 'today' | 'pending' | 'confirmed';
