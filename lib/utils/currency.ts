@@ -29,5 +29,5 @@ export const displayPrice = (amount: number): string => {
   if (!amount) {
     return 'NULL';
   }
-  return `${amount.toFixed(2)} USD`;
+  return `${amount.toFixed(0)} USD`;
 };

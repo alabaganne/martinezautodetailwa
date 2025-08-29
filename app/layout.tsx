@@ -3,6 +3,13 @@ import { BookingProvider } from '@/contexts/BookingContext'
 import { CatalogProvider } from '@/contexts/CatalogContext'
 import { LocationProvider } from '@/contexts/LocationContext'
 import type { Metadata } from 'next'
+import { Sansation, Open_Sans, Inter, Roboto } from 'next/font/google'
+
+const sansation = Sansation({
+  weight: ['300', '400', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'Martinez Auto Detail - Car Wash Appointments',
@@ -16,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={sansation.className}>
         <LocationProvider>
           <CatalogProvider>
             <BookingProvider>
