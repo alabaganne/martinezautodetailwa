@@ -1,9 +1,10 @@
 'use client'
 
 import React from 'react';
-import { Mail, Check } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { BookingFormData } from '@/contexts/BookingContext';
 import { FormInput, FormTextarea } from '@/components/common/FormComponents';
+import InfoBox from '@/components/common/InfoBox';
 
 interface StepProps {
   formData: BookingFormData;
@@ -41,25 +42,15 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       </div>
 
       {/* Info Box */}
-      <div className="mt-8 p-6 bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border-2 border-brand-200/50">
-        <h3 className="font-bold text-brand-800 mb-3 flex items-center">
-          <div className="p-2 bg-brand-100 rounded-lg mr-2">
-            <Check className="w-4 h-4 text-brand-600" />
-          </div>
-          Why we need this information:
-        </h3>
-        <ul className="text-sm text-brand-700 space-y-2">
-          {[
-            'To send you booking confirmation and updates',
-            'To contact you if we have questions about your vehicle',
-            'To notify you when your car is ready for pickup'
-          ].map((item, idx) => (
-            <li key={idx} className="flex items-start">
-              <span className="text-brand-500 mr-2">✓</span>
-              {item}
-            </li>
-          ))}
-        </ul>
+      <div className="mt-8">
+        <InfoBox 
+          title="Why we need this information"
+          items={[
+            { title: 'To send you booking confirmation and updates' },
+            { title: 'To contact you if we have questions about your vehicle' },
+            { title: 'To notify you when your car is ready for pickup' }
+          ]}
+        />
       </div>
     </div>
   );

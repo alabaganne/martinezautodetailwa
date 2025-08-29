@@ -3,6 +3,7 @@
 import React from 'react';
 import { Car, Palette, FileText } from 'lucide-react';
 import { BookingFormData } from '@/contexts/BookingContext';
+import InfoBox from '@/components/common/InfoBox';
 
 interface StepProps {
   formData: BookingFormData;
@@ -71,26 +72,15 @@ const VehicleInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       </div>
 
       {/* Info Box */}
-      <div className="mt-8 p-6 bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl border-2 border-brand-200/50">
-        <h3 className="font-bold text-brand-800 mb-3 flex items-center">
-          <div className="p-2 bg-brand-100 rounded-lg mr-2">
-            <Car className="w-4 h-4 text-brand-600" />
-          </div>
-          Vehicle Information Helps Us:
-        </h3>
-        <ul className="text-sm text-brand-700 space-y-2">
-          {[
-            'Prepare the right cleaning products for your vehicle',
-            'Allocate appropriate time for the service',
-            'Provide accurate pricing estimates'
-          ].map((item, idx) => (
-            <li key={idx} className="flex items-start">
-              <span className="text-brand-500 mr-2">✓</span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <InfoBox 
+        title="Vehicle Information Helps Us"
+        items={[
+          { title: 'Prepare the right cleaning products for your vehicle' },
+          { title: 'Allocate appropriate time for the service' },
+          { title: 'Provide accurate pricing estimates' }
+        ]}
+        className="mt-8"
+      />
     </div>
   );
 };

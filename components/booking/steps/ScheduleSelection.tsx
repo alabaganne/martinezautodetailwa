@@ -3,6 +3,7 @@
 import React from 'react';
 import { Calendar, Clock, AlertCircle, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
 import { BookingFormData } from '@/contexts/BookingContext';
+import InfoBox from '@/components/common/InfoBox';
 
 interface StepProps {
   formData: BookingFormData;
@@ -177,23 +178,15 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       )}
       
       {/* Info Box */}
-      <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-6 border-2 border-brand-200/50 mt-6">
-        <h3 className="font-bold text-lg bg-gradient-to-r from-brand-600 to-brand-600 bg-clip-text text-transparent mb-4">
-          Important Information
-        </h3>
-        <div className="grid gap-3">
-          {[
-            { title: 'Business Hours', desc: 'Open Monday through Friday only' },
-            { title: 'Drop-off Times', desc: 'Vehicles must be given at 8 AM or the evening before' },
-            { title: 'Pickup Time', desc: 'All vehicles ready at 5:00 PM' }
-          ].map((info, idx) => (
-            <div key={idx}>
-                <p className="text-gray-700 font-medium">{info.title}</p>
-                <p className="text-sm text-gray-600">{info.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <InfoBox 
+        title="Important Information"
+        items={[
+          { title: 'Business Hours', desc: 'Open Monday through Friday only' },
+          { title: 'Drop-off Times', desc: 'Vehicles must be given at 8 AM or the evening before' },
+          { title: 'Pickup Time', desc: 'All vehicles ready at 5:00 PM' }
+        ]}
+        className="mt-6"
+      />
     </div>
   );
 };

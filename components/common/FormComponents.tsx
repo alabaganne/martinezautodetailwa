@@ -1,5 +1,5 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { Check, LucideIcon } from 'lucide-react';
 
 // Helper component for icon rendering
 const IconWrapper: React.FC<{ icon?: LucideIcon }> = ({ icon: Icon }) => {
@@ -189,7 +189,7 @@ export const FormRadioGroup: React.FC<FormRadioGroupProps> = ({
               key={option.value}
               className={`relative flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
                 isSelected
-                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white border-2 border-transparent'
+                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white border-2'
                   : 'bg-white border-2 border-gray-200 hover:border-brand-300'
               }`}
             >
@@ -213,7 +213,7 @@ export const FormRadioGroup: React.FC<FormRadioGroupProps> = ({
               {isSelected && (
                 <div className="ml-3">
                   <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                    ✓
+                    <Check size={15} />
                   </div>
                 </div>
               )}

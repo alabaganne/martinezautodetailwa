@@ -5,8 +5,8 @@ import { LocationProvider } from '@/contexts/LocationContext'
 import type { Metadata } from 'next'
 import { Sansation, Open_Sans, Inter, Roboto } from 'next/font/google'
 
-const sansation = Sansation({
-  weight: ['300', '400', '700'],
+const sansation = Open_Sans({
+  weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
   display: 'swap',
 })
