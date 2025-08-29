@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const idempotencyKey = `card-${customerId}-${Date.now()}`;
 
     // Store the card on file
-    const response = await cardsApi.createCard({
+    const response = await cardsApi.create({
       idempotencyKey,
       sourceId: paymentToken,
       card: {
