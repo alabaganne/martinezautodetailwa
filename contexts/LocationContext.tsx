@@ -67,6 +67,7 @@ export function LocationProvider({ children }: LocationProviderProps) {
         
         setLocation(activeLocation);
         setLocationId(activeLocation.id);
+        console.log('Client Location ID', activeLocation.id);
       } else {
         setError('No locations found');
       }

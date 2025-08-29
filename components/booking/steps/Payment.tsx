@@ -24,7 +24,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
   
   const noShowFee = selectedService ? selectedService.price * 0.35 : 0;
 
-  const applicationId = process.env.SQUARE_APPLICATION_ID;
+  const applicationId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
 
   const handlePaymentToken = async (token: any) => {
     try {

@@ -6,10 +6,15 @@ import { bookingsApi, getLocationId, teamMembersApi } from './client';
  * @returns Team member ID
  * @throws Error if no active team members found
  */
-export async function getTeamMemberId() {
+
+let teamMemberId = null;
+
+export async function getTeamMemberId(): Promise<string> {
+	if (teamMemberId) return teamMemberId;
+
 	// Fetch active team members for the location
 	const defaultLocationId = await getLocationId();
-	const teamMembersResponse = await teamMembersApi.search({
+	let { teamMembers } = await teamMembersApi.search({
 		query: {
 			filter: {
 				locationIds: [defaultLocationId],
@@ -18,11 +23,13 @@ export async function getTeamMemberId() {
 		},
 	});
 
-	if (teamMembersResponse.teamMembers.length === 0) {
+	teamMembers = teamMembers.filter(tm => !tm.isOwner);
+
+	if (teamMembers.length === 0) {
 		throw new Error('No active team members found for the location');
 	}
 
-	return teamMembersResponse.teamMembers[0].id;
+	return teamMembers[0].id;
 }
 
 /**

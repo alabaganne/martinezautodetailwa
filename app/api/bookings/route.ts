@@ -95,7 +95,6 @@ export async function POST(request) {
 		const year = startDate.getFullYear();
 
 		const availability = await searchAvailability(serviceVariationId, year, month, day);
-		console.log('availability', availability);
 		
 		const availableSlots = Object.values(availability);
 		if (availableSlots.length === 0) {
@@ -105,41 +104,19 @@ export async function POST(request) {
 			});
 		}
 		
-		console.log('startAt Before', startAt);
 		startAt = availableSlots[0].startAt;
-		console.log('startAt After', startAt);
 
 		const customer = await findOrCreateCustomer(email);
 		const defaultLocationId = await getLocationId();
 
 		// Store card on file if payment token is provided
-		let storedCardId = null;
-		if (paymentToken && customer) {
-			try {
-				const idempotencyKey = `card-${customer.id}-${Date.now()}`;
-				const cardResponse = await cardsApi.createCard({
-					idempotencyKey,
-					sourceId: paymentToken,
-					card: {
-						customerId: customer.id,
-					},
-				});
-
-				if (cardResponse.card) {
-					storedCardId = cardResponse.card.id;
-					console.log('Successfully stored card on file:', storedCardId);
-				}
-			} catch (cardError) {
-				console.error('Failed to store card on file:', cardError);
-				// Continue with booking creation even if card storage fails
-				// Square Dashboard can still collect payment info later
-			}
-		}
+		const storedCardId = await storeCardOnFile(customer, paymentToken);
 
 		const bookingData = {
 			locationId: defaultLocationId,
 			customerId: customer.id,
 			startAt,
+			sellerNote: storedCardId ? `Card ID: ${storedCardId}` : undefined,
 			customerNote:
 				[
 					`Drop-off Time: ${dropOffTime}`,
@@ -202,4 +179,32 @@ async function findOrCreateCustomer(email: string): Promise<Customer> {
 	}
 
 	return customer;
+}
+
+async function storeCardOnFile(customer: Customer | null, paymentToken: string | undefined): Promise<string | null> {
+	if (!paymentToken || !customer) {
+		return null;
+	}
+
+	try {
+		const idempotencyKey = `card-${customer.id}-${Date.now()}`;
+		const cardResponse = await cardsApi.create({
+			idempotencyKey,
+			sourceId: paymentToken,
+			card: {
+				customerId: customer.id,
+			},
+		});
+
+		if (cardResponse.card) {
+			console.log('Successfully stored card on file:', cardResponse.card.id);
+			return cardResponse.card.id;
+		}
+	} catch (cardError) {
+		console.error('Failed to store card on file:', cardError);
+		// Continue with booking creation even if card storage fails
+		// Square Dashboard can still collect payment info later
+	}
+
+	return null;
 }
