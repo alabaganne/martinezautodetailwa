@@ -23,7 +23,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
 
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
         Review Your Booking
       </h2>
       
@@ -123,12 +123,12 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
 
         {/* Total Estimate */}
         <div className="relative overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 border-2 border-transparent">
+          <div className="bg-gradient-to-r from-brand-500 to-brand-600 rounded-2xl p-6 border-2 border-transparent">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
             <div className="relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium mb-1">Service Total (Pay in Store)</p>
+                  <p className="text-brand-100 text-sm font-medium mb-1">Service Total (Pay in Store)</p>
                   <div className="flex items-baseline">
                     <span className="text-4xl font-bold text-white">
                       {displayPrice(estimatedPrice)}
@@ -144,10 +144,10 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
               <div className="pt-4 border-t border-white/20">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
-                    <svg className="w-5 h-5 text-blue-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-brand-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-blue-100">Payment due in store after service</p>
+                    <p className="text-sm text-brand-100">Payment due in store after service</p>
                   </div>
                   <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white">
                     Cash or Card
@@ -166,8 +166,8 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
         />
 
         {/* Drop-off Instructions */}
-        <div className="bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200/50">
-          <h4 className="font-bold text-lg bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
+        <div className="bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100 rounded-2xl p-6 border-2 border-brand-200/50">
+          <h4 className="font-bold text-lg bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent mb-4">
             Drop-off Instructions
           </h4>
           <div className="space-y-3">
@@ -178,7 +178,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             ].map((step) => (
               <div key={step.num} className="flex items-start">
                 <div className="mt-1.5 mr-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
                     {step.num}
                   </div>
                 </div>
@@ -189,7 +189,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-white/70 backdrop-blur-sm rounded-xl border border-blue-200/50">
+          <div className="mt-4 p-3 bg-white/70 backdrop-blur-sm rounded-xl border border-brand-200/50">
             <p className="text-sm text-gray-700 font-medium flex items-center">
               <svg className="w-4 h-4 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

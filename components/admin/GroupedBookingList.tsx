@@ -81,11 +81,11 @@ const GroupedBookingList: React.FC<GroupedBookingListProps> = React.memo(
 							<div className="flex items-center gap-3 mb-6">
 								<div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl border-2 border-gray-100">
 									<div className="p-2 bg-gray-100 rounded-lg">
-										<Calendar size={16} className="text-blue-600" />
+										<Calendar size={16} className="text-brand-600" />
 									</div>
 									<h3 className="text-sm font-bold text-gray-800">{formattedDate}</h3>
 									{dayLabel && (
-										<span className="ml-2 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-full shadow-sm">
+										<span className="ml-2 px-3 py-1 bg-gradient-to-r from-brand-500 to-brand-600 text-white text-xs font-medium rounded-full shadow-sm">
 											{dayLabel}
 										</span>
 									)}

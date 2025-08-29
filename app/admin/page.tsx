@@ -91,7 +91,7 @@ export default function AdminDashboard() {
 						onClick={() => {
 							setSearchQuery('');
 						}}
-						className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+						className="text-sm text-brand-600 hover:text-brand-700 font-medium">
 						Clear search
 					</button>
 				)}

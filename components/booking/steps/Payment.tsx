@@ -52,11 +52,11 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
   if (locationLoading) {
     return (
       <div>
-        <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
           Card on File
         </h2>
         <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600"></div>
         </div>
       </div>
     );
@@ -65,7 +65,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
   if (!applicationId || !locationId) {
     return (
       <div>
-        <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+        <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
           Card on File
         </h2>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
@@ -77,7 +77,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
 
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
         Card on File
       </h2>
 

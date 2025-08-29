@@ -48,10 +48,10 @@ const BookingSystem: React.FC = () => {
   const stepProps = STEPS[step - 1].props || {};
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50/30 to-blue-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-brand-50 via-brand-50/30 to-brand-100 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-brand-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
         <div className="absolute top-40 right-10 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
         <div className="absolute -bottom-20 left-1/2 w-96 h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
       </div>
@@ -94,7 +94,7 @@ const BookingSystem: React.FC = () => {
                 className={`px-8 py-3.5 rounded-xl font-bold transition-all duration-200 ${
                   !isStepValid() || (step === 6 && isSubmitting)
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
+                    : 'bg-gradient-to-r from-brand-500 to-brand-600 text-white hover:from-brand-600 hover:to-brand-700'
                 }`}
               >
                 {step === 6 ? (isSubmitting ? 'Processing...' : 'Confirm Booking') : 'Next'}

@@ -16,7 +16,7 @@ export default function AdminNav({ setSidebarOpen }: Props) {
 			<div className="flex-1" />
 			<div className="flex items-center space-x-4">
 				<span className="text-sm font-medium text-gray-700">Admin</span>
-				<div className="w-9 h-9 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full" />
+				<div className="w-9 h-9 bg-gradient-to-br from-brand-400 to-brand-600 rounded-full" />
 			</div>
 		</div>
 	);

@@ -5,8 +5,8 @@ import { LucideIcon } from 'lucide-react';
 const IconWrapper: React.FC<{ icon?: LucideIcon }> = ({ icon: Icon }) => {
   if (!Icon) return null;
   return (
-    <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mr-2">
-      <Icon className="w-4 h-4 text-blue-600" />
+    <div className="p-2 bg-gradient-to-br from-brand-100 to-brand-200 rounded-lg mr-2">
+      <Icon className="w-4 h-4 text-brand-600" />
     </div>
   );
 };
@@ -189,8 +189,8 @@ export const FormRadioGroup: React.FC<FormRadioGroupProps> = ({
               key={option.value}
               className={`relative flex items-center p-4 rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-[1.02] ${
                 isSelected
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white border-2 border-transparent'
-                  : 'bg-white border-2 border-gray-200 hover:border-blue-300'
+                  ? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white border-2 border-transparent'
+                  : 'bg-white border-2 border-gray-200 hover:border-brand-300'
               }`}
             >
               <input
@@ -205,7 +205,7 @@ export const FormRadioGroup: React.FC<FormRadioGroupProps> = ({
                   {option.label}
                 </div>
                 {option.description && (
-                  <div className={`text-sm mt-1 ${isSelected ? 'text-blue-100' : 'text-gray-600'}`}>
+                  <div className={`text-sm mt-1 ${isSelected ? 'text-brand-100' : 'text-gray-600'}`}>
                     {option.description}
                   </div>
                 )}

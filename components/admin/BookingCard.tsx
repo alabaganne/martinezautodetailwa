@@ -37,7 +37,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
   const getStatusColor = (status: string) => {
     switch(status) {
       case BookingStatus.Accepted: 
-        return 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300';
+        return 'bg-gradient-to-r from-brand-100 to-brand-200 text-brand-800 border-brand-300';
       case BookingStatus.Pending: 
         return 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800 border-amber-300';
       case BookingStatus.Declined: 
@@ -186,7 +186,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
                   <button
                     onClick={() => handleStatusChange(BookingStatus.Accepted)}
                     disabled={updating}
-                    className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg text-xs font-bold hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="flex-1 px-3 py-2 bg-gradient-to-r from-brand-500 to-brand-600 text-white rounded-lg text-xs font-bold hover:from-brand-600 hover:to-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                   >
                     Accept
                   </button>
@@ -223,7 +223,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, onStatusUpdate, onCa
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
-              className="w-full p-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-brand-500"
               rows={2}
               placeholder="Enter reason..."
             />

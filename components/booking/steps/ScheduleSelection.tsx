@@ -63,7 +63,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
 
   return (
     <div>
-      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+      <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
         Select Date & Time
       </h2>
       
@@ -123,7 +123,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
                 className={`
                   relative p-3 rounded-lg text-center transition-all duration-200
                   ${dayInfo.isCurrentMonth ? '' : 'opacity-30'}
-                  ${isSelected ? 'ring-2 ring-blue-500 bg-blue-50' : ''}
+                  ${isSelected ? 'ring-2 ring-brand-500 bg-brand-50' : ''}
                   ${DATE_STATUS_STYLES[status]}
                 `}
               >
@@ -156,8 +156,8 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       {/* Time Selection */}
       {formData.startAt && (
         <div className="mt-6 animate-fadeIn">
-          <div className="bg-gradient-to-br from-white via-blue-50/30 to-blue-100/30 rounded-2xl border-2 border-gray-200 p-6">
-            <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
+          <div className="bg-gradient-to-br from-white via-brand-50/30 to-brand-100/30 rounded-2xl border-2 border-gray-200 p-6">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent mb-4">
               {new Date(formData.startAt).toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 month: 'long', 
@@ -177,8 +177,8 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       )}
       
       {/* Info Box */}
-      <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border-2 border-blue-200/50 mt-6">
-        <h3 className="font-bold text-lg bg-gradient-to-r from-blue-600 to-blue-600 bg-clip-text text-transparent mb-4">
+      <div className="bg-gradient-to-br from-brand-50 to-brand-100 rounded-2xl p-6 border-2 border-brand-200/50 mt-6">
+        <h3 className="font-bold text-lg bg-gradient-to-r from-brand-600 to-brand-600 bg-clip-text text-transparent mb-4">
           Important Information
         </h3>
         <div className="grid gap-3">

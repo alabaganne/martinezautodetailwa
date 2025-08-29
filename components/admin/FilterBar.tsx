@@ -59,7 +59,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 	return (
 		<div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-6 relative overflow-hidden">
 			{/* Subtle gradient overlay */}
-			<div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-100/30 pointer-events-none"></div>
+			<div className="absolute inset-0 bg-gradient-to-br from-brand-50/30 via-transparent to-brand-100/30 pointer-events-none"></div>
 
 			<div className="relative flex flex-col gap-4">
 				{/* Row 1: Date Picker and Search */}
@@ -67,8 +67,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
 					{/* Date Picker Section */}
 					<div className="flex-1">
 						<div className="flex items-center gap-2 mb-3">
-							<div className="p-1.5 bg-blue-100 rounded-lg">
-								<Calendar className="text-blue-600" size={16} />
+							<div className="p-1.5 bg-brand-100 rounded-lg">
+								<Calendar className="text-brand-600" size={16} />
 							</div>
 							<span className="text-sm font-semibold text-gray-800">Date</span>
 						</div>
@@ -80,9 +80,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
 									onDateChange(addDays(selectedDate, -1));
 									onDateFilterTypeChange?.('custom');
 								}}
-								className="p-2 hover:bg-blue-50 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+								className="p-2 hover:bg-brand-50 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
 								aria-label="Previous day">
-								<ChevronLeft size={20} className="group-hover:text-blue-600 transition-colors group-disabled:text-gray-400" />
+								<ChevronLeft size={20} className="group-hover:text-brand-600 transition-colors group-disabled:text-gray-400" />
 							</button>
 
 							<div className="relative flex-1 max-w-[200px]">
@@ -93,7 +93,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 										handleDateInputChange(e);
 										onDateFilterTypeChange?.('custom');
 									}}
-									className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer bg-gray-50 hover:bg-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50"
+									className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent cursor-pointer bg-gray-50 hover:bg-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-gray-50"
 								/>
 							</div>
 
@@ -102,9 +102,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
 									onDateChange(addDays(selectedDate, 1));
 									onDateFilterTypeChange?.('custom');
 								}}
-								className="p-2 hover:bg-blue-50 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+								className="p-2 hover:bg-brand-50 rounded-lg transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
 								aria-label="Next day">
-								<ChevronRight size={20} className="group-hover:text-blue-600 transition-colors group-disabled:text-gray-400" />
+								<ChevronRight size={20} className="group-hover:text-brand-600 transition-colors group-disabled:text-gray-400" />
 							</button>
 						</div>
 					</div>
@@ -151,7 +151,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							}}
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'all'
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+									? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							All Bookings
@@ -162,7 +162,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							}}
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'week'
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+									? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							This Week
@@ -174,7 +174,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							}}
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'today'
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+									? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							Today
@@ -187,7 +187,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
 							className={`px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200 ${
 								dateFilterType === 'custom' &&
 								new Date(selectedDate.toDateString()).getTime() === new Date(addDays(new Date(), 1).toDateString()).getTime()
-									? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
+									? 'bg-gradient-to-r from-brand-500 to-brand-600 text-white'
 									: 'bg-gray-100 hover:bg-gray-200 text-gray-700'
 							}`}>
 							Tomorrow

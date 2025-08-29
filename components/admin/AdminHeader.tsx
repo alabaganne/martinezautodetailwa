@@ -19,14 +19,14 @@ export default function AdminHeader({
   showDate = true
 }: AdminHeaderProps) {
   return (
-    <div className="relative mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700">
+    <div className="relative mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-8 bg-gradient-to-r from-brand-600 via-brand-500 to-brand-700">
       <div className="relative z-10">
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">{title}</h1>
-            <p className="text-blue-100 text-lg">{subtitle}</p>
+            <p className="text-brand-100 text-lg">{subtitle}</p>
             {showDate && (
-              <div className="mt-4 text-sm text-blue-200">
+              <div className="mt-4 text-sm text-brand-200">
                 {new Date().toLocaleDateString('en-US', {
                   weekday: 'long',
                   year: 'numeric',

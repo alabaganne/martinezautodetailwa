@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #ffedd5;
+  --color-brand-200: #fed7aa;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-brand-800: #9a3412;
+  --color-brand-900: #7c2d12;
+}
+
 :root {
   line-height: 1.5;
   font-weight: 400;
@@ -12,11 +25,11 @@
 
 @layer components {
   .input-primary {
-    @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white;
+    @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-brand-200 focus:border-brand-500 transition-all duration-200 bg-gray-50 hover:bg-white;
   }
 
   .textarea-primary {
-    @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white resize-none;
+    @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-brand-200 focus:border-brand-500 transition-all duration-200 bg-gray-50 hover:bg-white resize-none;
   }
 
   .label-primary {
@@ -24,7 +37,7 @@
   }
 
   .select-primary {
-    @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white appearance-none cursor-pointer;
+    @apply w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-4 focus:ring-brand-200 focus:border-brand-500 transition-all duration-200 bg-gray-50 hover:bg-white appearance-none cursor-pointer;
   }
 
   button {

@@ -130,29 +130,29 @@ export default function CalendarPage() {
 
 			{/* Calendar Controls with Enhanced Styling */}
 			<div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-6 relative overflow-hidden">
-				<div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-blue-100/30 pointer-events-none"></div>
+				<div className="absolute inset-0 bg-gradient-to-br from-brand-50/30 via-transparent to-brand-100/30 pointer-events-none"></div>
 				<div className="relative flex items-center justify-between">
 					<div className="flex items-center space-x-4">
 						<button 
 							onClick={() => navigateMonth(-1)} 
-							className="p-2.5 hover:bg-blue-50 rounded-xl transition-all duration-200 group" 
+							className="p-2.5 hover:bg-brand-50 rounded-xl transition-all duration-200 group" 
 							aria-label="Previous month"
 						>
-							<ChevronLeft className="w-5 h-5 group-hover:text-blue-600 transition-colors" />
+							<ChevronLeft className="w-5 h-5 group-hover:text-brand-600 transition-colors" />
 						</button>
-						<h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">
+						<h2 className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
 							{formatMonthYear()}
 						</h2>
 						<button 
 							onClick={() => navigateMonth(1)} 
-							className="p-2.5 hover:bg-blue-50 rounded-xl transition-all duration-200 group" 
+							className="p-2.5 hover:bg-brand-50 rounded-xl transition-all duration-200 group" 
 							aria-label="Next month"
 						>
-							<ChevronRight className="w-5 h-5 group-hover:text-blue-600 transition-colors" />
+							<ChevronRight className="w-5 h-5 group-hover:text-brand-600 transition-colors" />
 						</button>
 					</div>
 					<div className="text-sm text-gray-600 font-medium">
-						<span className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg">
+						<span className="bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg">
 							{bookings.length} total bookings
 						</span>
 					</div>
@@ -179,14 +179,14 @@ export default function CalendarPage() {
 								key={index}
 								className={`min-h-[100px] p-2 ${index < 35 ? 'border-b' : ''} border-gray-200 ${index % 7 < 6 ? 'border-r' : ''} ${
 									!isCurrentMonth ? 'bg-gray-50' : 'bg-white'
-								} ${isToday(date) ? 'bg-blue-50' : ''}`}>
+								} ${isToday(date) ? 'bg-brand-50' : ''}`}>
 								<div className="flex justify-between items-start mb-1">
 									<span
-										className={`text-sm font-medium ${!isCurrentMonth ? 'text-gray-400' : 'text-gray-900'} ${isToday(date) ? 'text-blue-600' : ''}`}>
+										className={`text-sm font-medium ${!isCurrentMonth ? 'text-gray-400' : 'text-gray-900'} ${isToday(date) ? 'text-brand-600' : ''}`}>
 										{date.getDate()}
 									</span>
 									{hasBookings && (
-										<span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-blue-600 rounded-full">
+										<span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-white bg-brand-600 rounded-full">
 											{dayBookings.length}
 										</span>
 									)}
@@ -203,7 +203,7 @@ export default function CalendarPage() {
 											return (
 												<div
 													key={booking.id}
-													className="text-xs p-1 bg-blue-100 text-blue-800 rounded truncate cursor-pointer hover:bg-blue-200 transition-colors"
+													className="text-xs p-1 bg-brand-100 text-brand-800 rounded truncate cursor-pointer hover:bg-brand-200 transition-colors"
 													title={`${timeStr} - ${booking.customerNote}`}>
 													{shortTimeStr} - {booking.customerNote || 'No note'}
 												</div>
@@ -221,11 +221,11 @@ export default function CalendarPage() {
 			{/* Legend */}
 			<div className="mt-6 flex items-center space-x-6 text-sm text-gray-600">
 				<div className="flex items-center space-x-2">
-					<div className="w-4 h-4 bg-blue-100 rounded"></div>
+					<div className="w-4 h-4 bg-brand-100 rounded"></div>
 					<span>Today</span>
 				</div>
 				<div className="flex items-center space-x-2">
-					<div className="w-4 h-4 bg-blue-500 rounded"></div>
+					<div className="w-4 h-4 bg-brand-500 rounded"></div>
 					<span>Has Bookings</span>
 				</div>
 			</div>

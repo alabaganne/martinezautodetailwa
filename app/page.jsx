@@ -38,7 +38,7 @@ export default function Home() {
       {mounted && isDevMode && (
         <button 
           onClick={() => setShowApiTest(true)}
-          className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 border-2 border-transparent"
+          className="fixed bottom-4 right-4 z-50 px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 border-2 border-transparent"
         >
           Test Square API
         </button>

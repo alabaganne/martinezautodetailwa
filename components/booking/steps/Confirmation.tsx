@@ -53,7 +53,7 @@ const Confirmation = ({ formData, setFormData, setStep }: Props) => {
       </div>
 
       <div className="space-y-3">
-        {/* <button className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+        {/* <button className="w-full bg-brand-600 text-white py-3 rounded-lg font-semibold hover:bg-brand-700 transition-colors">
           Add to Calendar
         </button> */}
         <button 
@@ -65,7 +65,7 @@ const Confirmation = ({ formData, setFormData, setStep }: Props) => {
       </div>
 
       <div className="mt-6 text-sm text-gray-600">
-        <p>Questions? Call us at <a href="tel:555-123-4567" className="text-blue-600 font-medium">(555) 123-4567</a></p>
+        <p>Questions? Call us at <a href="tel:555-123-4567" className="text-brand-600 font-medium">(555) 123-4567</a></p>
       </div>
     </div>
   );
