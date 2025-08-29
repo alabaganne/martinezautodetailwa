@@ -1,6 +1,6 @@
 import { Customer, Availability } from 'square/api';
 import { getTeamMemberId, searchAvailability } from '../lib/availability';
-import { bookingsApi, customersApi, getLocationId, teamMembersApi } from '../lib/client';
+import { bookingsApi, cardsApi, customersApi, getLocationId, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 
 /**
@@ -70,6 +70,9 @@ interface CreateBookingRequest {
 	vehicleMake: string;
 	vehicleModel: string;
 	vehicleYear: string;
+	paymentToken?: string; // Square payment token for no-show fee
+	cardLastFour?: string; // Last 4 digits of card
+	cardBrand?: string; // Card brand (Visa, Mastercard, etc.)
 }
 
 export async function POST(request) {
@@ -78,7 +81,7 @@ export async function POST(request) {
 
 		console.log('Create booking request body', body);
 
-		let { email, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear } = body;
+		let { email, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear, paymentToken, cardLastFour, cardBrand } = body;
 		if (!email || !startAt || !serviceVariationId) {
 			return new Response(JSON.stringify({ error: 'customerId, startAt, and serviceVariationid are required' }), {
 				status: 400,
@@ -109,6 +112,30 @@ export async function POST(request) {
 		const customer = await findOrCreateCustomer(email);
 		const defaultLocationId = await getLocationId();
 
+		// Store card on file if payment token is provided
+		let storedCardId = null;
+		if (paymentToken && customer) {
+			try {
+				const idempotencyKey = `card-${customer.id}-${Date.now()}`;
+				const cardResponse = await cardsApi.createCard({
+					idempotencyKey,
+					sourceId: paymentToken,
+					card: {
+						customerId: customer.id,
+					},
+				});
+
+				if (cardResponse.card) {
+					storedCardId = cardResponse.card.id;
+					console.log('Successfully stored card on file:', storedCardId);
+				}
+			} catch (cardError) {
+				console.error('Failed to store card on file:', cardError);
+				// Continue with booking creation even if card storage fails
+				// Square Dashboard can still collect payment info later
+			}
+		}
+
 		const bookingData = {
 			locationId: defaultLocationId,
 			customerId: customer.id,
@@ -120,8 +147,9 @@ export async function POST(request) {
 					`Model: ${vehicleModel}`,
 					`Year: ${vehicleYear}`,
 					`Color: ${vehicleColor}`,
+					cardBrand && cardLastFour ? `Card on File: ${cardBrand} ending in ${cardLastFour}` : null,
 					`Notes: ${notes}`,
-				].join(' | ') || '',
+				].filter(Boolean).join(' | ') || '',
 			appointmentSegments: [
 				{
 					teamMemberId: await getTeamMemberId(),

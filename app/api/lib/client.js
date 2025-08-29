@@ -24,6 +24,7 @@ const client = new SquareClient(config);
 
 // Export the API instances we use
 export const bookingsApi = client.bookings;
+export const cardsApi = client.cards;
 export const catalogApi = client.catalog;
 export const customersApi = client.customers;
 export const locationsApi = client.locations;

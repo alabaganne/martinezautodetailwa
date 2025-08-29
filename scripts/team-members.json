@@ -10,29 +10,5 @@
         "assignmentType": "ALL_CURRENT_AND_FUTURE_LOCATIONS"
       }
     }
-  },
-  "bay-2-tech": {
-    "teamMember": {
-      "givenName": "Bay 2",
-      "familyName": "Technician",
-      "emailAddress": "bay2@example.com",
-      "phoneNumber": "+14155552222",
-      "referenceId": "bay-2-tech",
-      "assignedLocations": {
-        "assignmentType": "ALL_CURRENT_AND_FUTURE_LOCATIONS"
-      }
-    }
-  },
-  "bay-3-tech": {
-    "teamMember": {
-      "givenName": "Bay 3",
-      "familyName": "Technician",
-      "emailAddress": "bay3@example.com",
-      "phoneNumber": "+14155553333",
-      "referenceId": "bay-3-tech",
-      "assignedLocations": {
-        "assignmentType": "ALL_CURRENT_AND_FUTURE_LOCATIONS"
-      }
-    }
   }
 }

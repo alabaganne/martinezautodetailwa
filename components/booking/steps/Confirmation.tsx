@@ -1,8 +1,15 @@
 'use client'
 import React from 'react';
 import { Check, CheckCircle } from 'lucide-react';
+import { BookingFormData } from '@/contexts/BookingContext';
 
-const Confirmation = ({ formData, setFormData, setStep }) => {
+interface Props {
+  formData: BookingFormData;
+  setFormData: (data: BookingFormData) => void;
+  setStep: (step: number) => void;
+}
+
+const Confirmation = ({ formData, setFormData, setStep }: Props) => {
   const handleNewBooking = () => {
     setStep(1);
     // Reset form will be handled by the parent component
