@@ -51,7 +51,11 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 	// Month is 1-indexed from the caller, JavaScript Date uses 0-indexed months
 	const monthIndex = month - 1;
 
-	const today = new Date();
+
+	const tomorrow = new Date();
+	tomorrow.setDate(tomorrow.getDate() + 1);
+	tomorrow.setHours(0, 0, 0, 0); // Set to start of tomorrow
+	
 	let startAt: Date;
 	let endAt: Date;
 
@@ -65,11 +69,11 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 		endAt = new Date(year, monthIndex + 1, 1);
 	}
 
-	// Start date cannot be in the past
-	if (startAt < today) {
-		startAt = new Date(today);
-		// If searching for a specific day and it's in the past, return empty
-		if (day && endAt <= today) {
+	// Start date cannot be today or in the past - must be at least tomorrow
+	if (startAt < tomorrow) {
+		startAt = new Date(tomorrow);
+		// If searching for a specific day and it's today or in the past, return empty
+		if (day && endAt <= tomorrow) {
 			return {};
 		}
 	}

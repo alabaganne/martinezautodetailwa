@@ -97,7 +97,7 @@ export const useCalendar = (isActive: boolean) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    if (date < today) return 'past';
+    if (date <= today) return 'past';
     if (date.getDay() === 0 || date.getDay() === 6) return 'weekend';
     
     const dateStr = formatDateKey(date);
