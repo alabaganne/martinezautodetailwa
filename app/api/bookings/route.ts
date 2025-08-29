@@ -2,6 +2,7 @@ import { Customer, Availability } from 'square/api';
 import { getTeamMemberId, searchAvailability } from '../lib/availability';
 import { bookingsApi, cardsApi, customersApi, getLocationId, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
+import { randomUUID } from 'crypto';
 
 /**
  * GET /api/bookings
@@ -139,6 +140,7 @@ export async function POST(request) {
 		const response = await bookingsApi.create({
 			booking: bookingData,
 		});
+		
 		return successResponse(response.booking || response);
 	} catch (error) {
 		return handleSquareError(error, 'Failed to create booking');
@@ -186,25 +188,21 @@ async function storeCardOnFile(customer: Customer | null, paymentToken: string |
 		return null;
 	}
 
-	try {
-		const idempotencyKey = `card-${customer.id}-${Date.now()}`;
-		const cardResponse = await cardsApi.create({
-			idempotencyKey,
-			sourceId: paymentToken,
-			card: {
-				customerId: customer.id,
-			},
-		});
+	const idempotencyKey = randomUUID();
+	const cardResponse = await cardsApi.create({
+		idempotencyKey,
+		sourceId: paymentToken,
+		card: {
+			customerId: customer.id,
+		},
+	});
 
-		if (cardResponse.card) {
-			console.log('Successfully stored card on file:', cardResponse.card.id);
-			return cardResponse.card.id;
-		}
-	} catch (cardError) {
-		console.error('Failed to store card on file:', cardError);
-		// Continue with booking creation even if card storage fails
-		// Square Dashboard can still collect payment info later
+	if (cardResponse.card) {
+		console.log('Successfully stored card on file:', cardResponse.card.id);
+		return cardResponse.card.id;
 	}
-
-	return null;
+	else {
+		console.log('cardResponse', cardResponse);
+		throw new Error('Error occurred saving card on file.');
+	}
 }

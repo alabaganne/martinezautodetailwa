@@ -145,7 +145,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
       }
 
       // Move to confirmation step
-      setStep(6);
+      setStep(7);
       return result;
     } catch (error) {
       throw error;
