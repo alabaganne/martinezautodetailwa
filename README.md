@@ -33,19 +33,19 @@ A modern, responsive web application for Martinez Auto Detail that allows custom
 
 ### Booking Flow
 
-| Service Selection | Schedule Selection | Customer Information |
-|:-----------------:|:------------------:|:--------------------:|
-| ![Service Selection](preview/service-selection.png) | ![Schedule Selection](preview/shcedule-selection.png) | ![Customer Info](preview/customer-info.png) |
+| Service Selection | Schedule Selection | Vehicle Information |
+|:-----------------:|:------------------:|:-------------------:|
+| ![Service Selection](preview/service-selection.png) | ![Schedule Selection](preview/shcedule-selection.png) | ![Vehicle Info](preview/vehicle-info.png) |
 
-| Vehicle Information | Review & Confirm | Card on File |
-|:-------------------:|:----------------:|:------------:|
-| ![Vehicle Info](preview/vehicle-info.png) | ![Review](preview/review.png) | ![Card on File](preview/card-on-file.png) |
+| Review & Confirm | Card on File | Confirmation |
+|:----------------:|:------------:|:------------:|
+| ![Review](preview/review.png) | ![Card on File](preview/card-on-file.png) | ![Confirmation](preview/confirmation.png) |
 
-| Confirmation | Admin Dashboard | Calendar View |
-|:------------:|:---------------:|:-------------:|
-| ![Confirmation](preview/confirmation.png) | ![Dashboard](preview/dashboard.png) | ![Calendar](preview/dashboard-calendar.png) |
+### Admin Dashboard
 
-### Admin Access
+![Dashboard](preview/dashboard.png)
+
+![Calendar View](preview/dashboard-calendar.png)
 
 ![Admin Login](preview/auth.png)
 
