@@ -69,12 +69,43 @@ cd car-wash-appointments
 npm install
 ```
 
-3. Start the development server:
+3. Set up Square Sandbox account:
+   - Create a free account at [Square Developer](https://developer.squareup.com)
+   - Navigate to your Sandbox Dashboard
+   - Enable **Square Appointments** in the Sandbox Dashboard
+
+4. Configure environment variables:
+   - Copy `.env.example` to `.env.local`
+   - Add your Square credentials:
+```bash
+cp .env.example .env.local
+```
+   - Update `.env.local` with:
+     - `SQUARE_ACCESS_TOKEN`: Your Sandbox access token from Square Dashboard
+     - `NEXT_PUBLIC_SQUARE_APPLICATION_ID`: Your Sandbox application ID
+     - `SQUARE_ENVIRONMENT`: Set to `sandbox` for development
+     - `ADMIN_PASSWORD`: Set your admin dashboard password
+
+5. Initialize Square catalog and team (Required):
+```bash
+# Create service catalog items
+npm run create:catalog
+
+# Create team members
+npm run create:team
+```
+
+6. Configure team members in Square Dashboard:
+   - Go to your Square Sandbox Dashboard
+   - Navigate to Staff > Team > Team Members
+   - Make your team members **bookable** for appointments
+
+7. Start the development server:
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to:
+8. Open your browser and navigate to:
 ```
 http://localhost:3000
 ```
