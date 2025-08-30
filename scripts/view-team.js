@@ -18,9 +18,9 @@ if (!accessToken) {
   process.exit(1);
 }
 
-const environment = accessToken.startsWith('EAAA') 
-  ? SquareEnvironment.Sandbox 
-  : SquareEnvironment.Production;
+const environment = process.env.SQUARE_ENVIRONMENT === 'production'
+  ? SquareEnvironment.Production 
+  : SquareEnvironment.Sandbox;
 
 const client = new SquareClient({
   token: accessToken,

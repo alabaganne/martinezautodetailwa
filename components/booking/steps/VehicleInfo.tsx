@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Car, Palette, FileText } from 'lucide-react';
+import { Palette, FileText } from 'lucide-react';
 import { BookingFormData } from '@/contexts/BookingContext';
 import InfoBox from '@/components/common/InfoBox';
 

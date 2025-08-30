@@ -22,7 +22,7 @@ if (!accessToken) {
 }
 
 // Detect environment
-const environment = SquareEnvironment.Sandbox ;
+const environment = process.env.SQUARE_ENVIRONMENT === 'production' ? SquareEnvironment.Production : SquareEnvironment.Sandbox;
 
 const client = new SquareClient({
   token: accessToken,

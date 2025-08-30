@@ -20,14 +20,14 @@ if (!accessToken) {
 }
 
 // Detect environment based on token
-let environment = accessToken.startsWith('EAAA') 
-  ? SquareEnvironment.Sandbox 
-  : SquareEnvironment.Production;
+let environment = process.env.SQUARE_ENVIRONMENT === 'production' 
+  ? SquareEnvironment.Production 
+  : SquareEnvironment.Sandbox;
 
 const client = new SquareClient({
   token: accessToken,
   environment,
-  userAgentDetail: 'car-wash-catalog-init'
+  userAgentDetail: 'car-wash-catalog-view'
 });
 
 /**

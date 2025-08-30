@@ -18,7 +18,7 @@ async function main() {
 
 		const client = new SquareClient({
 			token: process.env.SQUARE_ACCESS_TOKEN,
-			environment: SquareEnvironment.Sandbox,
+			environment: process.env.SQUARE_ENVIRONMENT === 'production' ? SquareEnvironment.Production : SquareEnvironment.Sandbox,
 		});
 
 		console.log(`Creating ${data.length} team member(s) to Square...`);

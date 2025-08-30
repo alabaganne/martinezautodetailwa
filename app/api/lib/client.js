@@ -8,9 +8,9 @@ if (!accessToken) {
 
 // Determine environment based on token prefix
 // Sandbox tokens typically start with 'EAAA'
-const environment = accessToken.startsWith('EAAA') 
-  ? SquareEnvironment.Sandbox 
-  : SquareEnvironment.Production;
+const environment = process.env.SQUARE_ENVIRONMENT === 'production' 
+  ? SquareEnvironment.Production 
+  : SquareEnvironment.Sandbox;
 
 // Set Square credentials
 const config = {
