@@ -17,6 +17,8 @@ A modern, responsive web application for Martinez Auto Detail that allows custom
   - Fixed 5:00 PM pickup time
 - **Vehicle Information**: Capture customer and vehicle details
 - **Booking Review**: Comprehensive summary before confirmation
+- **Secure Payment**: Card on file feature for no-show fee protection
+- **Admin Dashboard**: Manage bookings, view calendar, and track appointments
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ## Tech Stack
@@ -27,41 +29,25 @@ A modern, responsive web application for Martinez Auto Detail that allows custom
 - **Lucide React** - Icon library
 - **Square API** - Payment processing and appointment scheduling
 
-## Project Structure
+## Preview
 
-```
-app/
-├── api/
-│   └── square/                      # Square API proxy endpoints
-│       └── [...path]/
-│           └── route.js
-├── globals.css                      # Global styles
-├── layout.jsx                       # Root layout
-└── page.jsx                         # Home page
+### Booking Flow
 
-components/
-├── booking/
-│   ├── BookingSystem.jsx            # Main booking component
-│   └── steps/
-│       ├── ServiceSelection.jsx     # Step 1: Service & vehicle type
-│       ├── ScheduleSelection.jsx    # Step 2: Date & time
-│       ├── VehicleInfo.jsx          # Step 3: Customer & vehicle details
-│       ├── ReviewConfirm.jsx        # Step 4: Review booking
-│       └── Confirmation.jsx         # Step 5: Booking confirmation
-├── common/
-│   └── ProgressBar.jsx              # Progress indicator
-└── SquareApiTest.jsx                # Square API testing component
+| Service Selection | Schedule Selection | Customer Information |
+|:-----------------:|:------------------:|:--------------------:|
+| ![Service Selection](preview/service-selection.png) | ![Schedule Selection](preview/shcedule-selection.png) | ![Customer Info](preview/customer-info.png) |
 
-lib/
-├── config/
-│   ├── env.js                       # Environment configuration
-│   └── square.js                    # Square SDK configuration
-├── data/
-│   └── constants.js                 # Services, prices, durations
-└── utils/
-    ├── booking.js                   # Booking helper functions
-    └── squareClient.js              # Square API client utilities
-```
+| Vehicle Information | Review & Confirm | Card on File |
+|:-------------------:|:----------------:|:------------:|
+| ![Vehicle Info](preview/vehicle-info.png) | ![Review](preview/review.png) | ![Card on File](preview/card-on-file.png) |
+
+| Confirmation | Admin Dashboard | Calendar View |
+|:------------:|:---------------:|:-------------:|
+| ![Confirmation](preview/confirmation.png) | ![Dashboard](preview/dashboard.png) | ![Calendar](preview/dashboard-calendar.png) |
+
+### Admin Access
+
+![Admin Login](preview/auth.png)
 
 ## Getting Started
 
@@ -95,7 +81,16 @@ http://localhost:3000
 
 ### Available Scripts
 
+#### Development & Build
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
+
+#### Square API Management
+- `npm run create:catalog` - Create catalog items in Square
+- `npm run create:team` - Create team members in Square
+- `npm run view:catalog` - View current catalog items
+- `npm run view:team` - View current team members
+- `npm run view:bookings` - View all bookings
+- `npm run seed:bookings` - Create sample bookings (development)

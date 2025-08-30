@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "create:catalog": "node scripts/create-catalog.js",
+    "create:team": "node scripts/create-team-member.js",
     "view:catalog": "node scripts/view-catalog.js",
     "view:team": "node scripts/view-team.js",
     "view:bookings": "node scripts/seed-bookings.js list",
