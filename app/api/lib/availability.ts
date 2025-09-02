@@ -23,7 +23,8 @@ export async function getTeamMemberId(): Promise<string> {
 		},
 	});
 
-	teamMembers = teamMembers.filter(tm => !tm.isOwner);
+
+	teamMembers = teamMembers.filter(tm => !tm.isOwner && tm.givenName.toLowerCase() !== 'strivehawk');
 
 	if (teamMembers.length === 0) {
 		throw new Error('No active team members found for the location');
