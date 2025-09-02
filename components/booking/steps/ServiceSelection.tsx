@@ -20,9 +20,9 @@ const SERVICES = [
 ];
 
 const VEHICLES = [
-	{ key: 'car', name: 'Car' },
+	{ key: 'car', name: 'Small Car' },
 	{ key: 'truck', name: 'Truck' },
-	{ key: 'mini van', name: 'Minivain / SUV' },
+	{ key: 'mini van', name: 'Minivain' },
 ];
 
 const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
