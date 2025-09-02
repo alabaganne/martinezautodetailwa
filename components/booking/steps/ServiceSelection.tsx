@@ -20,9 +20,9 @@ const SERVICES = [
 ];
 
 const VEHICLES = [
-	{ key: 'small', name: 'Small Car' },
+	{ key: 'car', name: 'Car' },
 	{ key: 'truck', name: 'Truck' },
-	{ key: 'minivan', name: 'Minivan' },
+	{ key: 'mini van', name: 'mini van' },
 ];
 
 const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
@@ -56,7 +56,7 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
 					{/* Service Cards */}
 					<div className="grid gap-5">
 						{SERVICES.map((service) => {
-							const price = calculatePrice('small', service.key, false);
+							const price = calculatePrice('car', service.key, false);
 							const isSelected = serviceType === service.key;
 							const Icon = service.icon
 
@@ -109,7 +109,7 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
 								const isSelected = vehicleType === vehicle.key;
 								const priceAdjustment = serviceType
 									? calculatePrice(vehicle.key, serviceType, vehicleCondition === 'very-dirty') -
-									  calculatePrice('small', serviceType, vehicleCondition === 'very-dirty')
+									  calculatePrice('car', serviceType, vehicleCondition === 'very-dirty')
 									: 0;
 
 								return (
