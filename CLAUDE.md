@@ -112,5 +112,50 @@ const teamMembers = response.teamMembers || [];
 7. Confirmation shown with payment status
 
 
-# To memorize
-- remember to keep things simple and not to do anything i didn't type it for you to do.
+## Codebase Documentation
+
+### Core Architecture
+- **Stack**: Next.js 15, React 19, Tailwind CSS v4, Square API for everything (bookings, customers, payments, catalog)
+- **Main Flow**: 7-step booking form → Square API → Admin dashboard  
+- **Key Pattern**: All data stored in Square, no local database
+
+### File Structure Reference
+```
+/app
+  /api/* - All Square API integrations
+  /admin - Dashboard pages (protected by middleware)
+  page.jsx - Main booking page
+/components
+  /booking/BookingSystem.tsx - Main orchestrator
+  /booking/steps/* - Each booking step component
+  /admin/* - Dashboard components
+/contexts/BookingContext.tsx - Booking state management
+/lib/utils/validation.ts - Form validation logic
+/middleware.js - Admin auth protection
+```
+
+### API Routes Quick Reference
+- `POST /api/bookings` - Create booking with customer, payment token
+- `GET /api/bookings` - List bookings with filters
+- `DELETE /api/bookings/[id]` - Cancel booking
+- `POST /api/cards` - Tokenize card (creates Square card on file)
+- All routes use `/api/lib/client.js` for Square client setup
+
+### Key Business Logic
+- **Payment**: Card saved on file for no-show protection, NOT charged at booking
+- **Schedule**: Weekdays only, drop-off morning or evening before, pickup 5PM
+- **Pricing**: Dynamic based on service type + vehicle size + condition
+- **Custom Rules**: Implements scheduling rules that Square doesn't handle natively
+
+### Environment Variables
+- `SQUARE_ACCESS_TOKEN` - Square API auth
+- `NEXT_PUBLIC_SQUARE_APPLICATION_ID` - For Web Payments SDK
+- `SQUARE_ENVIRONMENT` - sandbox/production
+- `ADMIN_PASSWORD` - Admin dashboard access
+
+### When Making Changes
+- All Square API calls go through `/app/api/lib/client.js`
+- Booking flow state managed by `BookingContext`
+- Admin auth via middleware + cookie session
+- Form validation in `/lib/utils/validation.ts`
+- 7 booking steps: Service → Schedule → Contact → Vehicle → Payment → Review → Confirmation
