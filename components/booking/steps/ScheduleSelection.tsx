@@ -180,7 +180,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       <InfoBox 
         title="Important Information"
         items={[
-          { title: 'Business Hours', desc: 'Open Monday through Friday only' },
+          { title: 'Business Hours', desc: 'Open Monday through Saturday' },
           { title: 'Drop-off Times', desc: 'Vehicles must be given at 8 AM or the evening before' },
           { title: 'Pickup Time', desc: 'All vehicles ready at 5:00 PM' }
         ]}
