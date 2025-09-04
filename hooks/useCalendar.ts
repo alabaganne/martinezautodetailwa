@@ -11,7 +11,7 @@ type DateStatus = 'available' | 'full' | 'weekend' | 'past' | 'loading' | 'close
 
 export const useCalendar = (isActive: boolean) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date());
-  const [availability, setAvailability] = useState<String[]>();
+  const [availability, setAvailability] = useState<Record<string, Availability> | {}>({});
   const [loading, setLoading] = useState(false);
   const { selectedService } = useCatalog();
 
@@ -39,10 +39,10 @@ export const useCalendar = (isActive: boolean) => {
         const response = await fetch(
           `/api/bookings/availability/search?month=${month}&year=${year}&serviceVariationId=${selectedService.serviceVariationId}`
         );
-        const availability: String[] = await response.json();
+        const availability: Record<string, Availability[]> = await response.json();
         
         // Set the availability array directly
-        setAvailability(availability || []);
+        setAvailability(availability || {});
       } catch (error) {
         console.error('Failed to load availability:', error);
         alert('Failed to load availability');
@@ -101,7 +101,7 @@ export const useCalendar = (isActive: boolean) => {
     if (date.getDay() === 0 || date.getDay() === 6) return 'weekend';
     
     const dateStr = formatDateKey(date);
-    const isAvailable = availability.includes(dateStr);
+    const isAvailable = availability.hasOwnProperty(dateStr);
     
     return isAvailable ? 'available' : 'full';
   };

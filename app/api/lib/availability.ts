@@ -1,3 +1,4 @@
+import { Availability } from 'square/api';
 import { bookingsApi, getLocationId, teamMembersApi } from './client';
 
 /**
@@ -38,9 +39,9 @@ export async function getTeamMemberId(): Promise<string> {
  * @param month - The month (1-indexed, 1-12)
  * @param serviceVariationId - The service variation ID
  * @param day - Optional day of the month (1-31). If not provided, searches entire month
- * @returns Array of available dates in YYYY-MM-DD format
+ * @returns Object with dates as keys and first availability slot as values
  */
-export async function searchAvailability(serviceVariationId: string, year: number, month: number, day?: number): Promise<string[]> {
+export async function searchAvailability(serviceVariationId: string, year: number, month: number, day?: number): Promise<Record<string, Availability>> {
 	if (month < 1 || month > 12) {
 		throw new Error('Month must be between 1 and 12');
 	}
@@ -57,7 +58,7 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 	
 	const defaultLocationId = await getLocationId();
 	const teamMemberId = await getTeamMemberId();
-	const allAvailabilities: any[] = [];
+	const allAvailabilities: Availability[] = [];
 
 	if (day) {
 		// Search for specific day (UTC)
@@ -66,7 +67,7 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 		
 		// Skip if the requested day is in the past
 		if (startAt < todayUTC) {
-			return [];
+			return {};
 		}
 		
 		const page = await bookingsApi.searchAvailability({
@@ -87,7 +88,7 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 		});
 		if (page.availabilities) allAvailabilities.push(...page.availabilities);
 	} else {
-		// Search for entire month day by day
+		// Search for entire month day by day using concurrent requests
 		// Get the last day of the month
 		const lastDayOfMonth = new Date(Date.UTC(year, monthIndex + 1, 0)).getDate();
 		
@@ -100,15 +101,19 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 			startDay = Math.max(1, currentDate.getUTCDate());
 		}
 		
-		// Loop through each day of the month from startDay
+		// Build array of days to fetch (filtering out past days)
+		const daysToFetch: number[] = [];
 		for (let currentDay = startDay; currentDay <= lastDayOfMonth; currentDay++) {
 			const startAt = new Date(Date.UTC(year, monthIndex, currentDay));
-			const endAt = new Date(Date.UTC(year, monthIndex, currentDay + 1));
-			
-			// Skip if this day is in the past
-			if (startAt < todayUTC) {
-				continue;
+			if (startAt >= todayUTC) {
+				daysToFetch.push(currentDay);
 			}
+		}
+		
+		// Create array of promises for concurrent execution
+		const availabilityPromises = daysToFetch.map(async (currentDay) => {
+			const startAt = new Date(Date.UTC(year, monthIndex, currentDay));
+			const endAt = new Date(Date.UTC(year, monthIndex, currentDay + 1));
 			
 			try {
 				const page = await bookingsApi.searchAvailability({
@@ -128,22 +133,34 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 					},
 				});
 				
-				if (page.availabilities) {
-					allAvailabilities.push(...page.availabilities);
+				if (page.availabilities && page.availabilities.length > 0) {
+					// Sort to get the earliest slot first
+					const sortedSlots = page.availabilities.sort((a, b) => 
+						new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+					);
+					return sortedSlots[0]; // Return first available slot
 				}
+				return null;
 			} catch (error) {
-				// Log error for individual day but continue with other days
 				console.error(`Error fetching availability for ${year}-${month}-${currentDay}:`, error);
+				return null;
 			}
-		}
+		});
+		
+		// Execute all requests concurrently and filter out nulls
+		const results = await Promise.all(availabilityPromises);
+		
+		// Add all non-null results to allAvailabilities
+		allAvailabilities.push(...results.filter(slot => slot !== null));
 	}
 
-	// Extract unique dates from aggregated availabilities
-	const availableDates = new Set<string>();
-	allAvailabilities.forEach((slot: any) => {
+	// Create a date availability map - since we already have first slot per day,
+	// just build the map directly
+	const dateAvailabilityMap: Record<string, Availability> = {};
+	allAvailabilities.forEach((slot: Availability) => {
 		const dateKey = slot.startAt.split('T')[0];
-		availableDates.add(dateKey);
+		dateAvailabilityMap[dateKey] = slot;
 	});
 
-	return Array.from(availableDates).sort();
+	return dateAvailabilityMap;
 }

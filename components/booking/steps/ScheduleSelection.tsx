@@ -57,7 +57,6 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
     const status = getDateStatus(date);
     if (status === 'available') {
       const dateStr = selectDate(date);
-      console.log('dateStr', dateStr);
       setFormData({ ...formData, startAt: availability[dateStr].startAt });
     }
   };
@@ -115,7 +114,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
             const month = String(dayInfo.date.getMonth() + 1).padStart(2, '0');
             const day = String(dayInfo.date.getDate()).padStart(2, '0');
             const dateKey = `${year}-${month}-${day}`;
-            const isSelected = formData.startAt === availability[dateKey]?.startAt;
+            const isSelected = formData.startAt && formData.startAt === availability[dateKey]?.startAt;
             
             return (
               <div
