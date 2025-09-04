@@ -98,7 +98,8 @@ export const useCalendar = (isActive: boolean) => {
     today.setHours(0, 0, 0, 0);
     
     if (date <= today) return 'past';
-    if (date.getDay() === 0 || date.getDay() === 6) return 'weekend';
+    // Treat only Sunday as closed; Saturday is open
+    if (date.getDay() === 0) return 'weekend';
     
     const dateStr = formatDateKey(date);
     const isAvailable = availability.hasOwnProperty(dateStr);
