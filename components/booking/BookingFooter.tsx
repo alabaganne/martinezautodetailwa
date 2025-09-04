@@ -5,13 +5,13 @@ const BookingFooter: React.FC = () => {
   const contactInfo = [
     {
       icon: Phone,
-      href: "tel:555-123-4567",
-      text: "(555) 123-4567",
+      href: "tel:36°-545-3506",
+      text: "(360) 545 3506",
     },
     {
       icon: MapPin,
       href: "#",
-      text: "123 Main St, City, ST 12345",
+      text: "1728 Harisson Ave, Centralia WA 98531",
     }
   ];
 
@@ -30,7 +30,18 @@ const BookingFooter: React.FC = () => {
           );
         })}
       </div>
-      <p className="text-gray-900 flex items-center justify-center gap-2"><Copyright size={15} /> 2024 Martinez Auto Detail. All rights reserved.</p>
+      <p className="text-gray-900 flex items-center justify-center gap-1.5"><Copyright size={15} /> 2024 Martinez Auto Detail. All rights reserved</p>
+      <p className="text-gray-700 mt-1">
+        Developed and maintained by{' '}
+        <a
+          href="https://strivehawk.us/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand-600 font-semibold hover:underline"
+        >
+          Strivehawk
+        </a>
+      </p>
     </div>
   );
 };
