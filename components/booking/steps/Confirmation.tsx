@@ -65,7 +65,7 @@ const Confirmation = ({ formData, setFormData, setStep }: Props) => {
       </div>
 
       <div className="mt-6 text-sm text-gray-600">
-        <p>Questions? Call us at <a href="tel:555-123-4567" className="text-brand-600 font-medium">(555) 123-4567</a></p>
+        <p>Questions? Call us at <a href="tel:555-123-4567" className="text-brand-600 font-medium">(360) 545 3506</a></p>
       </div>
     </div>
   );
