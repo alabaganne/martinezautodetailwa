@@ -177,7 +177,7 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
       )}
       
       {/* Info Box */}
-      <InfoBox 
+      <InfoBox
         title="Important Information"
         items={[
           { title: 'Business Hours', desc: 'Open Monday through Saturday' },
@@ -186,6 +186,14 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
         ]}
         className="mt-6"
       />
+
+      <p className="text-sm text-gray-600 mt-4 text-center">
+        Can't find availability for your desired date? Call us at{' '}
+        <a href="tel:+13605453506" className="text-brand-600 font-medium">
+          +1 (360) 545 3506
+        </a>
+        .
+      </p>
     </div>
   );
 };
