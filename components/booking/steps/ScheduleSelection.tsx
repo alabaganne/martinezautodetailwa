@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react';
-import { Calendar, Clock, AlertCircle, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
+import { Calendar, Clock, AlertCircle, ChevronLeft, ChevronRight, Loader, MessageSquare } from 'lucide-react';
 import { BookingFormData } from '@/contexts/BookingContext';
 import InfoBox from '@/components/common/InfoBox';
 
@@ -201,6 +201,16 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
         </a>
         .
       </p>
+      <div className="mt-3 flex justify-center">
+        <a
+          href="sms:+13605453506"
+          aria-label="Text us at +1 (360) 545 3506"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-600 text-white shadow-sm hover:bg-brand-700 transition-colors"
+        >
+          <MessageSquare className="w-4 h-4" />
+          <span>Text Us</span>
+        </a>
+      </div>
     </div>
   );
 };
