@@ -194,6 +194,13 @@ const ScheduleSelection: React.FC<StepProps> = ({ formData, setFormData, isActiv
         </a>
         .
       </p>
+      <p className="text-sm text-gray-600 mt-2 text-center">
+        Prefer texting? Send us an SMS at{' '}
+        <a href="sms:+13605453506" className="text-brand-600 font-medium">
+          +1 (360) 545 3506
+        </a>
+        .
+      </p>
     </div>
   );
 };
