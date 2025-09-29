@@ -12,7 +12,8 @@
     "view:catalog": "node scripts/view-catalog.js",
     "view:team": "node scripts/view-team.js",
     "view:bookings": "node scripts/seed-bookings.js list",
-    "seed:bookings": "node scripts/seed-bookings.js create"
+    "seed:bookings": "node scripts/seed-bookings.js create",
+    "cron:no-show": "node scripts/charge-no-show-fees.js"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.12",
