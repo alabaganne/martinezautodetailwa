@@ -113,11 +113,16 @@ export async function POST(request) {
 		// Store card on file if payment token is provided
 		const storedCardId = await storeCardOnFile(customer, paymentToken);
 
-		const bookingData = {
-			locationId: defaultLocationId,
-			customerId: customer.id,
-			startAt,
-			sellerNote: storedCardId ? `Card ID: ${storedCardId}` : undefined,
+                const sellerNoteParts = [
+                        storedCardId ? `Card ID: ${storedCardId}` : null,
+                        'No-Show Fee Charged (cents): 0',
+                ].filter(Boolean);
+
+                const bookingData = {
+                        locationId: defaultLocationId,
+                        customerId: customer.id,
+                        startAt,
+                        sellerNote: sellerNoteParts.length > 0 ? sellerNoteParts.join(' | ') : undefined,
 			customerNote:
 				[
 					`Drop-off Time: ${dropOffTime}`,
