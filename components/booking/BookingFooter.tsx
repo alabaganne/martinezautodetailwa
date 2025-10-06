@@ -5,8 +5,8 @@ const BookingFooter: React.FC = () => {
   const contactInfo = [
     {
       icon: Phone,
-      href: "tel:36°-545-3506",
-      text: "(360) 545 3506",
+      href: "tel:+13604643506",
+      text: "(360) 464 3506",
     },
     {
       icon: MapPin,

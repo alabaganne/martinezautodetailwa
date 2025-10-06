@@ -9,6 +9,14 @@
   },
   {
     "type": "CATEGORY",
+    "id": "#SMALL_SUV_TRUCKS",
+    "presentAtAllLocations": true,
+    "categoryData": {
+      "name": "Small SUV & Small Trucks"
+    }
+  },
+  {
+    "type": "CATEGORY",
     "id": "#TRUCK",
     "presentAtAllLocations": true,
     "categoryData": {
@@ -171,6 +179,108 @@
               "currency": "USD"
             },
             "serviceDuration": 14400000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#SmallSuvTruckInteriorExterior",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Small SUV & Small Trucks - Interior & Exterior Detail",
+      "description": "Complete interior and exterior detailing including wash, wax, vacuum, and protection for small SUVs and small trucks",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#SMALL_SUV_TRUCKS"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallSuvTruckInteriorExteriorNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallSuvTruckInteriorExterior",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "22000",
+              "currency": "USD"
+            },
+            "serviceDuration": 18000000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallSuvTruckInteriorExteriorVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallSuvTruckInteriorExterior",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "27000",
+              "currency": "USD"
+            },
+            "serviceDuration": 19800000
+          }
+        }
+      ]
+    }
+  },
+  {
+    "type": "ITEM",
+    "id": "#SmallSuvTruckFull",
+    "presentAtAllLocations": true,
+    "itemData": {
+      "name": "Small SUV & Small Trucks - Full Detail",
+      "description": "Premium full detail covering deep interior cleaning, paint decontamination, polish, and protective coatings for small SUVs and small trucks",
+      "productType": "APPOINTMENTS_SERVICE",
+      "categories": [
+        {
+          "id": "#SMALL_SUV_TRUCKS"
+        }
+      ],
+      "variations": [
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallSuvTruckFullNormal",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallSuvTruckFull",
+            "name": "Normal",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "32000",
+              "currency": "USD"
+            },
+            "serviceDuration": 21600000
+          }
+        },
+        {
+          "type": "ITEM_VARIATION",
+          "id": "#SmallSuvTruckFullVeryDirty",
+          "presentAtAllLocations": true,
+          "itemVariationData": {
+            "itemId": "#SmallSuvTruckFull",
+            "name": "Very Dirty",
+            "sku": "CAR-WASH-SERVICE",
+            "availableForBooking": true,
+            "pricingType": "FIXED_PRICING",
+            "priceMoney": {
+              "amount": "37000",
+              "currency": "USD"
+            },
+            "serviceDuration": 23400000
           }
         }
       ]

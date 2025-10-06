@@ -21,6 +21,7 @@ const SERVICES = [
 
 const VEHICLES = [
 	{ key: 'car', name: 'Small Car' },
+	{ key: 'new vehicle type', name: 'Small SUV & Small Trucks' },
 	{ key: 'truck', name: 'Truck' },
 	{ key: 'mini van', name: 'Minivan' },
 ];
@@ -104,7 +105,7 @@ const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {
 					{/* Vehicle Type Selection */}
 					<div className="mt-8">
 						<h3 className="font-bold mb-4 text-lg text-gray-800">Vehicle Type</h3>
-						<div className="grid grid-cols-3 gap-4">
+						<div className="grid grid-cols-2 gap-4">
 							{VEHICLES.map((vehicle) => {
 								const isSelected = vehicleType === vehicle.key;
 								const priceAdjustment = serviceType
