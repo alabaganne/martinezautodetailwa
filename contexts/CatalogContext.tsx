@@ -46,6 +46,72 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 	const [error, setError] = useState<string | null>(null);
 	const [selectedService, setSelectedService] = useState<ServiceInfo | null>(null);
 
+	const vehicleTypeConfig: Record<string, { label: string; searchTerms: string[] }> = {
+		car: {
+			label: 'Small Car',
+			searchTerms: ['small car', ' - car', ' car'],
+		},
+		'new vehicle type': {
+			label: 'Small SUV & Small Trucks',
+			searchTerms: ['small suv & small trucks', 'new vehicle type'],
+		},
+		truck: {
+			label: 'Truck',
+			searchTerms: ['truck', ' - truck', 'small truck'],
+		},
+		'mini van': {
+			label: 'Minivan',
+			searchTerms: ['suv / mini van', 'mini van', 'minivan', 'suv'],
+		},
+	};
+
+	const serviceTypeKeywordsMap: Record<string, string[]> = {
+		interior: ['interior detail', 'interior only', ' - interior'],
+		exterior: ['exterior detail', 'exterior only', ' - exterior'],
+		full: ['full detail', 'full detail package', 'interior & exterior detail'],
+	};
+
+	const matchesVehicleType = (vehicleType: string, comparison: string): boolean => {
+		if (!vehicleType) return false;
+		const config = vehicleTypeConfig[vehicleType.toLowerCase()];
+		const searchTerms = config?.searchTerms ?? [vehicleType.toLowerCase()];
+		return searchTerms.some((term) => comparison.includes(term.toLowerCase()));
+	};
+
+	const getVehicleDisplayName = (vehicleType: string): string => {
+		if (!vehicleType) return vehicleType;
+		return vehicleTypeConfig[vehicleType.toLowerCase()]?.label ?? vehicleType;
+	};
+
+	const matchesServiceType = (serviceType: string, comparison: string): boolean => {
+		if (!serviceType) return true;
+		const keywords = serviceTypeKeywordsMap[serviceType.toLowerCase()] ?? [serviceType.toLowerCase()];
+		return keywords.some((keyword) => comparison.includes(keyword));
+	};
+
+	const findVariation = (variations: any[], veryDirty: boolean) => {
+		if (!Array.isArray(variations) || variations.length === 0) {
+			return null;
+		}
+
+		const targetVariation = variations.find((variation) => {
+			const variationData = variation?.itemVariationData ?? {};
+			const variationName = (variationData.name ?? '').toLowerCase();
+			const ordinalRaw = variationData.ordinal;
+			const ordinal = typeof ordinalRaw === 'number' ? ordinalRaw : parseInt(ordinalRaw ?? '', 10);
+			const isVeryDirtyVariation = variationName.includes('very dirty') || ordinal === 2;
+			const isRegularVariation =
+				variationName.includes('regular') || ordinal === 1 || (!isVeryDirtyVariation && !variationName.includes('very dirty'));
+			return veryDirty ? isVeryDirtyVariation : isRegularVariation;
+		});
+
+		if (targetVariation) {
+			return targetVariation;
+		}
+
+		return variations[veryDirty ? variations.length - 1 : 0];
+	};
+
 	useEffect(() => {
 		fetchCatalog();
 	}, []);
@@ -75,22 +141,38 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 		for (let i = 0; i < catalog.length; i++) {
 			const item: any = catalog[i];
 			const { itemData } = item;
-			const { name, variations } = itemData;
+			const { name, variations } = itemData || {};
+			if (!name || !variations) {
+				continue;
+			}
 			const lowerCaseName = name.toLowerCase();
 
-			if (lowerCaseName.includes(vehicleType) && lowerCaseName.includes(serviceType)) {
-				const variation = variations[isVeryDirty ? 1 : 0];
-				const { itemVariationData } = variation;
-
-				return {
-					name: itemData.name,
-					vehicleType,
-					serviceType,
-					duration: parseInt(itemVariationData.serviceDuration),
-					price: itemVariationData.priceMoney.amount / 100,
-					serviceVariationId: variation.id,
-				};
+			if (!matchesVehicleType(vehicleType, lowerCaseName) || !matchesServiceType(serviceType, lowerCaseName)) {
+				continue;
 			}
+
+			const variation = findVariation(variations, isVeryDirty);
+			if (!variation) {
+				continue;
+			}
+
+			const { itemVariationData } = variation;
+			const { priceMoney, serviceDuration } = itemVariationData || {};
+			if (!priceMoney) {
+				continue;
+			}
+
+			const durationMs = typeof serviceDuration === 'number' ? serviceDuration : parseInt(serviceDuration ?? '0', 10);
+			const amount = typeof priceMoney.amount === 'number' ? priceMoney.amount : parseInt(priceMoney.amount ?? '0', 10);
+
+			return {
+				name: itemData.name,
+				vehicleType: getVehicleDisplayName(vehicleType),
+				serviceType,
+				duration: durationMs,
+				price: amount / 100,
+				serviceVariationId: variation.id,
+			};
 		}
 
 		return null;
@@ -98,19 +180,19 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 
 	const calculatePrice = (vehicleType?: string, serviceType?: string, isVeryDirty: boolean = false): number => {
 		if (!vehicleType && !serviceType) {
-			return selectedService.price;
+			return selectedService?.price ?? 0;
 		}
 
-		const service = getService(vehicleType, serviceType, isVeryDirty);
-		return service ? service.price : null;
+		const service = vehicleType && serviceType ? getService(vehicleType, serviceType, isVeryDirty) : null;
+		return service ? service.price : 0;
 	};
 
 	const getServiceDuration = (vehicleType?: string, serviceType?: string, isVeryDirty: boolean = false): number => {
 		if (!vehicleType && !serviceType) {
-			return selectedService.duration; // duration in milliseconds here
+			return selectedService?.duration ?? 0; // duration in milliseconds here
 		}
 
-		const service = getService(vehicleType, serviceType, isVeryDirty);
+		const service = vehicleType && serviceType ? getService(vehicleType, serviceType, isVeryDirty) : null;
 		return service ? service.duration : 0;
 	};
 
