@@ -48,27 +48,27 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 
 	const vehicleTypeConfig: Record<string, { label: string; searchTerms: string[] }> = {
 		car: {
-			label: 'Small Car',
-			searchTerms: ['small car', ' - car', ' car'],
+			label: 'Car',
+			searchTerms: ['car', ' - car'],
 		},
-		'new vehicle type': {
-			label: 'Small SUV & Small Trucks',
-			searchTerms: ['small suv & small trucks', 'new vehicle type'],
+		'suv-mini-van': {
+			label: 'SUV / Mini Van',
+			searchTerms: ['suv / mini van', 'suv mini van', 'mini van', 'minivan', 'suv'],
 		},
 		truck: {
 			label: 'Truck',
 			searchTerms: ['truck', ' - truck', 'small truck'],
 		},
-		'mini van': {
-			label: 'Minivan',
-			searchTerms: ['suv / mini van', 'mini van', 'minivan', 'suv'],
+		'small-truck-suv': {
+			label: 'Small truck & SUV',
+			searchTerms: ['small truck & suv', 'small trucks & suv', 'small truck and suv', 'small suv & small truck'],
 		},
 	};
 
 	const serviceTypeKeywordsMap: Record<string, string[]> = {
-		interior: ['interior detail', 'interior only', ' - interior'],
-		exterior: ['exterior detail', 'exterior only', ' - exterior'],
-		full: ['full detail', 'full detail package', 'interior & exterior detail'],
+		'interior-detail-service': ['interior detail service', 'interior detail', 'interior service', 'interior', ' - interior'],
+		'exterior-detail-service': ['exterior detail service', 'exterior detail', 'exterior service', 'exterior', ' - exterior'],
+		'full-detail-package': ['full detail package', 'full detail', 'full detail service', 'interior & exterior detail'],
 	};
 
 	const matchesVehicleType = (vehicleType: string, comparison: string): boolean => {
