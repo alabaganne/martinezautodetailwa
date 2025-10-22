@@ -14,16 +14,16 @@ import { displayPrice } from '@/lib/utils/currency';
 import { AlertBox } from '@/components/common/AlertBox';
 
 const SERVICES = [
-	{ key: 'interior', name: 'Interior Only', icon: BrushCleaning },
-	{ key: 'exterior', name: 'Exterior Only', icon: Sparkle },
-	{ key: 'full', name: 'Full Detail', icon: Crown },
+	{ key: 'interior-detail-service', name: 'Interior Detail Service', icon: BrushCleaning },
+	{ key: 'exterior-detail-service', name: 'Exterior Detail Service', icon: Sparkle },
+	{ key: 'full-detail-package', name: 'Full Detail Package', icon: Crown },
 ];
 
 const VEHICLES = [
-	{ key: 'car', name: 'Small Car' },
-	{ key: 'new vehicle type', name: 'Small SUV & Small Trucks' },
+	{ key: 'car', name: 'Car' },
+	{ key: 'suv-mini-van', name: 'SUV / Mini Van' },
 	{ key: 'truck', name: 'Truck' },
-	{ key: 'mini van', name: 'Minivan' },
+	{ key: 'small-truck-suv', name: 'Small truck & SUV' },
 ];
 
 const ServiceSelection: React.FC<StepProps> = ({ formData, setFormData }) => {

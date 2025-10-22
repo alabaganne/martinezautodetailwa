@@ -26,9 +26,9 @@ export const getDurationInHours = (serviceType: string, vehicleType: string): nu
   
   // Default durations matching server-cache.js defaults
   const defaults: Record<string, Record<string, number>> = {
-    'interior': { 'small': 3.5, 'truck': 4.5, 'minivan': 5 },
-    'exterior': { 'small': 3, 'truck': 3.5, 'minivan': 3.5 },
-    'full': { 'small': 4, 'truck': 5, 'minivan': 5.5 }
+    'interior-detail-service': { 'car': 3.5, 'truck': 4.5, 'suv-mini-van': 5, 'small-truck-suv': 4.5 },
+    'exterior-detail-service': { 'car': 3, 'truck': 3.5, 'suv-mini-van': 3.5, 'small-truck-suv': 3.5 },
+    'full-detail-package': { 'car': 4, 'truck': 5, 'suv-mini-van': 5.5, 'small-truck-suv': 5 }
   };
   
   return defaults[serviceType]?.[vehicleType] || 4;
