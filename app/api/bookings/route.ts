@@ -389,7 +389,10 @@ async function findOrCreateCustomer(email: string, phone?: string): Promise<Cust
 		const existingCustomer = customers[0];
 		if (phone && existingCustomer.phoneNumber !== phone) {
 			try {
-				await customersApi.update(existingCustomer.id, { phoneNumber: phone });
+				await customersApi.update({
+					customerId: existingCustomer.id,
+					phoneNumber: phone,
+				});
 				existingCustomer.phoneNumber = phone;
 			} catch (updateError) {
 				console.warn('Failed to update customer phone number', updateError);
