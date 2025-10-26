@@ -140,7 +140,7 @@ no-show fees. Use the cron script to process missed appointments every day:
    0 7 * * * cd /path/to/app && npm run cron:no-show >> logs/no-show-cron.log 2>&1
    ```
 
-The script charges 35% of the service price for bookings marked `NO_SHOW` that are at least 24 hours old. Each successful
+The script charges 30% of the service price for bookings marked `NO_SHOW` that are at least 24 hours old. Each successful
 charge updates the booking's seller note with the amount, currency, and payment ID so the job can safely skip bookings that
 have already been billed. Adjust `NO_SHOW_GRACE_PERIOD_HOURS` or `NO_SHOW_LOOKBACK_DAYS` in the environment if you need a
 different grace period or lookback window.

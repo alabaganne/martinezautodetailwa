@@ -13,7 +13,7 @@ export default function AdminDashboard() {
 	const [selectedDate, setSelectedDate] = useState(new Date());
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isRefreshing, setIsRefreshing] = useState(false);
-	const [dateFilterType, setDateFilterType] = useState<DateFilterType>('all');
+	const [dateFilterType, setDateFilterType] = useState<DateFilterType>('week');
 
 	const { bookings, loading: isLoading, error, cancelBooking, refreshBookings } = useBookings();
 

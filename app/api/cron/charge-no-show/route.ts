@@ -26,7 +26,7 @@ export const dynamic = 'force-dynamic';
 // 	errors: string[];
 // };
 
-// const NO_SHOW_FEE_RATE = 0.35;
+// const NO_SHOW_FEE_RATE = 0.3;
 // const GRACE_PERIOD_HOURS = parseInt(process.env.NO_SHOW_GRACE_PERIOD_HOURS || '24', 10);
 // const GRACE_PERIOD_MS = GRACE_PERIOD_HOURS * 60 * 60 * 1000;
 // const LOOKBACK_DAYS = parseInt(process.env.NO_SHOW_LOOKBACK_DAYS || '30', 10);

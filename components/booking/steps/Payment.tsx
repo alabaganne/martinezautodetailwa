@@ -22,7 +22,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const noShowFee = selectedService ? selectedService.price * 0.35 : 0;
+  const noShowFee = selectedService ? selectedService.price * 0.3 : 0;
 
   const applicationId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
 
@@ -93,7 +93,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
               <p className="mb-2">Your card is saved for security purposes only.</p>
               <ul className="space-y-1">
                 <li>• Payment will be collected <strong>in-store after service</strong></li>
-                <li>• If you miss your appointment without notice, a <strong>{displayPrice(noShowFee)} no-show fee</strong> (35% of service price) will be charged</li>
+                <li>• If you miss your appointment without notice, a <strong>{displayPrice(noShowFee)} no-show fee</strong> (30% of service price) will be charged</li>
                 <li>• No charges will be made at booking time</li>
               </ul>
             </div>

@@ -1,10 +1,11 @@
 'use client'
 
 import React from 'react';
-import { Mail } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { BookingFormData } from '@/contexts/BookingContext';
 import { FormInput, FormTextarea } from '@/components/common/FormComponents';
 import InfoBox from '@/components/common/InfoBox';
+import { formatPhoneNumber } from '@/lib/utils/validation';
 
 interface StepProps {
   formData: BookingFormData;
@@ -21,6 +22,17 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       </h2>
       
       <div className="space-y-6">
+        <FormInput
+          label="Phone Number *"
+          icon={Phone}
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: formatPhoneNumber(e.target.value) })}
+          placeholder="(360) 555-0123"
+          helpText="We'll text you updates about your vehicle"
+          required
+        />
+
         <FormInput
           label="Email Address *"
           icon={Mail}
@@ -48,7 +60,8 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
           items={[
             { title: 'To send you booking confirmation and updates' },
             { title: 'To contact you if we have questions about your vehicle' },
-            { title: 'To notify you when your car is ready for pickup' }
+            { title: 'To notify you when your car is ready for pickup' },
+            { title: 'To send you text reminders about drop-off and pick-up times' }
           ]}
         />
       </div>

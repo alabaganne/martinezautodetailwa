@@ -7,6 +7,7 @@ import { validateStep } from '@/lib/utils/validation';
 export interface BookingFormData {
   startAt: string;
   email: string;
+  phone: string;
   dropOffTime: string;
   vehicleYear: string;
   vehicleMake: string;
@@ -53,6 +54,7 @@ export function useBooking() {
 const initialFormData: BookingFormData = {
   startAt: '',
   email: '',
+  phone: '',
   dropOffTime: '8:00 AM',
   vehicleYear: '',
   vehicleMake: '',

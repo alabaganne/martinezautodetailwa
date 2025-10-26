@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Daily cron job to charge 35% no-show fees for missed appointments.
+ * Daily cron job to charge 30% no-show fees for missed appointments.
  *
  * The script looks for bookings marked as NO_SHOW that are at least 24 hours old,
- * charges the saved card on file for 35% of the service price, and writes a
+ * charges the saved card on file for 30% of the service price, and writes a
  * marker into the booking seller note so we do not bill the same booking twice.
  */
 
@@ -30,7 +30,7 @@ const client = new SquareClient({
   userAgentDetail: 'car-wash-no-show-cron'
 });
 
-const NO_SHOW_FEE_RATE = 0.35;
+const NO_SHOW_FEE_RATE = 0.3;
 const GRACE_PERIOD_HOURS = parseInt(process.env.NO_SHOW_GRACE_PERIOD_HOURS || '24', 10);
 const GRACE_PERIOD_MS = GRACE_PERIOD_HOURS * 60 * 60 * 1000;
 const LOOKBACK_DAYS = parseInt(process.env.NO_SHOW_LOOKBACK_DAYS || '30', 10);

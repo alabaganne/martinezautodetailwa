@@ -220,7 +220,7 @@ export function CatalogProvider({ children }: CatalogProviderProps) {
 		selectedService,
 		setSelectedService,
 		calculatePrice,
-    getService,
+    	getService,
 		getServiceDuration,
 		formatDuration,
 		refreshCatalog: fetchCatalog,

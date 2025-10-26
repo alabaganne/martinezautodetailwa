@@ -26,6 +26,13 @@ export const validateStep = (step: number, formData: BookingFormData): Validatio
       } else if (!EMAIL_REGEX.test(formData.email)) {
         errors.email = 'Please enter a valid email';
       }
+
+      const phoneDigits = formData.phone?.replace(/\D/g, '') || '';
+      if (!phoneDigits) {
+        errors.phone = 'Phone number is required';
+      } else if (!PHONE_REGEX.test(phoneDigits)) {
+        errors.phone = 'Please enter a valid phone number';
+      }
       break;
 
     case 4: // Vehicle Info
@@ -92,6 +99,13 @@ export const validateField = (field: keyof BookingFormData, value: any): string 
     case 'vehicleModel':
       if (!value?.trim()) return 'Model is required';
       break;
+
+    case 'phone': {
+      const phoneDigits = typeof value === 'string' ? value.replace(/\D/g, '') : '';
+      if (!phoneDigits) return 'Phone number is required';
+      if (!PHONE_REGEX.test(phoneDigits)) return 'Invalid phone number';
+      break;
+    }
   }
   
   return null;

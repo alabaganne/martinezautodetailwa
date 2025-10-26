@@ -33,7 +33,7 @@ const client = new SquareClient({
 // Business Rules
 const BUSINESS_RULES = {
   operatingDays: [1, 2, 3, 4, 5], // Monday to Friday
-  dropOffTimes: ['08:00:00', '09:00:00'],
+  dropOffTimes: ['08:00:00'],
   pickupTime: '17:00:00', // 5 PM
   maxConcurrentServices: 3, // 3 bays
 };
@@ -287,7 +287,7 @@ function generateBookingSchedule() {
     const daySchedule = [];
     
     for (let i = 0; i < bookingsPerDay && i < BUSINESS_RULES.maxConcurrentServices; i++) {
-      const dropOffTime = i < 2 ? '08:00:00' : '09:00:00'; // First 2 at 8 AM, rest at 9 AM
+      const dropOffTime = '08:00:00';
       const vehicleType = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
       const serviceType = serviceTypes[Math.floor(Math.random() * serviceTypes.length)];
       const duration = SERVICE_DURATIONS[serviceType][vehicleType];

@@ -18,8 +18,13 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
   const { formatDuration, selectedService } = useCatalog();
   
   const estimatedPrice = selectedService ? selectedService.price : 0;
-  const noShowFee = estimatedPrice * 0.35;
+  const noShowFee = estimatedPrice * 0.3;
   const duration = selectedService ? formatDuration(selectedService.duration) : 'N/A';
+  const dropOffDisplay = formData.dropOffTime
+    ? formData.dropOffTime === 'Evening Before'
+      ? 'Evening Before (drop the evening prior)'
+      : '8:00 AM (arrive by 8:00 AM)'
+    : 'Not selected';
 
   return (
     <div>
@@ -61,7 +66,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Drop-off:</span>
-              <span className="font-medium">{formData.dropOffTime}</span>
+              <span className="font-medium">{dropOffDisplay}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Pick-up:</span>
@@ -77,6 +82,10 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             <div className="flex justify-between">
               <span className="text-gray-600">Email:</span>
               <span className="font-medium">{formData.email || 'Not provided'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Phone:</span>
+              <span className="font-medium">{formData.phone || 'Not provided'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Vehicle:</span>
@@ -162,7 +171,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
         <AlertBox
           variant="warning"
           title="No-Show Policy"
-          message={`If you miss your appointment without notice, a ${displayPrice(noShowFee)} fee (35% of service) will be charged to your card on file.`}
+          message={`If you miss your appointment without notice, a ${displayPrice(noShowFee)} fee (30% of service) will be charged to your card on file.`}
         />
 
         {/* Drop-off Instructions */}
