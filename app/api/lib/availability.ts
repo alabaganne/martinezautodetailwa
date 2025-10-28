@@ -57,7 +57,7 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 	const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 	
 	const defaultLocationId = await getLocationId();
-	const teamMemberId = await getTeamMemberId();
+	// const teamMemberId = await getTeamMemberId();
 	const allAvailabilities: Availability[] = [];
 
 	if (day) {
@@ -79,7 +79,7 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 						{
 							serviceVariationId,
 							teamMemberIdFilter: {
-								any: [teamMemberId],
+								any: [],
 							},
 						},
 					],
@@ -125,7 +125,7 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 								{
 									serviceVariationId,
 									teamMemberIdFilter: {
-										any: [teamMemberId],
+										any: [],
 									},
 								},
 							],
@@ -158,8 +158,22 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 	// just build the map directly
 	const dateAvailabilityMap: Record<string, Availability> = {};
 	allAvailabilities.forEach((slot: Availability) => {
+		if (!slot?.startAt) {
+			return;
+		}
+
 		const dateKey = slot.startAt.split('T')[0];
-		dateAvailabilityMap[dateKey] = slot;
+		const existingSlot = dateAvailabilityMap[dateKey];
+		if (!existingSlot?.startAt) {
+			dateAvailabilityMap[dateKey] = slot;
+			return;
+		}
+
+		const currentStart = new Date(slot.startAt).getTime();
+		const existingStart = new Date(existingSlot.startAt).getTime();
+		if (currentStart < existingStart) {
+			dateAvailabilityMap[dateKey] = slot;
+		}
 	});
 
 	return dateAvailabilityMap;

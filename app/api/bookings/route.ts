@@ -81,6 +81,23 @@ const normalizePhoneNumber = (phone: string | undefined): string | null => {
 	return null;
 };
 
+const normalizeToBigInt = (value: unknown, fallback: bigint): bigint => {
+	try {
+		if (typeof value === 'bigint') {
+			return value;
+		}
+		if (typeof value === 'number') {
+			return BigInt(value);
+		}
+		if (typeof value === 'string' && value.trim()) {
+			return BigInt(value);
+		}
+	} catch {
+		// Ignore parse errors and return fallback
+	}
+	return fallback;
+};
+
 /**
  * GET /api/bookings
  * List bookings
@@ -303,16 +320,48 @@ export async function POST(request) {
 		const year = startDate.getFullYear();
 
 		const availability = await searchAvailability(serviceVariationId, year, month, day);
-		
-		const availableSlots = Object.values(availability);
+
+		const availableSlots = Object.values(availability).filter((slot) => Boolean(slot?.startAt));
 		if (availableSlots.length === 0) {
 			return new Response(JSON.stringify({ error: 'No available slots for the selected date and service' }), {
 				status: 400,
 				headers: { 'Content-Type': 'application/json' },
 			});
 		}
-		
-		startAt = availableSlots[0].startAt;
+		const selectedSlot =
+			availableSlots.find((slot) => slot.startAt === startAt) ?? availableSlots[0];
+
+		if (!selectedSlot?.startAt) {
+			return new Response(JSON.stringify({ error: 'Selected time slot is no longer available' }), {
+				status: 409,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+
+		startAt = selectedSlot.startAt;
+
+		const slotSegments = selectedSlot.appointmentSegments ?? [];
+		const resolvedTeamMemberId =
+			slotSegments.find((segment) => segment?.teamMemberId)?.teamMemberId ?? (await getTeamMemberId());
+
+		const appointmentSegments =
+			slotSegments.length > 0
+				? slotSegments.map((segment) => ({
+						durationMinutes: segment?.durationMinutes ?? undefined,
+						intermissionMinutes: segment?.intermissionMinutes ?? undefined,
+						anyTeamMember: segment?.anyTeamMember ?? undefined,
+						resourceIds: segment?.resourceIds ?? undefined,
+						teamMemberId: segment?.teamMemberId ?? resolvedTeamMemberId,
+						serviceVariationId: segment?.serviceVariationId ?? serviceVariationId,
+						serviceVariationVersion: normalizeToBigInt(segment?.serviceVariationVersion, BigInt(1)),
+				  }))
+				: [
+						{
+							teamMemberId: resolvedTeamMemberId,
+							serviceVariationId,
+							serviceVariationVersion: BigInt(1),
+						},
+				  ];
 
 		const customer = await findOrCreateCustomer(email, normalizedPhone);
 		if (!customer) {
@@ -347,13 +396,7 @@ export async function POST(request) {
 					cardBrand && cardLastFour ? `Card on File: ${cardBrand} ending in ${cardLastFour}` : null,
 					notes?.trim() ? `Notes: ${notes.trim()}` : null,
 				].filter(Boolean).join(' | ') || '',
-			appointmentSegments: [
-				{
-					teamMemberId: await getTeamMemberId(),
-					serviceVariationId,
-					serviceVariationVersion: BigInt(1),
-				},
-			],
+			appointmentSegments,
 		};
 
 		const response = await bookingsApi.create({
