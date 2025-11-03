@@ -1,4 +1,4 @@
-import { Availability, Customer } from 'square/api';
+import type { Customer, Currency } from 'square/api';
 import { getTeamMemberId, searchAvailability } from '../lib/availability';
 import { bookingsApi, catalogApi, customersApi, getLocationId, paymentsApi, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
@@ -79,6 +79,15 @@ const normalizePhoneNumber = (phone: string | undefined): string | null => {
 		return `+${digits}`;
 	}
 	return null;
+};
+
+const DEFAULT_CURRENCY: Currency = 'USD';
+
+const normalizeCurrency = (value?: string | null): Currency => {
+	if (typeof value === 'string' && value.trim()) {
+		return value.trim() as Currency;
+	}
+	return DEFAULT_CURRENCY;
 };
 
 const normalizeToBigInt = (value: unknown, fallback: bigint): bigint => {
@@ -620,7 +629,7 @@ async function findOrCreateCustomer(email: string, phone?: string, fullName?: st
 
 async function getServicePricing(
         serviceVariationId: string
-): Promise<{ amount: bigint; currency: string; serviceName: string }> {
+): Promise<{ amount: bigint; currency: Currency; serviceName: string }> {
         const response = await catalogApi.object.get({
                 objectId: serviceVariationId,
                 includeRelatedObjects: true,
@@ -660,7 +669,7 @@ async function getServicePricing(
                 throw new Error('Invalid service price configured in Square');
         }
 
-        const currency = priceMoney?.currency || 'USD';
+        const currency = normalizeCurrency(priceMoney?.currency);
 
         let serviceName: string = variationData?.name ?? '';
 
@@ -691,7 +700,7 @@ async function getServicePricing(
         };
 }
 
-function formatMoney(amount: bigint, currency: string): string {
+function formatMoney(amount: bigint, currency: Currency): string {
         const formatter = new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency,
@@ -747,4 +756,3 @@ function resolveBookingVersion(booking: any): number {
 
         return 0;
 }
-
