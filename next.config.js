@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: ['lucide-react'],
-  }
+  },
 }
 
-module.exports = nextConfig
+export default nextConfig

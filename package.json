@@ -2,6 +2,7 @@
   "name": "car-wash-appointments",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -12,8 +13,7 @@
     "view:catalog": "node scripts/view-catalog.js",
     "view:team": "node scripts/view-team.js",
     "view:bookings": "node scripts/seed-bookings.js list",
-    "seed:bookings": "node scripts/seed-bookings.js create",
-    "cron:no-show": "node scripts/charge-no-show-fees.js"
+    "seed:bookings": "node scripts/seed-bookings.js create"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.12",

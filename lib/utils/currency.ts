@@ -26,8 +26,8 @@ export const getCurrencySymbol = (): string => 'USD';
  * @returns Formatted display string
  */
 export const displayPrice = (amount: number): string => {
-  if (!amount) {
-    return 'NULL';
+  if (amount === 0) {
+    return '0 USD';
   }
   return `${amount.toFixed(0)} USD`;
 };

@@ -1,6 +1,6 @@
-import { Customer, Availability } from 'square/api';
+import { Availability, Customer } from 'square/api';
 import { getTeamMemberId, searchAvailability } from '../lib/availability';
-import { bookingsApi, cardsApi, customersApi, getLocationId, teamMembersApi } from '../lib/client';
+import { bookingsApi, catalogApi, customersApi, getLocationId, paymentsApi, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 import { randomUUID } from 'crypto';
 
@@ -291,7 +291,7 @@ interface CreateBookingRequest {
 	vehicleMake: string;
 	vehicleModel: string;
 	vehicleYear: string;
-	paymentToken?: string; // Square payment token for no-show fee
+        paymentToken?: string; // Square payment token for immediate charge
 	cardLastFour?: string; // Last 4 digits of card
 	cardBrand?: string; // Card brand (Visa, Mastercard, etc.)
 }
@@ -394,51 +394,154 @@ export async function POST(request) {
 				headers: { 'Content-Type': 'application/json' },
 			});
 		}
-		const defaultLocationId = await getLocationId();
+                const defaultLocationId = await getLocationId();
 
-		// Store card on file if payment token is provided
-		const storedCardId = await storeCardOnFile(customer, paymentToken);
+                const servicePricing = await getServicePricing(serviceVariationId);
+                const isComplimentary = servicePricing.amount === 0n;
+
+                if (servicePricing.amount < 0n) {
+                        return new Response(
+                                JSON.stringify({ error: 'Selected service has an invalid price configured before booking' }),
+                                {
+                                        status: 400,
+                                        headers: { 'Content-Type': 'application/json' },
+                                }
+                        );
+                }
+
+                if (!isComplimentary && !paymentToken) {
+                        return new Response(JSON.stringify({ error: 'Payment token is required to confirm your appointment' }), {
+                                status: 400,
+                                headers: { 'Content-Type': 'application/json' },
+                        });
+                }
+
+                let pendingPayment: any = null;
+
+                if (!isComplimentary) {
+                        const paymentResponse = await paymentsApi.create({
+                                sourceId: paymentToken,
+                                idempotencyKey: randomUUID(),
+                                amountMoney: {
+                                        amount: servicePricing.amount,
+                                        currency: servicePricing.currency,
+                                },
+                                customerId: customer.id,
+                                locationId: defaultLocationId,
+                                autocomplete: false,
+                                buyerEmailAddress: email,
+                                buyerPhoneNumber: normalizedPhone ?? undefined,
+                                note: buildPaymentNote(servicePricing.serviceName, fullName || email),
+                        });
+
+                        if (paymentResponse.errors?.length) {
+                                const [firstError] = paymentResponse.errors;
+                                return new Response(
+                                        JSON.stringify({ error: firstError?.detail || 'Failed to create payment' }),
+                                        {
+                                                status: 400,
+                                                headers: { 'Content-Type': 'application/json' },
+                                        }
+                                );
+                        }
+
+                        pendingPayment = paymentResponse.payment;
+
+                        if (!pendingPayment?.id) {
+                                throw new Error('Payment could not be created.');
+                        }
+                }
 
                 const sellerNoteParts = [
-                        storedCardId ? `Card ID: ${storedCardId}` : null,
-                        'No-Show Fee Charged (cents): 0',
+                        !isComplimentary && pendingPayment?.id ? `Payment ID: ${pendingPayment.id}` : null,
+                        `Payment Amount (cents): ${servicePricing.amount.toString()}`,
+                        `Payment Currency: ${servicePricing.currency}`,
+                        !isComplimentary && pendingPayment?.createdAt
+                                ? `Payment Authorized At: ${pendingPayment.createdAt}`
+                                : null,
+                        isComplimentary ? 'Complimentary booking - no payment processed' : null,
                 ].filter(Boolean);
+
+                const paymentSummary = formatMoney(servicePricing.amount, servicePricing.currency);
+                const paymentMethodSummary = !isComplimentary
+                        ? cardBrand && cardLastFour
+                                ? `${cardBrand} ending in ${cardLastFour}`
+                                : 'Square payment'
+                        : 'No payment required (complimentary service)';
 
                 const bookingData = {
                         locationId: defaultLocationId,
                         customerId: customer.id,
                         startAt,
                         sellerNote: sellerNoteParts.length > 0 ? sellerNoteParts.join(' | ') : undefined,
-			customerNote:
-				[
-					dropOffTime ? `Drop-off Time: ${dropOffTime}` : null,
-					fullName ? `Name: ${fullName}` : null,
-					phone ? `Phone: ${phone}` : null,
-					vehicleMake ? `Make: ${vehicleMake}` : null,
-					vehicleModel ? `Model: ${vehicleModel}` : null,
-					vehicleYear ? `Year: ${vehicleYear}` : null,
-					vehicleColor ? `Color: ${vehicleColor}` : null,
-					cardBrand && cardLastFour ? `Card on File: ${cardBrand} ending in ${cardLastFour}` : null,
-					notes?.trim() ? `Notes: ${notes.trim()}` : null,
-				].filter(Boolean).join(' | ') || '',
-			appointmentSegments,
-		};
+                        customerNote:
+                                [
+                                        dropOffTime ? `Drop-off Time: ${dropOffTime}` : null,
+                                        fullName ? `Name: ${fullName}` : null,
+                                        phone ? `Phone: ${phone}` : null,
+                                        vehicleMake ? `Make: ${vehicleMake}` : null,
+                                        vehicleModel ? `Model: ${vehicleModel}` : null,
+                                        vehicleYear ? `Year: ${vehicleYear}` : null,
+                                        vehicleColor ? `Color: ${vehicleColor}` : null,
+                                        `Payment: ${paymentSummary} via ${paymentMethodSummary}`,
+                                        notes?.trim() ? `Notes: ${notes.trim()}` : null,
+                                ].filter(Boolean).join(' | ') || '',
+                        appointmentSegments,
+                };
 
-		const response = await bookingsApi.create({
-			booking: bookingData,
-		});
-		
-		return successResponse(response.booking || response);
+                let bookingResult: any;
+
+                try {
+                        const response = await bookingsApi.create({
+                                booking: bookingData,
+                        });
+                        bookingResult = response.booking || response;
+                } catch (bookingError) {
+                        if (!isComplimentary && pendingPayment?.id) {
+                                await voidPendingPayment(pendingPayment.id);
+                        }
+                        throw bookingError;
+                }
+
+                if (isComplimentary) {
+                        return successResponse({
+                                booking: bookingResult,
+                                payment: null,
+                        });
+                }
+
+                let completedPayment = pendingPayment;
+
+                try {
+                        const completionResponse = await paymentsApi.complete({
+                                paymentId: pendingPayment.id,
+                        });
+
+                        if (completionResponse.payment) {
+                                completedPayment = completionResponse.payment;
+                        }
+                } catch (completionError) {
+                        if (pendingPayment?.id) {
+                                await voidPendingPayment(pendingPayment.id);
+                        }
+                        await cancelBookingAfterPaymentFailure(bookingResult);
+                        throw completionError;
+                }
+
+                return successResponse({
+                        booking: bookingResult,
+                        payment: completedPayment,
+                });
 	} catch (error) {
 		return handleSquareError(error, 'Failed to create booking');
 	}
 }
 
 async function findOrCreateCustomer(email: string, phone?: string, fullName?: string): Promise<Customer | null> {
-	const { givenName, familyName } = extractNameParts(fullName);
+        const { givenName, familyName } = extractNameParts(fullName);
 
-	const response = await customersApi.search({
-		query: {
+        const response = await customersApi.search({
+                query: {
 			filter: {
 				emailAddress: {
 					exact: email,
@@ -512,29 +615,136 @@ async function findOrCreateCustomer(email: string, phone?: string, fullName?: st
 		return null;
 	}
 
-	return customer;
+        return customer;
 }
 
-async function storeCardOnFile(customer: Customer | null, paymentToken: string | undefined): Promise<string | null> {
-	if (!paymentToken || !customer) {
-		return null;
-	}
+async function getServicePricing(
+        serviceVariationId: string
+): Promise<{ amount: bigint; currency: string; serviceName: string }> {
+        const response = await catalogApi.object.get({
+                objectId: serviceVariationId,
+                includeRelatedObjects: true,
+        });
 
-	const idempotencyKey = randomUUID();
-	const cardResponse = await cardsApi.create({
-		idempotencyKey,
-		sourceId: paymentToken,
-		card: {
-			customerId: customer.id,
-		},
-	});
+        if (response.errors?.length) {
+                const [firstError] = response.errors;
+                throw new Error(firstError?.detail || 'Unable to load service pricing from Square');
+        }
 
-	if (cardResponse.card) {
-		console.log('Successfully stored card on file:', cardResponse.card.id);
-		return cardResponse.card.id;
-	}
-	else {
-		console.log('cardResponse', cardResponse);
-		throw new Error('Error occurred saving card on file.');
-	}
+        const { object, relatedObjects } = response as any;
+
+        const variationObject =
+                object?.type === 'ITEM_VARIATION'
+                        ? object
+                        : relatedObjects?.find(
+                                  (catalogObject: any) =>
+                                          catalogObject?.id === serviceVariationId && catalogObject?.type === 'ITEM_VARIATION'
+                          );
+
+        if (!variationObject?.itemVariationData) {
+                throw new Error('Service variation could not be found in Square catalog');
+        }
+
+        const variationData = variationObject.itemVariationData as any;
+        const priceMoney = variationData?.priceMoney as { amount?: bigint | number | string | null; currency?: string };
+        const amountRaw = priceMoney?.amount;
+
+        if (amountRaw == null) {
+                throw new Error('Service price is not configured in Square');
+        }
+
+        let amount: bigint;
+        try {
+                amount = typeof amountRaw === 'bigint' ? amountRaw : BigInt(amountRaw);
+        } catch {
+                throw new Error('Invalid service price configured in Square');
+        }
+
+        const currency = priceMoney?.currency || 'USD';
+
+        let serviceName: string = variationData?.name ?? '';
+
+        if (!serviceName && variationData?.itemId && Array.isArray(relatedObjects)) {
+                const parentItem = relatedObjects.find(
+                        (catalogObject: any) => catalogObject?.id === variationData.itemId && catalogObject?.itemData
+                );
+                if (parentItem?.itemData?.name) {
+                        serviceName = parentItem.itemData.name;
+                }
+        }
+
+        if (!serviceName && Array.isArray(relatedObjects)) {
+                const parentItem = relatedObjects.find(
+                        (catalogObject: any) =>
+                                catalogObject?.type === 'ITEM' &&
+                                catalogObject?.itemData?.variations?.some((variation: any) => variation?.id === serviceVariationId)
+                );
+                if (parentItem?.itemData?.name) {
+                        serviceName = parentItem.itemData.name;
+                }
+        }
+
+        return {
+                amount,
+                currency,
+                serviceName: serviceName || 'Detail Service',
+        };
 }
+
+function formatMoney(amount: bigint, currency: string): string {
+        const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency,
+        });
+        return formatter.format(Number(amount) / 100);
+}
+
+function buildPaymentNote(serviceName: string, identifier: string): string {
+        const base = serviceName ? `Booking payment for ${serviceName}` : 'Booking payment';
+        return identifier ? `${base} - ${identifier}` : base;
+}
+
+async function voidPendingPayment(paymentId: string): Promise<void> {
+        try {
+                await paymentsApi.cancel({ paymentId });
+        } catch (error) {
+                console.error(`Failed to cancel pending payment ${paymentId}`, error);
+        }
+}
+
+async function cancelBookingAfterPaymentFailure(booking: any): Promise<void> {
+        if (!booking?.id) {
+                return;
+        }
+
+        try {
+                await bookingsApi.cancel({
+                        bookingId: booking.id,
+                        bookingVersion: resolveBookingVersion(booking),
+                });
+        } catch (error) {
+                console.error(`Failed to cancel booking ${booking?.id} after payment failure`, error);
+        }
+}
+
+function resolveBookingVersion(booking: any): number {
+        const rawVersion = booking?.version;
+
+        if (typeof rawVersion === 'bigint') {
+                return Number(rawVersion);
+        }
+
+        if (typeof rawVersion === 'number' && Number.isFinite(rawVersion)) {
+                return rawVersion;
+        }
+
+        if (typeof rawVersion === 'string' && rawVersion.trim() !== '') {
+                const parsed = Number(rawVersion);
+                if (!Number.isNaN(parsed)) {
+                        return parsed;
+                }
+        }
+
+        return 0;
+}
+

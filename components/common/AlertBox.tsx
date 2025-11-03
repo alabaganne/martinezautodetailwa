@@ -1,14 +1,16 @@
 import React from 'react';
-import { Check, AlertCircle, XCircle } from 'lucide-react';
+import { Check, AlertCircle, XCircle, Info } from 'lucide-react';
 
 interface AlertBoxProps {
-  variant: 'success' | 'warning' | 'error';
+  variant: 'success' | 'warning' | 'error' | 'info';
   title?: string;
   message: string;
   icon?: React.ReactNode;
 }
 
-const variantStyles = {
+type VariantKey = AlertBoxProps['variant'];
+
+const variantStyles: Record<VariantKey, { container: string; text: string; defaultIcon: React.ReactNode }> = {
   success: {
     container: 'bg-green-50 border-green-700',
     text: 'text-green-700',
@@ -23,6 +25,11 @@ const variantStyles = {
     container: 'bg-red-50 border-red-700',
     text: 'text-red-700',
     defaultIcon: <XCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
+  },
+  info: {
+    container: 'bg-blue-50 border-blue-500',
+    text: 'text-blue-700',
+    defaultIcon: <Info className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
   }
 };
 
