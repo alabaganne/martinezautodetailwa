@@ -138,11 +138,11 @@ const teamMembers = response.teamMembers || [];
 - `POST /api/bookings` - Create booking with customer, payment token
 - `GET /api/bookings` - List bookings with filters
 - `DELETE /api/bookings/[id]` - Cancel booking
-- `POST /api/cards` - Tokenize card (creates Square card on file)
+- `POST /api/cards` - Tokenize card (legacy card-on-file helper if needed)
 - All routes use `/api/lib/client.js` for Square client setup
 
 ### Key Business Logic
-- **Payment**: Card saved on file for no-show protection, NOT charged at booking
+- **Payment**: Square captures the full service amount during booking and emails a receipt immediately
 - **Schedule**: Weekdays only, drop-off morning or evening before, pickup 5PM
 - **Pricing**: Dynamic based on service type + vehicle size + condition
 - **Custom Rules**: Implements scheduling rules that Square doesn't handle natively

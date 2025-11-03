@@ -17,7 +17,7 @@ A modern, responsive web application for Martinez Auto Detail that allows custom
   - Fixed 5:00 PM pickup time
 - **Vehicle Information**: Capture customer and vehicle details
 - **Booking Review**: Comprehensive summary before confirmation
-- **Secure Payment**: Card on file feature for no-show fee protection
+- **Secure Payment**: Charge customers during booking with Square and send instant receipts
 - **Admin Dashboard**: Manage bookings, view calendar, and track appointments
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
@@ -37,9 +37,9 @@ A modern, responsive web application for Martinez Auto Detail that allows custom
 |:-----------------:|:------------------:|:-------------------:|
 | ![Service Selection](preview/service-selection.png) | ![Schedule Selection](preview/shcedule-selection.png) | ![Vehicle Info](preview/vehicle-info.png) |
 
-| Review & Confirm | Card on File | Confirmation |
+| Review & Confirm | Payment | Confirmation |
 |:----------------:|:------------:|:------------:|
-| ![Review](preview/review.png) | ![Card on File](preview/card-on-file.png) | ![Confirmation](preview/confirmation.png) |
+| ![Review](preview/review.png) | ![Payment](preview/card-on-file.png) | ![Confirmation](preview/confirmation.png) |
 
 ### Admin Dashboard
 
@@ -125,22 +125,4 @@ http://localhost:3000
 - `npm run view:team` - View current team members
 - `npm run view:bookings` - View all bookings
 - `npm run seed:bookings` - Create sample bookings (development)
-- `npm run cron:no-show` - Run the daily no-show fee processor once
 
-### Automated No-Show Fee Billing
-
-The application saves each customer's card on file when they book an appointment, but Square does not automatically charge
-no-show fees. Use the cron script to process missed appointments every day:
-
-1. Ensure `.env.local` contains valid `SQUARE_ACCESS_TOKEN` and `SQUARE_ENVIRONMENT` values.
-2. Run the processor manually with `npm run cron:no-show` to verify it can authenticate.
-3. Schedule the job on your server (example runs every day at 7:00 AM):
-
-   ```cron
-   0 7 * * * cd /path/to/app && npm run cron:no-show >> logs/no-show-cron.log 2>&1
-   ```
-
-The script charges 30% of the service price for bookings marked `NO_SHOW` that are at least 24 hours old. Each successful
-charge updates the booking's seller note with the amount, currency, and payment ID so the job can safely skip bookings that
-have already been billed. Adjust `NO_SHOW_GRACE_PERIOD_HOURS` or `NO_SHOW_LOOKBACK_DAYS` in the environment if you need a
-different grace period or lookback window.

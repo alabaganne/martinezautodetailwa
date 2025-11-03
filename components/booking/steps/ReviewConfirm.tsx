@@ -18,7 +18,6 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
   const { formatDuration, selectedService } = useCatalog();
   
   const estimatedPrice = selectedService ? selectedService.price : 0;
-  const noShowFee = estimatedPrice * 0.3;
   const duration = selectedService ? formatDuration(selectedService.duration) : 'N/A';
   const dropOffDisplay = formData.dropOffTime
     ? formData.dropOffTime === 'Evening Before'
@@ -108,9 +107,9 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           </div>
         </div>
 
-        {/* Card on File Information */}
+        {/* Payment Information */}
         <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold mb-3">Card on File</h3>
+          <h3 className="font-semibold mb-3">Payment Details</h3>
           <div className="space-y-2 text-sm">
             {formData.cardBrand && formData.cardLastFour ? (
               <div className="flex justify-between">
@@ -119,17 +118,17 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
               </div>
             ) : (
               <div className="flex justify-between">
-                <span className="text-gray-600">Status:</span>
-                <span className="font-medium">Card information saved</span>
+                <span className="text-gray-600">Card:</span>
+                <span className="font-medium">Card details saved</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-gray-600">Purpose:</span>
-              <span className="font-medium text-amber-600">No-show protection only</span>
+              <span className="text-gray-600">Amount:</span>
+              <span className="font-medium">{displayPrice(estimatedPrice)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-600">Payment:</span>
-              <span className="font-medium text-green-600">Pay in store after service</span>
+              <span className="text-gray-600">Charge Timing:</span>
+              <span className="font-medium text-green-600">Charged immediately when you confirm</span>
             </div>
           </div>
         </div>
@@ -141,7 +140,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             <div className="relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-brand-100 text-sm font-medium mb-1">Service Total (Pay in Store)</p>
+                  <p className="text-brand-100 text-sm font-medium mb-1">Service Total (Paid Today)</p>
                   <div className="flex items-baseline">
                     <span className="text-4xl font-bold text-white">
                       {displayPrice(estimatedPrice)}
@@ -160,10 +159,10 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
                     <svg className="w-5 h-5 text-brand-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-brand-100">Payment due in store after service</p>
+                    <p className="text-sm text-brand-100">Charged online via Square when you confirm</p>
                   </div>
                   <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white">
-                    Cash or Card
+                    Digital Receipt
                   </span>
                 </div>
               </div>
@@ -171,11 +170,11 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           </div>
         </div>
 
-        {/* No-Show Policy Reminder */}
+        {/* Payment Reminder */}
         <AlertBox
-          variant="warning"
-          title="No-Show Policy"
-          message={`If you miss your appointment without notice, a ${displayPrice(noShowFee)} fee (30% of service) will be charged to your card on file.`}
+          variant="info"
+          title="Payment Policy"
+          message="Your card is charged immediately to hold your appointment. Need to reschedule? Contact us at least 24 hours in advance for a full refund."
         />
 
         {/* Drop-off Instructions */}

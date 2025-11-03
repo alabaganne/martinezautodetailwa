@@ -28,6 +28,7 @@ export const cardsApi = client.cards;
 export const catalogApi = client.catalog;
 export const customersApi = client.customers;
 export const locationsApi = client.locations;
+export const paymentsApi = client.payments;
 export const teamMembersApi = client.teamMembers;
 
 // Cache for location ID to avoid repeated API calls
