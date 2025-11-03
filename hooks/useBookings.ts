@@ -47,16 +47,34 @@ export function useBookings(filters: any = {}) {
       result = result.filter(booking => booking.status === filters.status);
     }
     
+    const parseStartDate = (booking: Booking): Date | null => {
+      const startTime = (booking as any).startAt ?? (booking as any).start_at;
+      if (!startTime || typeof startTime !== 'string') {
+        return null;
+      }
+
+      const parsed = new Date(startTime);
+      if (Number.isNaN(parsed.getTime())) {
+        return null;
+      }
+
+      return parsed;
+    };
+
     if (filters.startDate) {
-      result = result.filter(booking => 
-        new Date(booking.startAt) >= new Date(filters.startDate)
-      );
+      const minDate = new Date(filters.startDate);
+      result = result.filter(booking => {
+        const startDate = parseStartDate(booking);
+        return startDate ? startDate >= minDate : false;
+      });
     }
-    
+
     if (filters.endDate) {
-      result = result.filter(booking => 
-        new Date(booking.startAt) <= new Date(filters.endDate)
-      );
+      const maxDate = new Date(filters.endDate);
+      result = result.filter(booking => {
+        const startDate = parseStartDate(booking);
+        return startDate ? startDate <= maxDate : false;
+      });
     }
     
     if (filters.customerId) {
@@ -75,8 +93,12 @@ export function useBookings(filters: any = {}) {
     }
     
     // Sort by start time
-    result.sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
-    
+    result.sort((a, b) => {
+      const dateA = parseStartDate(a)?.getTime() ?? 0;
+      const dateB = parseStartDate(b)?.getTime() ?? 0;
+      return dateA - dateB;
+    });
+
     return result;
   }, [bookings, filters]);
 
