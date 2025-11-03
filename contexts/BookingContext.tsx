@@ -19,6 +19,7 @@ export interface BookingFormData {
   paymentToken?: string;
   cardLastFour?: string;
   cardBrand?: string;
+  requiresPayment?: boolean;
 }
 
 export interface ValidationResult {
@@ -66,7 +67,8 @@ const initialFormData: BookingFormData = {
   serviceVariationId: '',
   paymentToken: '',
   cardLastFour: '',
-  cardBrand: ''
+  cardBrand: '',
+  requiresPayment: true
 };
 
 interface BookingProviderProps {

@@ -45,7 +45,9 @@ export const validateStep = (step: number, formData: BookingFormData): Validatio
       break;
 
     case 5: // Payment
-      if (!formData.paymentToken) errors.paymentToken = 'Please provide payment information';
+      if (formData.requiresPayment !== false && !formData.paymentToken) {
+        errors.paymentToken = 'Please provide payment information';
+      }
       break;
 
     case 6: // Review

@@ -396,41 +396,12 @@ export async function POST(request) {
 		}
                 const defaultLocationId = await getLocationId();
 
-                if (!paymentToken) {
-                        return new Response(JSON.stringify({ error: 'Payment token is required to confirm your appointment' }), {
-                                status: 400,
-                                headers: { 'Content-Type': 'application/json' },
-                        });
-                }
-
                 const servicePricing = await getServicePricing(serviceVariationId);
+                const isComplimentary = servicePricing.amount === 0n;
 
-                if (servicePricing.amount <= 0n) {
-                        return new Response(JSON.stringify({ error: 'Selected service must have a price configured before booking' }), {
-                                status: 400,
-                                headers: { 'Content-Type': 'application/json' },
-                        });
-                }
-
-                const paymentResponse = await paymentsApi.create({
-                        sourceId: paymentToken,
-                        idempotencyKey: randomUUID(),
-                        amountMoney: {
-                                amount: servicePricing.amount,
-                                currency: servicePricing.currency,
-                        },
-                        customerId: customer.id,
-                        locationId: defaultLocationId,
-                        autocomplete: false,
-                        buyerEmailAddress: email,
-                        buyerPhoneNumber: normalizedPhone ?? undefined,
-                        note: buildPaymentNote(servicePricing.serviceName, fullName || email),
-                });
-
-                if (paymentResponse.errors?.length) {
-                        const [firstError] = paymentResponse.errors;
+                if (servicePricing.amount < 0n) {
                         return new Response(
-                                JSON.stringify({ error: firstError?.detail || 'Failed to create payment' }),
+                                JSON.stringify({ error: 'Selected service has an invalid price configured before booking' }),
                                 {
                                         status: 400,
                                         headers: { 'Content-Type': 'application/json' },
@@ -438,21 +409,65 @@ export async function POST(request) {
                         );
                 }
 
-                const pendingPayment = paymentResponse.payment;
+                if (!isComplimentary && !paymentToken) {
+                        return new Response(JSON.stringify({ error: 'Payment token is required to confirm your appointment' }), {
+                                status: 400,
+                                headers: { 'Content-Type': 'application/json' },
+                        });
+                }
 
-                if (!pendingPayment?.id) {
-                        throw new Error('Payment could not be created.');
+                let pendingPayment: any = null;
+
+                if (!isComplimentary) {
+                        const paymentResponse = await paymentsApi.create({
+                                sourceId: paymentToken,
+                                idempotencyKey: randomUUID(),
+                                amountMoney: {
+                                        amount: servicePricing.amount,
+                                        currency: servicePricing.currency,
+                                },
+                                customerId: customer.id,
+                                locationId: defaultLocationId,
+                                autocomplete: false,
+                                buyerEmailAddress: email,
+                                buyerPhoneNumber: normalizedPhone ?? undefined,
+                                note: buildPaymentNote(servicePricing.serviceName, fullName || email),
+                        });
+
+                        if (paymentResponse.errors?.length) {
+                                const [firstError] = paymentResponse.errors;
+                                return new Response(
+                                        JSON.stringify({ error: firstError?.detail || 'Failed to create payment' }),
+                                        {
+                                                status: 400,
+                                                headers: { 'Content-Type': 'application/json' },
+                                        }
+                                );
+                        }
+
+                        pendingPayment = paymentResponse.payment;
+
+                        if (!pendingPayment?.id) {
+                                throw new Error('Payment could not be created.');
+                        }
                 }
 
                 const sellerNoteParts = [
-                        `Payment ID: ${pendingPayment.id}`,
+                        !isComplimentary && pendingPayment?.id ? `Payment ID: ${pendingPayment.id}` : null,
                         `Payment Amount (cents): ${servicePricing.amount.toString()}`,
                         `Payment Currency: ${servicePricing.currency}`,
-                        pendingPayment.createdAt ? `Payment Authorized At: ${pendingPayment.createdAt}` : null,
+                        !isComplimentary && pendingPayment?.createdAt
+                                ? `Payment Authorized At: ${pendingPayment.createdAt}`
+                                : null,
+                        isComplimentary ? 'Complimentary booking - no payment processed' : null,
                 ].filter(Boolean);
 
                 const paymentSummary = formatMoney(servicePricing.amount, servicePricing.currency);
-                const paymentMethodSummary = cardBrand && cardLastFour ? `${cardBrand} ending in ${cardLastFour}` : 'Square payment';
+                const paymentMethodSummary = !isComplimentary
+                        ? cardBrand && cardLastFour
+                                ? `${cardBrand} ending in ${cardLastFour}`
+                                : 'Square payment'
+                        : 'No payment required (complimentary service)';
 
                 const bookingData = {
                         locationId: defaultLocationId,
@@ -482,8 +497,17 @@ export async function POST(request) {
                         });
                         bookingResult = response.booking || response;
                 } catch (bookingError) {
-                        await voidPendingPayment(pendingPayment.id);
+                        if (!isComplimentary && pendingPayment?.id) {
+                                await voidPendingPayment(pendingPayment.id);
+                        }
                         throw bookingError;
+                }
+
+                if (isComplimentary) {
+                        return successResponse({
+                                booking: bookingResult,
+                                payment: null,
+                        });
                 }
 
                 let completedPayment = pendingPayment;
@@ -497,7 +521,9 @@ export async function POST(request) {
                                 completedPayment = completionResponse.payment;
                         }
                 } catch (completionError) {
-                        await voidPendingPayment(pendingPayment.id);
+                        if (pendingPayment?.id) {
+                                await voidPendingPayment(pendingPayment.id);
+                        }
                         await cancelBookingAfterPaymentFailure(bookingResult);
                         throw completionError;
                 }

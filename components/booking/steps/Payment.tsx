@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BookingFormData } from '@/contexts/BookingContext';
 import { useLocation } from '@/contexts/LocationContext';
 import { useCatalog } from '@/contexts/CatalogContext';
 import { displayPrice } from '@/lib/utils/currency';
-import { 
-  PaymentForm, 
+import { AlertBox } from '@/components/common/AlertBox';
+import {
+  PaymentForm,
   CreditCard
 } from 'react-square-web-payments-sdk';
 
@@ -22,12 +23,47 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   
+  const isComplimentary = selectedService ? selectedService.price <= 0 : false;
   const servicePrice = selectedService ? selectedService.price : 0;
-  const paymentAmountLabel = displayPrice(servicePrice);
+  const paymentAmountLabel = isComplimentary ? 'Complimentary' : displayPrice(servicePrice);
   const totalAmountString = servicePrice.toFixed(2);
   const paymentLabel = selectedService?.name ? `${selectedService.name} Payment` : 'Service Payment';
 
   const applicationId = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
+
+  useEffect(() => {
+    setFormData(prev => {
+      const requiresPayment = !isComplimentary;
+
+      if (!requiresPayment) {
+        if (
+          prev.requiresPayment === false &&
+          !prev.paymentToken &&
+          !prev.cardLastFour &&
+          !prev.cardBrand
+        ) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          requiresPayment: false,
+          paymentToken: '',
+          cardLastFour: '',
+          cardBrand: ''
+        } as BookingFormData;
+      }
+
+      if (prev.requiresPayment === true) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        requiresPayment: true
+      } as BookingFormData;
+    });
+  }, [isComplimentary, setFormData]);
 
   const handlePaymentToken = async (token: any) => {
     try {
@@ -66,16 +102,18 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
   }
 
   if (!applicationId || !locationId) {
-    return (
-      <div>
-        <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
-          Payment
-        </h2>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-          Payment configuration is missing. Please contact support.
+    if (!isComplimentary) {
+      return (
+        <div>
+          <h2 className="text-3xl font-bold mb-8 bg-gradient-to-r from-brand-600 to-brand-700 bg-clip-text text-transparent">
+            Payment
+          </h2>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            Payment configuration is missing. Please contact support.
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   return (
@@ -86,25 +124,33 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
 
       <div className="space-y-6">
         {/* Payment Policy Notice */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-start">
-            <svg className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <div className="text-sm text-amber-800">
-              <p className="font-semibold mb-1">Secure Your Appointment</p>
-              <p className="mb-2">We charge your card now to guarantee your detailing slot.</p>
-              <ul className="space-y-1">
-                <li>• Total charged today: <strong>{paymentAmountLabel}</strong></li>
-                <li>• Free reschedule/cancellation with 24 hours notice</li>
-                <li>• Payments processed securely by Square</li>
-              </ul>
+        {isComplimentary ? (
+          <AlertBox
+            variant="success"
+            title="No Payment Required"
+            message="This booking is complimentary, so you won't be charged or asked to enter card details."
+          />
+        ) : (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <div className="flex items-start">
+              <svg className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div className="text-sm text-amber-800">
+                <p className="font-semibold mb-1">Secure Your Appointment</p>
+                <p className="mb-2">We charge your card now to guarantee your detailing slot.</p>
+                <ul className="space-y-1">
+                  <li>• Total charged today: <strong>{paymentAmountLabel}</strong></li>
+                  <li>• Free reschedule/cancellation with 24 hours notice</li>
+                  <li>• Payments processed securely by Square</li>
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Saved Card Display */}
-        {formData.paymentToken && formData.cardLastFour && (
+        {!isComplimentary && formData.paymentToken && formData.cardLastFour && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
@@ -134,7 +180,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
         )}
 
         {/* Payment Form */}
-        {(!formData.paymentToken || !formData.cardLastFour) && (
+        {!isComplimentary && (!formData.paymentToken || !formData.cardLastFour) && applicationId && locationId && (
           <div className="border-2 border-gray-200 rounded-lg p-6">
             <PaymentForm
               applicationId={applicationId}
@@ -181,20 +227,34 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
         )}
 
         {/* Payment Confirmation Notice */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <svg className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <div className="text-sm text-green-800">
-              <p className="font-semibold">{paymentAmountLabel} will be charged when you confirm your booking</p>
-              <p className="text-xs text-green-700 mt-1">You&apos;ll receive an email receipt from Square right away.</p>
+        {isComplimentary ? (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <div className="text-sm text-green-800">
+                <p className="font-semibold">No payment required for this appointment</p>
+                <p className="text-xs text-green-700 mt-1">Confirm your booking to reserve your complimentary service.</p>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <div className="text-sm text-green-800">
+                <p className="font-semibold">{paymentAmountLabel} will be charged when you confirm your booking</p>
+                <p className="text-xs text-green-700 mt-1">You&apos;ll receive an email receipt from Square right away.</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error Display */}
-        {paymentError && (
+        {!isComplimentary && paymentError && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
             <div className="flex items-start">
               <svg className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

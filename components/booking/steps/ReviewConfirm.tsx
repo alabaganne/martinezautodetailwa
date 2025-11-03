@@ -18,6 +18,8 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
   const { formatDuration, selectedService } = useCatalog();
   
   const estimatedPrice = selectedService ? selectedService.price : 0;
+  const isComplimentary = selectedService ? selectedService.price <= 0 : false;
+  const requiresPayment = formData.requiresPayment !== false && !isComplimentary;
   const duration = selectedService ? formatDuration(selectedService.duration) : 'N/A';
   const dropOffDisplay = formData.dropOffTime
     ? formData.dropOffTime === 'Evening Before'
@@ -111,25 +113,44 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
         <div className="p-4 bg-gray-50 rounded-lg">
           <h3 className="font-semibold mb-3">Payment Details</h3>
           <div className="space-y-2 text-sm">
-            {formData.cardBrand && formData.cardLastFour ? (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Card:</span>
-                <span className="font-medium">{formData.cardBrand} ending in {formData.cardLastFour}</span>
-              </div>
+            {requiresPayment ? (
+              <>
+                {formData.cardBrand && formData.cardLastFour ? (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Card:</span>
+                    <span className="font-medium">{formData.cardBrand} ending in {formData.cardLastFour}</span>
+                  </div>
+                ) : (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Card:</span>
+                    <span className="font-medium">Card details saved</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Amount:</span>
+                  <span className="font-medium">{displayPrice(estimatedPrice)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Charge Timing:</span>
+                  <span className="font-medium text-green-600">Charged immediately when you confirm</span>
+                </div>
+              </>
             ) : (
-              <div className="flex justify-between">
-                <span className="text-gray-600">Card:</span>
-                <span className="font-medium">Card details saved</span>
-              </div>
+              <>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-medium text-green-600">Complimentary - no payment required</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Amount:</span>
+                  <span className="font-medium">{displayPrice(estimatedPrice)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Charge Timing:</span>
+                  <span className="font-medium text-green-600">No payment will be collected for this booking</span>
+                </div>
+              </>
             )}
-            <div className="flex justify-between">
-              <span className="text-gray-600">Amount:</span>
-              <span className="font-medium">{displayPrice(estimatedPrice)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Charge Timing:</span>
-              <span className="font-medium text-green-600">Charged immediately when you confirm</span>
-            </div>
           </div>
         </div>
 
@@ -140,7 +161,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             <div className="relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-brand-100 text-sm font-medium mb-1">Service Total (Paid Today)</p>
+                  <p className="text-brand-100 text-sm font-medium mb-1">{requiresPayment ? 'Service Total (Paid Today)' : 'Service Total'}</p>
                   <div className="flex items-baseline">
                     <span className="text-4xl font-bold text-white">
                       {displayPrice(estimatedPrice)}
@@ -159,10 +180,10 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
                     <svg className="w-5 h-5 text-brand-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-brand-100">Charged online via Square when you confirm</p>
+                    <p className="text-sm text-brand-100">{requiresPayment ? 'Charged online via Square when you confirm' : 'Complimentary appointment – no payment will be collected'}</p>
                   </div>
                   <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white">
-                    Digital Receipt
+                    {requiresPayment ? 'Digital Receipt' : 'Complimentary'}
                   </span>
                 </div>
               </div>
@@ -171,11 +192,19 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
         </div>
 
         {/* Payment Reminder */}
-        <AlertBox
-          variant="info"
-          title="Payment Policy"
-          message="Your card is charged immediately to hold your appointment. Need to reschedule? Contact us at least 24 hours in advance for a full refund."
-        />
+        {requiresPayment ? (
+          <AlertBox
+            variant="info"
+            title="Payment Policy"
+            message="Your card is charged immediately to hold your appointment. Need to reschedule? Contact us at least 24 hours in advance for a full refund."
+          />
+        ) : (
+          <AlertBox
+            variant="info"
+            title="Complimentary Booking"
+            message="No payment will be collected for this appointment. Enjoy your complimentary detailing service!"
+          />
+        )}
 
         {/* Drop-off Instructions */}
         <div className="bg-gradient-to-br from-brand-50 via-brand-50 to-brand-100 rounded-2xl p-6 border-2 border-brand-200/50">
