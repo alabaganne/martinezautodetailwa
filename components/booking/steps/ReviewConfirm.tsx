@@ -80,6 +80,10 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           <h3 className="font-semibold mb-3">Vehicle Information</h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
+              <span className="text-gray-600">Customer:</span>
+              <span className="font-medium">{formData.fullName || 'Not provided'}</span>
+            </div>
+            <div className="flex justify-between">
               <span className="text-gray-600">Email:</span>
               <span className="font-medium">{formData.email || 'Not provided'}</span>
             </div>

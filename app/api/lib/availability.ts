@@ -78,9 +78,6 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 					segmentFilters: [
 						{
 							serviceVariationId,
-							teamMemberIdFilter: {
-								any: [],
-							},
 						},
 					],
 				},
@@ -124,9 +121,6 @@ export async function searchAvailability(serviceVariationId: string, year: numbe
 							segmentFilters: [
 								{
 									serviceVariationId,
-									teamMemberIdFilter: {
-										any: [],
-									},
 								},
 							],
 						},

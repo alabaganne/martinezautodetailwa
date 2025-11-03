@@ -21,6 +21,9 @@ export const validateStep = (step: number, formData: BookingFormData): Validatio
       break;
 
     case 3: // Customer Info
+      if (!formData.fullName?.trim()) {
+        errors.fullName = 'Full name is required';
+      }
       if (!formData.email?.trim()) {
         errors.email = 'Email is required';
       } else if (!EMAIL_REGEX.test(formData.email)) {
@@ -106,6 +109,9 @@ export const validateField = (field: keyof BookingFormData, value: any): string 
       if (!PHONE_REGEX.test(phoneDigits)) return 'Invalid phone number';
       break;
     }
+    case 'fullName':
+      if (!value?.trim()) return 'Full name is required';
+      break;
   }
   
   return null;

@@ -98,6 +98,28 @@ const normalizeToBigInt = (value: unknown, fallback: bigint): bigint => {
 	return fallback;
 };
 
+const extractNameParts = (
+	fullName?: string
+): { givenName?: string; familyName?: string } => {
+	if (!fullName) {
+		return {};
+	}
+	const parts = fullName
+		.split(/\s+/)
+		.map((part) => part.trim())
+		.filter(Boolean);
+	if (parts.length === 0) {
+		return {};
+	}
+	if (parts.length === 1) {
+		return { givenName: parts[0] };
+	}
+	return {
+		givenName: parts[0],
+		familyName: parts.slice(1).join(' '),
+	};
+};
+
 /**
  * GET /api/bookings
  * List bookings
@@ -261,6 +283,7 @@ interface CreateBookingRequest {
 	dropOffTime: string;
 	notes: string;
 	email: string; // customer email
+	fullName: string;
 	phone: string;
 	serviceVariationId: string;
 	startAt: string;
@@ -279,9 +302,10 @@ export async function POST(request) {
 
 		console.log('Create booking request body', body);
 
-		let { email, phone, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear, paymentToken, cardLastFour, cardBrand } = body;
+		let { email, fullName, phone, notes, startAt, serviceVariationId, dropOffTime, vehicleColor, vehicleMake, vehicleModel, vehicleYear, paymentToken, cardLastFour, cardBrand } = body;
 
 		email = typeof email === 'string' ? email.trim() : '';
+		fullName = typeof fullName === 'string' ? fullName.trim() : '';
 		phone = typeof phone === 'string' ? phone.trim() : '';
 		notes = typeof notes === 'string' ? notes : '';
 		startAt = typeof startAt === 'string' ? startAt : '';
@@ -295,8 +319,8 @@ export async function POST(request) {
 		cardBrand = typeof cardBrand === 'string' ? cardBrand.trim() : '';
 		notes = notes.trim();
 
-		if (!email || !phone || !startAt || !serviceVariationId) {
-			return new Response(JSON.stringify({ error: 'email, phone, startAt, and serviceVariationId are required' }), {
+		if (!email || !fullName || !phone || !startAt || !serviceVariationId) {
+			return new Response(JSON.stringify({ error: 'email, fullName, phone, startAt, and serviceVariationId are required' }), {
 				status: 400,
 				headers: { 'Content-Type': 'application/json' },
 			});
@@ -363,7 +387,7 @@ export async function POST(request) {
 						},
 				  ];
 
-		const customer = await findOrCreateCustomer(email, normalizedPhone);
+		const customer = await findOrCreateCustomer(email, normalizedPhone ?? undefined, fullName);
 		if (!customer) {
 			return new Response(JSON.stringify({ error: 'Unable to create or find customer' }), {
 				status: 500,
@@ -388,6 +412,7 @@ export async function POST(request) {
 			customerNote:
 				[
 					dropOffTime ? `Drop-off Time: ${dropOffTime}` : null,
+					fullName ? `Name: ${fullName}` : null,
 					phone ? `Phone: ${phone}` : null,
 					vehicleMake ? `Make: ${vehicleMake}` : null,
 					vehicleModel ? `Model: ${vehicleModel}` : null,
@@ -409,7 +434,9 @@ export async function POST(request) {
 	}
 }
 
-async function findOrCreateCustomer(email: string, phone?: string): Promise<Customer | null> {
+async function findOrCreateCustomer(email: string, phone?: string, fullName?: string): Promise<Customer | null> {
+	const { givenName, familyName } = extractNameParts(fullName);
+
 	const response = await customersApi.search({
 		query: {
 			filter: {
@@ -430,15 +457,35 @@ async function findOrCreateCustomer(email: string, phone?: string): Promise<Cust
 
 	if (customers && customers.length > 0) {
 		const existingCustomer = customers[0];
+		const updates: Record<string, string> = {};
+
 		if (phone && existingCustomer.phoneNumber !== phone) {
+			updates.phoneNumber = phone;
+		}
+		if (givenName && existingCustomer.givenName !== givenName) {
+			updates.givenName = givenName;
+		}
+		if (familyName && existingCustomer.familyName !== familyName) {
+			updates.familyName = familyName;
+		}
+
+		if (Object.keys(updates).length > 0) {
 			try {
 				await customersApi.update({
 					customerId: existingCustomer.id,
-					phoneNumber: phone,
+					...updates,
 				});
-				existingCustomer.phoneNumber = phone;
+				if (updates.phoneNumber) {
+					existingCustomer.phoneNumber = updates.phoneNumber;
+				}
+				if (updates.givenName) {
+					existingCustomer.givenName = updates.givenName;
+				}
+				if (updates.familyName) {
+					existingCustomer.familyName = updates.familyName;
+				}
 			} catch (updateError) {
-				console.warn('Failed to update customer phone number', updateError);
+				console.warn('Failed to update customer record', updateError);
 			}
 		}
 		return existingCustomer;
@@ -450,6 +497,12 @@ async function findOrCreateCustomer(email: string, phone?: string): Promise<Cust
 	};
 	if (phone) {
 		createPayload.phoneNumber = phone;
+	}
+	if (givenName) {
+		createPayload.givenName = givenName;
+	}
+	if (familyName) {
+		createPayload.familyName = familyName;
 	}
 
 	const { customer, errors: createCustomerErrors } = await customersApi.create(createPayload);

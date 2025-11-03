@@ -23,6 +23,14 @@ const CustomerInfo: React.FC<StepProps> = ({ formData, setFormData }) => {
       
       <div className="space-y-6">
         <FormInput
+          label="Full Name *"
+          value={formData.fullName}
+          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+          placeholder="John Doe"
+          required
+        />
+
+        <FormInput
           label="Phone Number *"
           icon={Phone}
           type="tel"
