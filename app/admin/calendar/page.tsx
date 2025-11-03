@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useBookings } from '@/hooks/useBookings';
 import { Calendar, Clock, User, Car, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Booking } from '@/lib/types/admin';
+import { BookingStatus } from '@/lib/types/admin';
 import AdminHeader from '@/components/admin/AdminHeader';
 
 interface DayInfo {
@@ -11,18 +12,39 @@ interface DayInfo {
 	isCurrentMonth: boolean;
 }
 
+const CANCELLED_STATUSES = new Set<string>([
+        BookingStatus.CANCELLED_BY_CUSTOMER,
+        BookingStatus.CANCELLED_BY_SELLER,
+        'CANCELLED',
+]);
+
+const isCancelledBooking = (booking: any): boolean => {
+        const status = booking?.status;
+
+        if (typeof status !== 'string') {
+                return false;
+        }
+
+        return CANCELLED_STATUSES.has(status);
+};
+
 export default function CalendarPage() {
-	const [selectedDate, setSelectedDate] = useState(new Date());
+        const [selectedDate, setSelectedDate] = useState(new Date());
 
 	const startOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
 	const endOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
 
-	const { bookings = [], loading } = useBookings({
-		startDate: startOfMonth.toISOString(),
-		endDate: endOfMonth.toISOString(),
-	});
+        const { bookings = [], loading } = useBookings({
+                startDate: startOfMonth.toISOString(),
+                endDate: endOfMonth.toISOString(),
+        });
 
   console.log('bookings:', bookings);
+
+        const activeBookings = useMemo(
+                () => bookings.filter((booking: any) => !isCancelledBooking(booking)),
+                [bookings],
+        );
 
 	const getDaysInMonth = (): DayInfo[] => {
 		const days: DayInfo[] = [];
@@ -54,11 +76,11 @@ export default function CalendarPage() {
 		return days;
 	};
 
-	const getBookingsForDate = (date: Date): Booking[] => {
-		const dateStr = date.toISOString().split('T')[0];
-		return bookings.filter((booking: any) => {
-			// Handle both camelCase and snake_case property names
-			const startTime = booking.startAt || booking.start_at;
+        const getBookingsForDate = (date: Date): Booking[] => {
+                const dateStr = date.toISOString().split('T')[0];
+                return activeBookings.filter((booking: any) => {
+                        // Handle both camelCase and snake_case property names
+                        const startTime = booking.startAt || booking.start_at;
 
 			// Safely check if startTime exists and is a string
 			if (!startTime || typeof startTime !== 'string') {
@@ -151,11 +173,11 @@ export default function CalendarPage() {
 							<ChevronRight className="w-5 h-5 group-hover:text-brand-600 transition-colors" />
 						</button>
 					</div>
-					<div className="text-sm text-gray-600 font-medium">
-						<span className="bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg">
-							{bookings.length} total bookings
-						</span>
-					</div>
+                                        <div className="text-sm text-gray-600 font-medium">
+                                                <span className="bg-brand-100 text-brand-700 px-3 py-1.5 rounded-lg">
+                                                        {activeBookings.length} total bookings
+                                                </span>
+                                        </div>
 				</div>
 			</div>
 
