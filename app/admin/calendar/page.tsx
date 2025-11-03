@@ -31,15 +31,33 @@ const isCancelledBooking = (booking: any): boolean => {
 export default function CalendarPage() {
         const [selectedDate, setSelectedDate] = useState(new Date());
 
-	const startOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-	const endOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
+        const startOfMonth = useMemo(() => {
+                const firstDay = new Date(
+                        selectedDate.getFullYear(),
+                        selectedDate.getMonth(),
+                        1,
+                );
+                firstDay.setHours(0, 0, 0, 0);
+                return firstDay;
+        }, [selectedDate]);
+
+        const endOfMonth = useMemo(() => {
+                const lastDay = new Date(
+                        selectedDate.getFullYear(),
+                        selectedDate.getMonth() + 1,
+                        0,
+                        23,
+                        59,
+                        59,
+                        999,
+                );
+                return lastDay;
+        }, [selectedDate]);
 
         const { bookings = [], loading } = useBookings({
                 startDate: startOfMonth.toISOString(),
                 endDate: endOfMonth.toISOString(),
         });
-
-  console.log('bookings:', bookings);
 
         const activeBookings = useMemo(
                 () => bookings.filter((booking: any) => !isCancelledBooking(booking)),
@@ -76,19 +94,35 @@ export default function CalendarPage() {
 		return days;
 	};
 
+        const formatDateKey = (date: Date): string => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+        };
+
         const getBookingsForDate = (date: Date): Booking[] => {
-                const dateStr = date.toISOString().split('T')[0];
+                const dateKey = formatDateKey(date);
                 return activeBookings.filter((booking: any) => {
-                        // Handle both camelCase and snake_case property names
                         const startTime = booking.startAt || booking.start_at;
 
-			// Safely check if startTime exists and is a string
-			if (!startTime || typeof startTime !== 'string') {
-				return false;
-			}
-			return startTime.startsWith(dateStr);
-		});
-	};
+                        if (!startTime || typeof startTime !== 'string') {
+                                return false;
+                        }
+
+                        const bookingDate = startTime.slice(0, 10);
+                        if (bookingDate.length === 10) {
+                                return bookingDate === dateKey;
+                        }
+
+                        const parsedDate = new Date(startTime);
+                        if (Number.isNaN(parsedDate.getTime())) {
+                                return false;
+                        }
+
+                        return formatDateKey(parsedDate) === dateKey;
+                });
+        };
 
 	const formatMonthYear = (): string => {
 		return selectedDate.toLocaleDateString('en-US', {
