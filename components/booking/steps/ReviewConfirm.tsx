@@ -196,7 +196,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           <AlertBox
             variant="info"
             title="Payment Policy"
-            message="Your card is secured for no-show protection only. You'll pay at service. If you miss your appointment without 24 hours notice, the full service amount will be charged to your card on file."
+            message="Your card is secured for no-show protection only. You'll pay at service. If you miss your appointment without 24 hours notice, a 30% no-show fee will be charged to your card on file."
           />
         ) : (
           <AlertBox

@@ -3,6 +3,7 @@ import { successResponse, handleSquareError } from '../../lib/utils';
 import { randomUUID } from 'crypto';
 
 const NO_SHOW_WINDOW_HOURS = 48;
+const NO_SHOW_FEE_PERCENTAGE = 30; // 30% of service price
 
 /**
  * POST /api/cron/no-show-check
@@ -12,9 +13,9 @@ const NO_SHOW_WINDOW_HOURS = 48;
  *
  * Process:
  * 1. Find bookings that started 48+ hours ago
- * 2. Check if booking status indicates completion or cancellation
+ * 2. Check if booking status is still ACCEPTED (not COMPLETED or CANCELLED)
  * 3. For no-shows, extract card ID from seller note
- * 4. Charge the no-show fee using the card on file
+ * 4. Charge 30% no-show fee using the card on file
  */
 export async function POST(request: Request) {
 	try {
@@ -50,8 +51,9 @@ export async function POST(request: Request) {
 		const chargeResults: any[] = [];
 
 		for (const booking of bookings) {
-			// Skip if booking was cancelled or completed
-			if (booking.status === 'CANCELLED' || booking.status === 'COMPLETED' || booking.status === 'ACCEPTED') {
+			// Only process ACCEPTED bookings (skip CANCELLED and COMPLETED)
+			// ACCEPTED means customer made booking but hasn't shown up yet
+			if (booking.status !== 'ACCEPTED') {
 				continue;
 			}
 
@@ -78,19 +80,23 @@ export async function POST(request: Request) {
 				continue;
 			}
 
-			const amount = BigInt(amountMatch[1]);
+			const fullAmount = BigInt(amountMatch[1]);
 			const currency = currencyMatch[1];
+
+			// Calculate 30% no-show fee
+			const noShowFeeAmount = (fullAmount * BigInt(NO_SHOW_FEE_PERCENTAGE)) / BigInt(100);
 
 			noShowBookings.push({
 				bookingId: booking.id,
 				customerId: booking.customerId,
 				startAt: booking.startAt,
 				cardId,
-				amount,
+				fullAmount: fullAmount.toString(),
+				noShowFeeAmount: noShowFeeAmount.toString(),
 				currency,
 			});
 
-			// Charge the no-show fee
+			// Charge the 30% no-show fee
 			try {
 				const defaultLocationId = await getLocationId();
 
@@ -98,13 +104,13 @@ export async function POST(request: Request) {
 					sourceId: cardId,
 					idempotencyKey: randomUUID(),
 					amountMoney: {
-						amount,
+						amount: noShowFeeAmount,
 						currency: currency as any,
 					},
 					customerId: booking.customerId,
 					locationId: defaultLocationId,
 					autocomplete: true,
-					note: `No-show fee for booking ${booking.id} on ${new Date(booking.startAt).toLocaleDateString()}`,
+					note: `No-show fee (${NO_SHOW_FEE_PERCENTAGE}%) for booking ${booking.id} on ${new Date(booking.startAt).toLocaleDateString()}`,
 				});
 
 				if (paymentResponse.errors?.length) {
@@ -119,7 +125,9 @@ export async function POST(request: Request) {
 						bookingId: booking.id,
 						success: true,
 						paymentId: paymentResponse.payment?.id,
-						amount: amount.toString(),
+						fullAmount: fullAmount.toString(),
+						noShowFeeAmount: noShowFeeAmount.toString(),
+						feePercentage: NO_SHOW_FEE_PERCENTAGE,
 						currency,
 					});
 

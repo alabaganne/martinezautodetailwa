@@ -141,7 +141,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
                 <p className="mb-2">Your card will be securely stored but not charged at booking.</p>
                 <ul className="space-y-1">
                   <li>• <strong>Pay at service:</strong> {paymentAmountLabel}</li>
-                  <li>• <strong>No-show fee:</strong> Full service amount charged if you miss your appointment without 24hr notice</li>
+                  <li>• <strong>No-show fee:</strong> 30% of service amount charged if you miss your appointment without 24hr notice</li>
                   <li>• Card information processed securely by Square</li>
                 </ul>
               </div>
