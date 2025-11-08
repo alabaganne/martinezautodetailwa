@@ -1,6 +1,6 @@
 import type { Customer, Currency } from 'square/api';
 import { getTeamMemberId, searchAvailability } from '../lib/availability';
-import { bookingsApi, catalogApi, customersApi, getLocationId, paymentsApi, teamMembersApi } from '../lib/client';
+import { bookingsApi, cardsApi, catalogApi, customersApi, getLocationId, paymentsApi, teamMembersApi } from '../lib/client';
 import { successResponse, handleSquareError } from '../lib/utils';
 import { randomUUID } from 'crypto';
 
@@ -419,34 +419,28 @@ export async function POST(request) {
                 }
 
                 if (!isComplimentary && !paymentToken) {
-                        return new Response(JSON.stringify({ error: 'Payment token is required to confirm your appointment' }), {
+                        return new Response(JSON.stringify({ error: 'Card information is required to secure your appointment' }), {
                                 status: 400,
                                 headers: { 'Content-Type': 'application/json' },
                         });
                 }
 
-                let pendingPayment: any = null;
+                let cardOnFile: any = null;
 
                 if (!isComplimentary) {
-                        const paymentResponse = await paymentsApi.create({
-                                sourceId: paymentToken,
+                        // Create card on file for no-show protection
+                        const cardResponse = await cardsApi.create({
                                 idempotencyKey: randomUUID(),
-                                amountMoney: {
-                                        amount: servicePricing.amount,
-                                        currency: servicePricing.currency,
-                                },
-                                customerId: customer.id,
-                                locationId: defaultLocationId,
-                                autocomplete: false,
-                                buyerEmailAddress: email,
-                                buyerPhoneNumber: normalizedPhone ?? undefined,
-                                note: buildPaymentNote(servicePricing.serviceName, fullName || email),
+                                sourceId: paymentToken,
+                                card: {
+                                        customerId: customer.id,
+                                }
                         });
 
-                        if (paymentResponse.errors?.length) {
-                                const [firstError] = paymentResponse.errors;
+                        if (cardResponse.errors?.length) {
+                                const [firstError] = cardResponse.errors;
                                 return new Response(
-                                        JSON.stringify({ error: firstError?.detail || 'Failed to create payment' }),
+                                        JSON.stringify({ error: firstError?.detail || 'Failed to store card information' }),
                                         {
                                                 status: 400,
                                                 headers: { 'Content-Type': 'application/json' },
@@ -454,28 +448,28 @@ export async function POST(request) {
                                 );
                         }
 
-                        pendingPayment = paymentResponse.payment;
+                        cardOnFile = cardResponse.card;
 
-                        if (!pendingPayment?.id) {
-                                throw new Error('Payment could not be created.');
+                        if (!cardOnFile?.id) {
+                                throw new Error('Card could not be stored.');
                         }
                 }
 
                 const sellerNoteParts = [
-                        !isComplimentary && pendingPayment?.id ? `Payment ID: ${pendingPayment.id}` : null,
-                        `Payment Amount (cents): ${servicePricing.amount.toString()}`,
-                        `Payment Currency: ${servicePricing.currency}`,
-                        !isComplimentary && pendingPayment?.createdAt
-                                ? `Payment Authorized At: ${pendingPayment.createdAt}`
+                        !isComplimentary && cardOnFile?.id ? `Card ID: ${cardOnFile.id}` : null,
+                        `Service Amount (cents): ${servicePricing.amount.toString()}`,
+                        `Currency: ${servicePricing.currency}`,
+                        !isComplimentary && cardOnFile?.id
+                                ? 'Card on file for no-show protection'
                                 : null,
-                        isComplimentary ? 'Complimentary booking - no payment processed' : null,
+                        isComplimentary ? 'Complimentary booking - no card required' : null,
                 ].filter(Boolean);
 
                 const paymentSummary = formatMoney(servicePricing.amount, servicePricing.currency);
                 const paymentMethodSummary = !isComplimentary
                         ? cardBrand && cardLastFour
-                                ? `${cardBrand} ending in ${cardLastFour}`
-                                : 'Square payment'
+                                ? `${cardBrand} ending in ${cardLastFour} (on file)`
+                                : 'Card on file'
                         : 'No payment required (complimentary service)';
 
                 const bookingData = {
@@ -492,7 +486,9 @@ export async function POST(request) {
                                         vehicleModel ? `Model: ${vehicleModel}` : null,
                                         vehicleYear ? `Year: ${vehicleYear}` : null,
                                         vehicleColor ? `Color: ${vehicleColor}` : null,
-                                        `Payment: ${paymentSummary} via ${paymentMethodSummary}`,
+                                        isComplimentary
+                                                ? 'Payment: Complimentary service'
+                                                : `Payment: ${paymentSummary} (pay at service) - ${paymentMethodSummary}`,
                                         notes?.trim() ? `Notes: ${notes.trim()}` : null,
                                 ].filter(Boolean).join(' | ') || '',
                         appointmentSegments,
@@ -506,40 +502,17 @@ export async function POST(request) {
                         });
                         bookingResult = response.booking || response;
                 } catch (bookingError) {
-                        if (!isComplimentary && pendingPayment?.id) {
-                                await voidPendingPayment(pendingPayment.id);
+                        // If booking fails and we created a card on file, we should delete it
+                        if (!isComplimentary && cardOnFile?.id) {
+                                await deleteCardOnFile(cardOnFile.id);
                         }
                         throw bookingError;
                 }
 
-                if (isComplimentary) {
-                        return successResponse({
-                                booking: bookingResult,
-                                payment: null,
-                        });
-                }
-
-                let completedPayment = pendingPayment;
-
-                try {
-                        const completionResponse = await paymentsApi.complete({
-                                paymentId: pendingPayment.id,
-                        });
-
-                        if (completionResponse.payment) {
-                                completedPayment = completionResponse.payment;
-                        }
-                } catch (completionError) {
-                        if (pendingPayment?.id) {
-                                await voidPendingPayment(pendingPayment.id);
-                        }
-                        await cancelBookingAfterPaymentFailure(bookingResult);
-                        throw completionError;
-                }
-
                 return successResponse({
                         booking: bookingResult,
-                        payment: completedPayment,
+                        cardOnFile: cardOnFile,
+                        payment: null, // No payment made at booking time
                 });
 	} catch (error) {
 		return handleSquareError(error, 'Failed to create booking');
@@ -708,31 +681,11 @@ function formatMoney(amount: bigint, currency: Currency): string {
         return formatter.format(Number(amount) / 100);
 }
 
-function buildPaymentNote(serviceName: string, identifier: string): string {
-        const base = serviceName ? `Booking payment for ${serviceName}` : 'Booking payment';
-        return identifier ? `${base} - ${identifier}` : base;
-}
-
-async function voidPendingPayment(paymentId: string): Promise<void> {
+async function deleteCardOnFile(cardId: string): Promise<void> {
         try {
-                await paymentsApi.cancel({ paymentId });
+                await cardsApi.disable({ cardId });
         } catch (error) {
-                console.error(`Failed to cancel pending payment ${paymentId}`, error);
-        }
-}
-
-async function cancelBookingAfterPaymentFailure(booking: any): Promise<void> {
-        if (!booking?.id) {
-                return;
-        }
-
-        try {
-                await bookingsApi.cancel({
-                        bookingId: booking.id,
-                        bookingVersion: resolveBookingVersion(booking),
-                });
-        } catch (error) {
-                console.error(`Failed to cancel booking ${booking?.id} after payment failure`, error);
+                console.error(`Failed to disable card on file ${cardId}`, error);
         }
 }
 

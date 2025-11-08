@@ -131,18 +131,18 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
             message="This booking is complimentary, so you won't be charged or asked to enter card details."
           />
         ) : (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-start">
-              <svg className="w-5 h-5 text-amber-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              <svg className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
-              <div className="text-sm text-amber-800">
-                <p className="font-semibold mb-1">Secure Your Appointment</p>
-                <p className="mb-2">We charge your card now to guarantee your detailing slot.</p>
+              <div className="text-sm text-blue-800">
+                <p className="font-semibold mb-1">Card on File for No-Show Protection</p>
+                <p className="mb-2">Your card will be securely stored but not charged at booking.</p>
                 <ul className="space-y-1">
-                  <li>• Total charged today: <strong>{paymentAmountLabel}</strong></li>
-                  <li>• Free reschedule/cancellation with 24 hours notice</li>
-                  <li>• Payments processed securely by Square</li>
+                  <li>• <strong>Pay at service:</strong> {paymentAmountLabel}</li>
+                  <li>• <strong>No-show fee:</strong> Full service amount charged if you miss your appointment without 24hr notice</li>
+                  <li>• Card information processed securely by Square</li>
                 </ul>
               </div>
             </div>
@@ -158,7 +158,7 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span className="text-green-800 font-medium">
-                  {formData.cardBrand} ending in {formData.cardLastFour} ready for booking charge
+                  {formData.cardBrand} ending in {formData.cardLastFour} will be saved on file
                 </span>
               </div>
               <button
@@ -240,14 +240,14 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
             </div>
           </div>
         ) : (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center">
-              <svg className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <div className="text-sm text-green-800">
-                <p className="font-semibold">{paymentAmountLabel} will be charged when you confirm your booking</p>
-                <p className="text-xs text-green-700 mt-1">You&apos;ll receive an email receipt from Square right away.</p>
+              <div className="text-sm text-blue-800">
+                <p className="font-semibold">Your card will be saved when you confirm your booking</p>
+                <p className="text-xs text-blue-700 mt-1">You&apos;ll pay {paymentAmountLabel} when you arrive for service.</p>
               </div>
             </div>
           </div>
