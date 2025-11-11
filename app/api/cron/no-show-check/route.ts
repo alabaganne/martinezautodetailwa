@@ -62,6 +62,11 @@ export async function POST(request: Request) {
 				continue;
 			}
 
+			// Skip if no-show fee has already been charged (prevent duplicate charges)
+			if (booking.sellerNote.includes('No-show fee charged:')) {
+				continue;
+			}
+
 			// Extract card ID from seller note
 			const cardIdMatch = booking.sellerNote.match(/Card ID: (card_[a-zA-Z0-9_-]+)/);
 			if (!cardIdMatch) {
