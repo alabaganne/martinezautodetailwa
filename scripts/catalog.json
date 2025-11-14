@@ -59,7 +59,7 @@
               "amount": "10000",
               "currency": "USD"
             },
-            "serviceDuration": 12600000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -76,7 +76,7 @@
               "amount": "15000",
               "currency": "USD"
             },
-            "serviceDuration": 12600000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -110,7 +110,7 @@
               "amount": "8000",
               "currency": "USD"
             },
-            "serviceDuration": 10800000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -127,7 +127,7 @@
               "amount": "13000",
               "currency": "USD"
             },
-            "serviceDuration": 10800000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -161,7 +161,7 @@
               "amount": "17000",
               "currency": "USD"
             },
-            "serviceDuration": 14400000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -178,7 +178,7 @@
               "amount": "22000",
               "currency": "USD"
             },
-            "serviceDuration": 14400000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -212,7 +212,7 @@
               "amount": "22000",
               "currency": "USD"
             },
-            "serviceDuration": 18000000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -229,7 +229,7 @@
               "amount": "27000",
               "currency": "USD"
             },
-            "serviceDuration": 19800000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -263,7 +263,7 @@
               "amount": "32000",
               "currency": "USD"
             },
-            "serviceDuration": 21600000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -280,7 +280,7 @@
               "amount": "37000",
               "currency": "USD"
             },
-            "serviceDuration": 23400000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -314,7 +314,7 @@
               "amount": "12000",
               "currency": "USD"
             },
-            "serviceDuration": 16200000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -331,7 +331,7 @@
               "amount": "17000",
               "currency": "USD"
             },
-            "serviceDuration": 16200000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -365,7 +365,7 @@
               "amount": "10000",
               "currency": "USD"
             },
-            "serviceDuration": 12600000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -382,7 +382,7 @@
               "amount": "15000",
               "currency": "USD"
             },
-            "serviceDuration": 12600000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -416,7 +416,7 @@
               "amount": "20000",
               "currency": "USD"
             },
-            "serviceDuration": 18000000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -433,7 +433,7 @@
               "amount": "25000",
               "currency": "USD"
             },
-            "serviceDuration": 18000000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -467,7 +467,7 @@
               "amount": "13000",
               "currency": "USD"
             },
-            "serviceDuration": 18000000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -484,7 +484,7 @@
               "amount": "18000",
               "currency": "USD"
             },
-            "serviceDuration": 18000000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -518,7 +518,7 @@
               "amount": "11000",
               "currency": "USD"
             },
-            "serviceDuration": 12600000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -535,7 +535,7 @@
               "amount": "16000",
               "currency": "USD"
             },
-            "serviceDuration": 12600000
+            "serviceDuration": 28800000
           }
         }
       ]
@@ -569,7 +569,7 @@
               "amount": "22000",
               "currency": "USD"
             },
-            "serviceDuration": 19800000
+            "serviceDuration": 28800000
           }
         },
         {
@@ -586,7 +586,7 @@
               "amount": "27000",
               "currency": "USD"
             },
-            "serviceDuration": 19800000
+            "serviceDuration": 28800000
           }
         }
       ]
