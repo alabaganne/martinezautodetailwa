@@ -132,7 +132,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Charge Timing:</span>
-                  <span className="font-medium text-green-600">Charged immediately when you confirm</span>
+                  <span className="font-medium text-blue-600">Pay at service (card on file for no-shows)</span>
                 </div>
               </>
             ) : (
@@ -161,7 +161,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
             <div className="relative">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-brand-100 text-sm font-medium mb-1">{requiresPayment ? 'Service Total (Paid Today)' : 'Service Total'}</p>
+                  <p className="text-brand-100 text-sm font-medium mb-1">{requiresPayment ? 'Service Total (Pay at Service)' : 'Service Total'}</p>
                   <div className="flex items-baseline">
                     <span className="text-4xl font-bold text-white">
                       {displayPrice(estimatedPrice)}
@@ -180,10 +180,10 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
                     <svg className="w-5 h-5 text-brand-200 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-sm text-brand-100">{requiresPayment ? 'Charged online via Square when you confirm' : 'Complimentary appointment – no payment will be collected'}</p>
+                    <p className="text-sm text-brand-100">{requiresPayment ? 'Card secured for no-show protection – pay at service' : 'Complimentary appointment – no payment will be collected'}</p>
                   </div>
                   <span className="px-3 py-1 bg-white/20 rounded-full text-xs font-medium text-white">
-                    {requiresPayment ? 'Digital Receipt' : 'Complimentary'}
+                    {requiresPayment ? 'Card on File' : 'Complimentary'}
                   </span>
                 </div>
               </div>
@@ -196,7 +196,7 @@ const ReviewConfirm: React.FC<StepProps> = ({ formData }) => {
           <AlertBox
             variant="info"
             title="Payment Policy"
-            message="Your card is charged immediately to hold your appointment. Need to reschedule? Contact us at least 24 hours in advance for a full refund."
+            message="Your card is secured for no-show protection only. You'll pay at service. If you miss your appointment without 24 hours notice, a 30% no-show fee will be charged to your card on file."
           />
         ) : (
           <AlertBox
