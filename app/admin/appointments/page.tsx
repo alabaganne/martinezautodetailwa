@@ -10,6 +10,7 @@ import {
 	Mail,
 	Calendar,
 	Clock,
+	CreditCard,
 	DollarSign,
 	XCircle,
 	AlertTriangle,
@@ -53,6 +54,27 @@ const isNoShowEligible = (booking: Booking & { sellerNote?: string }): boolean =
 
 const hasBeenCharged = (booking: Booking & { sellerNote?: string }): boolean => {
 	return booking.sellerNote?.includes('No-show fee charged:') ?? false;
+};
+
+const extractCardInfo = (customerNote?: string): { brand: string; lastFour: string } | null => {
+	if (!customerNote) return null;
+
+	// Format: "Visa ending in 1234" or "Mastercard ending in 5678"
+	const cardMatch = customerNote.match(/(\w+)\s+ending\s+in\s+(\d{4})/i);
+	if (cardMatch) {
+		return {
+			brand: cardMatch[1],
+			lastFour: cardMatch[2],
+		};
+	}
+	return null;
+};
+
+const getCustomerName = (booking: Booking): string => {
+	if (booking.customer?.givenName || booking.customer?.familyName) {
+		return `${booking.customer.givenName || ''} ${booking.customer.familyName || ''}`.trim();
+	}
+	return 'Unknown Customer';
 };
 
 const AppointmentRow: React.FC<AppointmentRowProps> = ({
@@ -142,6 +164,8 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 	const noShowEligible = isNoShowEligible(booking);
 	const alreadyCharged = hasBeenCharged(booking);
 	const isActive = booking.status === 'ACCEPTED' || booking.status === 'PENDING';
+	const cardInfo = extractCardInfo(booking.customerNote);
+	const customerName = getCustomerName(booking);
 
 	return (
 		<>
@@ -149,7 +173,13 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 				<div className="flex items-start justify-between gap-4">
 					{/* Left section: Customer & Booking info */}
 					<div className="flex-1 min-w-0">
-						<div className="flex items-center gap-3 mb-2 flex-wrap">
+						{/* Customer Name - Prominent */}
+						<div className="flex items-center gap-2 mb-2">
+							<User size={18} className="text-brand-600" />
+							<h3 className="text-lg font-semibold text-gray-900">{customerName}</h3>
+						</div>
+
+						<div className="flex items-center gap-3 mb-3 flex-wrap">
 							{/* Status badge */}
 							<span
 								className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(booking.status)}`}
@@ -173,19 +203,21 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 								</span>
 							)}
 
+							{/* Card on file badge */}
+							{cardInfo && (
+								<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 flex items-center gap-1">
+									<CreditCard size={12} />
+									{cardInfo.brand} •••• {cardInfo.lastFour}
+								</span>
+							)}
+
 							{/* Booking ID */}
 							<span className="text-xs text-gray-500">#{booking.id.slice(-8)}</span>
 						</div>
 
-						{/* Customer info */}
+						{/* Contact info */}
 						{booking.customer && (
 							<div className="mb-3">
-								<div className="flex items-center gap-2 mb-1">
-									<User size={16} className="text-gray-400" />
-									<span className="font-medium text-gray-900">
-										{booking.customer.givenName} {booking.customer.familyName}
-									</span>
-								</div>
 								<div className="flex flex-wrap gap-4 text-sm text-gray-600">
 									{booking.customer.phone && (
 										<div className="flex items-center gap-1.5">
