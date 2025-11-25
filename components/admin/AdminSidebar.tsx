@@ -4,9 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { 
-  Home, 
+import {
+  Home,
   Clock,
+  ClipboardList,
   ArrowLeft,
   LogOut,
   X,
@@ -31,6 +32,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
   
   const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/admin', icon: Home },
+    { name: 'Appointments', href: '/admin/appointments', icon: ClipboardList },
     { name: 'Calendar', href: '/admin/calendar', icon: Clock },
   ];
   

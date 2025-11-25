@@ -1,0 +1,149 @@
+import { bookingsApi, getLocationId, paymentsApi } from '../../../lib/client';
+import { successResponse, handleSquareError } from '../../../lib/utils';
+import { cookies } from 'next/headers';
+import { randomUUID } from 'crypto';
+import { NextRequest } from 'next/server';
+
+const NO_SHOW_FEE_PERCENTAGE = 30; // 30% of service price
+const SESSION_NAME = 'admin_session';
+
+/**
+ * POST /api/bookings/[id]/charge-no-show
+ *
+ * Charge no-show fee for a specific booking.
+ * Requires admin session authentication.
+ */
+export async function POST(
+	request: NextRequest,
+	{ params }: { params: Promise<{ id: string }> }
+) {
+	try {
+		const { id: bookingId } = await params;
+
+		// Check admin authentication
+		const cookieStore = await cookies();
+		const sessionCookie = cookieStore.get(SESSION_NAME);
+
+		if (!sessionCookie || !sessionCookie.value) {
+			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+				status: 401,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+
+		// Get the booking
+		const bookingResponse = await bookingsApi.get({ bookingId });
+
+		if (bookingResponse.errors?.length) {
+			return new Response(
+				JSON.stringify({ error: bookingResponse.errors[0]?.detail || 'Booking not found' }),
+				{ status: 404, headers: { 'Content-Type': 'application/json' } }
+			);
+		}
+
+		const booking = bookingResponse.booking;
+
+		if (!booking) {
+			return new Response(JSON.stringify({ error: 'Booking not found' }), {
+				status: 404,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+
+		// Check if booking is in a valid state for no-show charge
+		if (booking.status !== 'ACCEPTED') {
+			return new Response(
+				JSON.stringify({
+					error: `Cannot charge no-show fee: booking status is ${booking.status}. Only ACCEPTED bookings can be charged.`,
+				}),
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
+			);
+		}
+
+		// Check if no-show fee has already been charged
+		if (booking.sellerNote?.includes('No-show fee charged:')) {
+			return new Response(
+				JSON.stringify({ error: 'No-show fee has already been charged for this booking' }),
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
+			);
+		}
+
+		// Extract card ID from seller note
+		const cardIdMatch = booking.sellerNote?.match(/Card ID: (card_[a-zA-Z0-9_-]+)/);
+		if (!cardIdMatch) {
+			return new Response(
+				JSON.stringify({ error: 'No card on file for this booking' }),
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
+			);
+		}
+
+		const cardId = cardIdMatch[1];
+
+		// Extract service amount from seller note
+		const amountMatch = booking.sellerNote?.match(/Service Amount \(cents\): (\d+)/);
+		const currencyMatch = booking.sellerNote?.match(/Currency: ([A-Z]{3})/);
+
+		if (!amountMatch || !currencyMatch) {
+			return new Response(
+				JSON.stringify({ error: 'Missing amount or currency information for this booking' }),
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
+			);
+		}
+
+		const fullAmount = BigInt(amountMatch[1]);
+		const currency = currencyMatch[1];
+
+		// Calculate 30% no-show fee
+		const noShowFeeAmount = (fullAmount * BigInt(NO_SHOW_FEE_PERCENTAGE)) / BigInt(100);
+
+		// Charge the no-show fee
+		const defaultLocationId = await getLocationId();
+
+		const paymentResponse = await paymentsApi.create({
+			sourceId: cardId,
+			idempotencyKey: randomUUID(),
+			amountMoney: {
+				amount: noShowFeeAmount,
+				currency: currency as any,
+			},
+			customerId: booking.customerId,
+			locationId: defaultLocationId,
+			autocomplete: true,
+			note: `No-show fee (${NO_SHOW_FEE_PERCENTAGE}%) for booking ${bookingId} on ${new Date(booking.startAt as string).toLocaleDateString()}`,
+		});
+
+		if (paymentResponse.errors?.length) {
+			return new Response(
+				JSON.stringify({
+					error: paymentResponse.errors[0]?.detail || 'Failed to charge no-show fee',
+				}),
+				{ status: 400, headers: { 'Content-Type': 'application/json' } }
+			);
+		}
+
+		// Update booking seller note to indicate payment was charged
+		try {
+			await bookingsApi.update({
+				bookingId,
+				booking: {
+					version: booking.version,
+					sellerNote: `${booking.sellerNote} | No-show fee charged: ${paymentResponse.payment?.id}`,
+				},
+			});
+		} catch (updateError) {
+			console.warn(`Failed to update booking ${bookingId} after charging no-show fee:`, updateError);
+		}
+
+		return successResponse({
+			success: true,
+			bookingId,
+			paymentId: paymentResponse.payment?.id,
+			fullAmount: fullAmount.toString(),
+			noShowFeeAmount: noShowFeeAmount.toString(),
+			feePercentage: NO_SHOW_FEE_PERCENTAGE,
+			currency,
+		});
+	} catch (error) {
+		return handleSquareError(error, 'Failed to charge no-show fee');
+	}
+}
