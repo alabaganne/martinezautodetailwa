@@ -1,15 +1,17 @@
 import { bookingsApi, cardsApi, customersApi, getLocationId, paymentsApi } from '../../lib/client';
 import { successResponse, handleSquareError } from '../../lib/utils';
 import { randomUUID } from 'crypto';
+import { cookies } from 'next/headers';
 
 const NO_SHOW_WINDOW_HOURS = 48;
 const NO_SHOW_FEE_PERCENTAGE = 30; // 30% of service price
+const SESSION_NAME = 'admin_session';
 
 /**
- * POST /api/cron/no-show-check
+ * GET /api/cron/no-show-check
  *
- * Cron job endpoint to check for no-show bookings and charge fees.
- * This should be called every 24 hours by a cron service (e.g., Vercel Cron, GitHub Actions, etc.)
+ * Manual trigger endpoint for checking no-show bookings and charging fees.
+ * Can be called from the admin dashboard (requires admin session) or via cron service (requires CRON_SECRET).
  *
  * Process:
  * 1. Find bookings that started 48+ hours ago
@@ -17,13 +19,18 @@ const NO_SHOW_FEE_PERCENTAGE = 30; // 30% of service price
  * 3. For no-shows, extract card ID from seller note
  * 4. Charge 30% no-show fee using the card on file
  */
-export async function POST(request: Request) {
+export async function GET(request: Request) {
 	try {
-		// Verify this is a legitimate cron request
+		// Check authentication: either admin session cookie or CRON_SECRET header
 		const authHeader = request.headers.get('authorization');
 		const cronSecret = process.env.CRON_SECRET;
+		const cookieStore = await cookies();
+		const sessionCookie = cookieStore.get(SESSION_NAME);
 
-		if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+		const hasValidCronSecret = cronSecret && authHeader === `Bearer ${cronSecret}`;
+		const hasValidAdminSession = sessionCookie && sessionCookie.value;
+
+		if (!hasValidCronSecret && !hasValidAdminSession) {
 			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 				status: 401,
 				headers: { 'Content-Type': 'application/json' },

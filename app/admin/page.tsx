@@ -8,6 +8,7 @@ import GroupedBookingList from '@/components/admin/GroupedBookingList';
 import LoadingSkeleton from '@/components/admin/LoadingSkeleton';
 import EmptyState from '@/components/admin/EmptyState';
 import AdminHeader from '@/components/admin/AdminHeader';
+import NoShowCheck from '@/components/admin/NoShowCheck';
 
 export default function AdminDashboard() {
 	const [selectedDate, setSelectedDate] = useState(new Date());
@@ -68,10 +69,15 @@ export default function AdminDashboard() {
 
 	return (
 		<div className="min-h-screen">
-			<AdminHeader 
+			<AdminHeader
 				onRefresh={handleRefresh}
 				isRefreshing={isRefreshing}
 			/>
+
+			{/* No-Show Fee Check */}
+			<div className="mb-6">
+				<NoShowCheck />
+			</div>
 
 			{/* Filter Bar */}
 			<FilterBar
