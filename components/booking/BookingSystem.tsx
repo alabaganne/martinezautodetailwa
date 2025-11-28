@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useBooking } from '@/contexts/BookingContext';
 import BookingHeader from './BookingHeader';
 import BookingFooter from './BookingFooter';
@@ -22,6 +22,21 @@ const STEPS = [
   { Component: Confirmation, name: 'Complete' }
 ];
 
+// Payment-related error patterns that indicate card issues
+const CARD_ERROR_PATTERNS = [
+  'INVALID_CARD_DATA',
+  'card',
+  'payment',
+  'source_id',
+  'CVV',
+  'expired'
+];
+
+const isCardRelatedError = (errorMessage: string): boolean => {
+  const lowerMessage = errorMessage.toLowerCase();
+  return CARD_ERROR_PATTERNS.some(pattern => lowerMessage.includes(pattern.toLowerCase()));
+};
+
 const BookingSystem: React.FC = () => {
   const {
     step,
@@ -36,11 +51,23 @@ const BookingSystem: React.FC = () => {
     isStepValid
   } = useBooking();
 
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const handleSubmit = async () => {
+    setSubmitError(null);
     try {
       await submitBooking();
     } catch (error: any) {
-      alert(`Failed to create booking: ${error.message}`);
+      const errorMessage = error.message || 'Failed to create booking';
+      
+      // Check if this is a card-related error
+      if (isCardRelatedError(errorMessage)) {
+        setSubmitError('There was an issue with your card. Please re-enter your payment details.');
+        // Navigate back to Payment step (step 5)
+        setStep(5);
+      } else {
+        setSubmitError(errorMessage);
+      }
     }
   };
 
@@ -58,6 +85,26 @@ const BookingSystem: React.FC = () => {
 
       <div className="relative z-10 max-w-3xl mx-auto px-4 py-8">
         <BookingHeader />
+
+        {/* Error Banner */}
+        {submitError && (
+          <div className="mb-6 bg-red-50 border-2 border-red-200 rounded-2xl p-4">
+            <div className="flex items-start">
+              <svg className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-red-800 font-medium">{submitError}</p>
+                <button 
+                  onClick={() => setSubmitError(null)}
+                  className="text-sm text-red-600 hover:text-red-800 underline mt-1"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Main Card */}
         <div className="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-gray-200 p-8 md:p-10">

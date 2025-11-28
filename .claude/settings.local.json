@@ -1,24 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "*",
-      "Bash(*)",
-      "Bash(rmdir:*)",
-      "Bash(**)",
-      "Bash(curl:*)",
-      "Bash(npm run dev:*)",
-      "Bash(node:*)",
-      "Bash([ -f .env.local ])",
-      "Bash(grep:*)",
-      "Bash(git add:*)",
-      "Bash(npm run build:*)",
-      "mcp__square__get_service_info",
-      "mcp__square__make_api_request",
-      "mcp__square__get_type_info",
-      "Bash(mkdir:*)",
-      "WebFetch(domain:developer.squareup.com)",
-      "WebSearch",
-      "Bash(rm:*)"
+      "Bash(node scripts/debug-availability.js:*)"
     ],
     "deny": [],
     "ask": [],

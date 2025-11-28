@@ -65,21 +65,36 @@ const Payment: React.FC<StepProps> = ({ formData, setFormData }) => {
     });
   }, [isComplimentary, setFormData]);
 
-  const handlePaymentToken = async (token: any) => {
+  const handlePaymentToken = async (tokenResult: any) => {
+    setIsProcessing(true);
+    setPaymentError(null);
+
     try {
-      setIsProcessing(true);
-      setPaymentError(null);
+      // Check if tokenization was successful
+      if (tokenResult.status !== 'OK') {
+        const errorMessage = tokenResult.errors?.[0]?.message 
+          || 'Card verification failed. Please check your card details and try again.';
+        console.error('Tokenization failed:', tokenResult.errors);
+        setPaymentError(errorMessage);
+        return;
+      }
+
+      // Validate that we received a token
+      if (!tokenResult.token) {
+        console.error('No token received from Square');
+        setPaymentError('Unable to process card. Please try again.');
+        return;
+      }
 
       // Store payment token and card details in formData
       setFormData(prev => ({
         ...prev,
-        paymentToken: token.token,
-        cardLastFour: token.details?.card?.last4 || '',
-        cardBrand: token.details?.card?.brand || ''
+        paymentToken: tokenResult.token,
+        cardLastFour: tokenResult.details?.card?.last4 || '',
+        cardBrand: tokenResult.details?.card?.brand || ''
       }));
 
-      // Payment token successfully stored
-      console.log('Payment token stored:', token);
+      console.log('Payment token stored successfully');
     } catch (error) {
       console.error('Payment processing error:', error);
       setPaymentError('Failed to process payment information. Please try again.');

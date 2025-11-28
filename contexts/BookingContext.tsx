@@ -147,6 +147,16 @@ export function BookingProvider({ children }: BookingProviderProps) {
       const result = await response.json();
       
       if (!response.ok) {
+        // Clear payment token on failure - Square nonces are single-use
+        // The token has been consumed even if the request failed, so user must re-enter card
+        if (formData.requiresPayment) {
+          setFormData(prev => ({
+            ...prev,
+            paymentToken: '',
+            cardLastFour: '',
+            cardBrand: ''
+          }));
+        }
         throw new Error(result.error || 'Failed to create booking');
       }
 
@@ -154,6 +164,15 @@ export function BookingProvider({ children }: BookingProviderProps) {
       setStep(7);
       return result;
     } catch (error) {
+      // Also clear payment token on network/unexpected errors
+      if (formData.requiresPayment) {
+        setFormData(prev => ({
+          ...prev,
+          paymentToken: '',
+          cardLastFour: '',
+          cardBrand: ''
+        }));
+      }
       throw error;
     } finally {
       setIsSubmitting(false);
