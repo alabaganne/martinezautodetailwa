@@ -38,9 +38,51 @@ export const getDurationInHours = (serviceType: string, vehicleType: string): nu
 export const formatDuration = (hours: number): string => {
   const wholeHours = Math.floor(hours);
   const minutes = Math.round((hours - wholeHours) * 60);
-  
+
   if (minutes === 0) {
     return `${wholeHours}h`;
   }
   return `${wholeHours}h ${minutes}m`;
+};
+
+/**
+ * Format duration from minutes (appointments format)
+ * @param minutes - Duration in minutes
+ * @returns Formatted string (e.g., "3h 30min", "2h", "45min")
+ */
+export const formatDurationMinutes = (minutes: number): string => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (hours === 0) return `${mins}min`;
+  if (mins === 0) return `${hours}h`;
+  return `${hours}h ${mins}min`;
+};
+
+/**
+ * Format date for appointment display
+ * @param dateString - ISO date string
+ * @returns Formatted date (e.g., "Mon, Jan 15, 2024")
+ */
+export const formatDateShort = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+/**
+ * Format time for appointment display
+ * @param dateString - ISO date string
+ * @returns Formatted time (e.g., "10:30 AM")
+ */
+export const formatTime = (dateString: string): string => {
+  const date = new Date(dateString);
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 };

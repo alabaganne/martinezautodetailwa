@@ -47,3 +47,28 @@ export interface Booking {
 }
 
 export type FilterType = 'all' | 'today' | 'pending' | 'confirmed';
+
+// Appointment-specific types
+export type AppointmentFilterOption =
+  | 'all'
+  | 'no-show-eligible'
+  | 'accepted'
+  | 'pending'
+  | 'cancelled';
+
+export interface AppointmentRowProps {
+  booking: Booking;
+  onCancel: (bookingId: string, reason: string) => Promise<void>;
+  onChargeNoShow: (bookingId: string) => Promise<void>;
+  isCharging: boolean;
+}
+
+export interface CardInfo {
+  brand: string;
+  lastFour: string;
+}
+
+export interface ChargeNotification {
+  type: 'success' | 'error';
+  message: string;
+}

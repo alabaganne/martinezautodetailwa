@@ -31,3 +31,25 @@ export const displayPrice = (amount: number): string => {
   }
   return `${amount.toFixed(0)} USD`;
 };
+
+/**
+ * Format price from cents (Square API format)
+ * @param amountCents - Amount in cents
+ * @returns Formatted price string (e.g., "$120.00")
+ */
+export const formatPriceFromCents = (amountCents: number): string => {
+  return `$${(amountCents / 100).toFixed(2)}`;
+};
+
+/**
+ * Calculate percentage of amount in cents
+ * @param amountCents - Base amount in cents
+ * @param percentage - Percentage to calculate (e.g., 30 for 30%)
+ * @returns Calculated amount in cents (rounded)
+ */
+export const calculatePercentage = (
+  amountCents: number,
+  percentage: number
+): number => {
+  return Math.round((amountCents * percentage) / 100);
+};
