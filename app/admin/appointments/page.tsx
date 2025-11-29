@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useBookings } from '@/hooks/useBookings';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AppointmentFilters from '@/components/admin/AppointmentFilters';
 import AppointmentsList from '@/components/admin/AppointmentsList';
 import ChargeResultNotification from '@/components/admin/ChargeResultNotification';
+import Pagination from '@/components/admin/Pagination';
 import { isNoShowEligible } from '@/lib/utils/noShow';
 import type {
   AppointmentFilterOption,
   ChargeNotification,
 } from '@/lib/types/admin';
+
+const PAGE_SIZE = 20;
 
 export default function AppointmentsPage() {
   // State
@@ -19,8 +22,17 @@ export default function AppointmentsPage() {
   const [chargeResult, setChargeResult] = useState<ChargeNotification | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Data fetching
-  const { bookings, loading, error, cancelBooking, refreshBookings } = useBookings();
+  // Data fetching with pagination
+  const {
+    bookings,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    cancelBooking,
+    refreshBookings,
+    loadMore
+  } = useBookings({ pageSize: PAGE_SIZE });
 
   // Auto-hide charge result after 5 seconds
   useEffect(() => {
@@ -79,30 +91,36 @@ export default function AppointmentsPage() {
     }
   };
 
-  // Business logic: filtering and sorting
-  const filteredBookings = bookings.filter((booking) => {
-    switch (filter) {
-      case 'no-show-eligible':
-        return isNoShowEligible(booking);
-      case 'accepted':
-        return booking.status === 'ACCEPTED';
-      case 'pending':
-        return booking.status === 'PENDING';
-      case 'cancelled':
-        return (
-          booking.status === 'CANCELLED_BY_CUSTOMER' ||
-          booking.status === 'CANCELLED_BY_SELLER'
-        );
-      default:
-        return true;
-    }
-  });
+  // Business logic: filtering and sorting (client-side on loaded pages)
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((booking) => {
+      switch (filter) {
+        case 'no-show-eligible':
+          return isNoShowEligible(booking);
+        case 'accepted':
+          return booking.status === 'ACCEPTED';
+        case 'pending':
+          return booking.status === 'PENDING';
+        case 'cancelled':
+          return (
+            booking.status === 'CANCELLED_BY_CUSTOMER' ||
+            booking.status === 'CANCELLED_BY_SELLER'
+          );
+        default:
+          return true;
+      }
+    });
+  }, [bookings, filter]);
 
-  const sortedBookings = [...filteredBookings].sort((a, b) => {
-    return new Date(b.startAt).getTime() - new Date(a.startAt).getTime();
-  });
+  const sortedBookings = useMemo(() => {
+    return [...filteredBookings].sort((a, b) => {
+      return new Date(b.startAt).getTime() - new Date(a.startAt).getTime();
+    });
+  }, [filteredBookings]);
 
-  const noShowEligibleCount = bookings.filter((b) => isNoShowEligible(b)).length;
+  const noShowEligibleCount = useMemo(() => {
+    return bookings.filter((b) => isNoShowEligible(b)).length;
+  }, [bookings]);
 
   const filterLabels: Record<AppointmentFilterOption, string> = {
     all: 'All Appointments',
@@ -169,6 +187,14 @@ export default function AppointmentsPage() {
         onCancel={handleCancel}
         onChargeNoShow={handleChargeNoShow}
         chargingBookingId={chargingBookingId}
+      />
+
+      <Pagination
+        hasMore={hasMore}
+        loadingMore={loadingMore}
+        onLoadMore={loadMore}
+        currentCount={bookings.length}
+        label="appointments"
       />
     </div>
   );

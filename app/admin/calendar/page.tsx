@@ -55,8 +55,10 @@ export default function CalendarPage() {
         }, [selectedDate]);
 
         const { bookings = [], loading } = useBookings({
-                startDate: startOfMonth.toISOString(),
-                endDate: endOfMonth.toISOString(),
+                filters: {
+                        startDate: startOfMonth.toISOString(),
+                        endDate: endOfMonth.toISOString(),
+                }
         });
 
         const activeBookings = useMemo(

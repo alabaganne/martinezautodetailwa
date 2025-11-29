@@ -257,8 +257,8 @@ const extractNameParts = (
  * List bookings
  *
  * Query parameters:
- * - limit: Maximum number of results
- * - cursor: Pagination cursor
+ * - limit: Maximum number of results per page (default: 20, max: 100)
+ * - cursor: Pagination cursor from previous response
  * - location_id: Filter by location
  * - start_at_min: Minimum start time
  * - start_at_max: Maximum start time
@@ -275,19 +275,13 @@ export async function GET(request) {
 		const startAtMinParam = searchParams.get('start_at_min');
 		const startAtMaxParam = searchParams.get('start_at_max');
 
-		const parsedLimit = limitParam ? parseInt(limitParam, 10) : undefined;
-		const limit = parsedLimit && !Number.isNaN(parsedLimit) ? Math.max(1, parsedLimit) : undefined;
+		const parsedLimit = limitParam ? parseInt(limitParam, 10) : 20; // Default page size
+		const limit = parsedLimit && !Number.isNaN(parsedLimit) ? Math.min(Math.max(1, parsedLimit), 100) : 20;
 
 		const defaultLocationId = await getLocationId();
 		const locationId = locationIdParam || defaultLocationId;
 
-		if (cursor) {
-			const page = await bookingsApi.list({
-				cursor,
-			});
-			return successResponse(formatBookingsPage(page));
-		}
-
+		// Validate date parameters
 		const startDateFromParam = parseDateParam(startAtMinParam);
 		const endDateFromParam = parseDateParam(startAtMaxParam);
 
@@ -305,13 +299,14 @@ export async function GET(request) {
 			});
 		}
 
+		// Build date range
 		let dateRange: { start: Date; end: Date };
 		if (startDateFromParam && endDateFromParam) {
 			dateRange = { start: startDateFromParam, end: endDateFromParam };
 		} else if (startDateFromParam && !endDateFromParam) {
-			dateRange = { start: startDateFromParam, end: addDays(startDateFromParam, MAX_SQUARE_WINDOW_DAYS) };
+			dateRange = { start: startDateFromParam, end: addDays(startDateFromParam, DEFAULT_FUTURE_DAYS) };
 		} else if (!startDateFromParam && endDateFromParam) {
-			dateRange = { start: addDays(endDateFromParam, -MAX_SQUARE_WINDOW_DAYS), end: endDateFromParam };
+			dateRange = { start: addDays(endDateFromParam, -DEFAULT_PAST_DAYS), end: endDateFromParam };
 		} else {
 			dateRange = buildDefaultRange();
 		}
@@ -331,51 +326,120 @@ export async function GET(request) {
 			});
 		}
 
+		// For cursor-based pagination with a cursor, fetch from Square directly
+		if (cursor) {
+			const pageResponse = await bookingsApi.list({
+				cursor,
+				limit,
+			});
+
+			// Extract bookings from the response
+			const bookings: any[] = [];
+			let nextCursor: string | null = null;
+
+			// Handle both iterator and direct response patterns
+			if (pageResponse && typeof pageResponse[Symbol.asyncIterator] === 'function') {
+				for await (const booking of pageResponse as any) {
+					if (booking?.id) {
+						bookings.push(booking);
+					}
+				}
+			} else if ((pageResponse as any).result?.bookings) {
+				bookings.push(...(pageResponse as any).result.bookings);
+				nextCursor = (pageResponse as any).result.cursor || null;
+			} else if ((pageResponse as any).bookings) {
+				bookings.push(...(pageResponse as any).bookings);
+				nextCursor = (pageResponse as any).cursor || null;
+			}
+
+			// Enrich bookings
+			const customerIds = [...new Set(bookings.map((b: any) => b.customerId).filter(Boolean))] as string[];
+			const customerMap = await fetchCustomersBatch(customerIds);
+
+			const variationIds = [...new Set(
+				bookings
+					.filter((b: any) => b.appointmentSegments?.length)
+					.map((b: any) => b.appointmentSegments[0]?.serviceVariationId)
+					.filter(Boolean)
+			)] as string[];
+
+			const serviceDetailsMap = await fetchServiceDetailsBatch(variationIds);
+
+			const enrichedBookings = bookings.map((booking: any) => {
+				const variationId = booking.appointmentSegments?.[0]?.serviceVariationId;
+				const catalogDetails = variationId ? serviceDetailsMap.get(variationId) : null;
+				const noteAmount = extractServiceAmountFromNote(booking.sellerNote);
+				const segmentDuration = booking.appointmentSegments?.[0]?.durationMinutes;
+
+				return {
+					...booking,
+					customer: customerMap.get(booking.customerId) || null,
+					serviceAmount: noteAmount || (catalogDetails ? {
+						amountCents: catalogDetails.amountCents,
+						currency: catalogDetails.currency,
+					} : null),
+					serviceDetails: catalogDetails ? {
+						serviceName: catalogDetails.serviceName,
+						durationMinutes: segmentDuration || catalogDetails.durationMinutes,
+					} : (segmentDuration ? {
+						serviceName: null,
+						durationMinutes: segmentDuration,
+					} : null),
+				};
+			});
+
+			return successResponse({
+				bookings: enrichedBookings,
+				cursor: nextCursor,
+				hasMore: !!nextCursor,
+				count: enrichedBookings.length,
+			});
+		}
+
+		// For initial request without cursor, use date range approach
 		const windows = splitRangeIntoWindows(dateRange.start, dateRange.end);
 		if (windows.length === 0) {
 			return successResponse({
 				bookings: [],
 				startAtMin: dateRange.start.toISOString(),
 				startAtMax: dateRange.end.toISOString(),
+				cursor: null,
+				hasMore: false,
+				count: 0,
 			});
 		}
 
-		const perRequestLimit = Math.max(1, Math.min(limit ?? 200, 200));
-		const overallLimit = limit;
-		const bookingsMap = new Map<string, any>();
-		let collected = 0;
-
-		for (const windowRange of windows) {
-			const page = await bookingsApi.list({
-				limit: perRequestLimit,
-				locationId,
-				customerId,
-				teamMemberId,
-				startAtMin: windowRange.start.toISOString(),
-				startAtMax: windowRange.end.toISOString(),
-			});
-
-			for await (const booking of page as any) {
-				if (!booking?.id || bookingsMap.has(booking.id)) {
-					continue;
-				}
-				bookingsMap.set(booking.id, booking);
-				collected += 1;
-				if (overallLimit && collected >= overallLimit) {
-					break;
-				}
-			}
-
-			if (overallLimit && collected >= overallLimit) {
-				break;
-			}
-		}
-
-		const bookings = Array.from(bookingsMap.values()).sort((a, b) => {
-			const dateA = new Date(a.startAt || a.start_at || 0).getTime();
-			const dateB = new Date(b.startAt || b.start_at || 0).getTime();
-			return dateA - dateB;
+		// Fetch first page from the first window
+		const firstWindow = windows[0];
+		const pageResponse = await bookingsApi.list({
+			limit,
+			locationId,
+			customerId,
+			teamMemberId,
+			startAtMin: firstWindow.start.toISOString(),
+			startAtMax: firstWindow.end.toISOString(),
 		});
+
+		// Extract bookings from the response
+		const bookings: any[] = [];
+		let nextCursor: string | null = null;
+
+		// Handle both iterator and direct response patterns
+		if (pageResponse && typeof pageResponse[Symbol.asyncIterator] === 'function') {
+			let count = 0;
+			for await (const booking of pageResponse as any) {
+				if (booking?.id && count < limit) {
+					bookings.push(booking);
+					count++;
+				}
+			}
+		} else if ((pageResponse as any).result?.bookings) {
+			bookings.push(...(pageResponse as any).result.bookings);
+			nextCursor = (pageResponse as any).result.cursor || null;
+		} else if ((pageResponse as any).bookings) {
+			bookings.push(...(pageResponse as any).bookings);
+			nextCursor = (pageResponse as any).cursor || null;
+		}
 
 		// Enrich bookings with customer data
 		const customerIds = [...new Set(bookings.map((b: any) => b.customerId).filter(Boolean))] as string[];
@@ -395,10 +459,10 @@ export async function GET(request) {
 		const enrichedBookings = bookings.map((booking: any) => {
 			const variationId = booking.appointmentSegments?.[0]?.serviceVariationId;
 			const catalogDetails = variationId ? serviceDetailsMap.get(variationId) : null;
-			
+
 			// Try to get service amount from sellerNote first, then from catalog
 			const noteAmount = extractServiceAmountFromNote(booking.sellerNote);
-			
+
 			// Get duration from appointment segments or catalog
 			const segmentDuration = booking.appointmentSegments?.[0]?.durationMinutes;
 
@@ -423,6 +487,8 @@ export async function GET(request) {
 			bookings: enrichedBookings,
 			startAtMin: dateRange.start.toISOString(),
 			startAtMax: dateRange.end.toISOString(),
+			cursor: nextCursor,
+			hasMore: !!nextCursor,
 			count: enrichedBookings.length,
 		});
 	} catch (error) {
