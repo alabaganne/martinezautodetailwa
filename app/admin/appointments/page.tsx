@@ -23,17 +23,34 @@ import {
 import { Booking, BookingStatus } from '@/lib/types/admin';
 
 const NO_SHOW_WINDOW_HOURS = 48;
+const NO_SHOW_FEE_PERCENTAGE = 30;
 
 type FilterOption = 'all' | 'no-show-eligible' | 'accepted' | 'pending' | 'cancelled';
 
+const formatPrice = (amountCents: number): string => {
+	return `$${(amountCents / 100).toFixed(2)}`;
+};
+
+const calculateNoShowFee = (amountCents: number): number => {
+	return Math.round((amountCents * NO_SHOW_FEE_PERCENTAGE) / 100);
+};
+
+const formatDuration = (minutes: number): string => {
+	const hours = Math.floor(minutes / 60);
+	const mins = minutes % 60;
+	if (hours === 0) return `${mins}min`;
+	if (mins === 0) return `${hours}h`;
+	return `${hours}h ${mins}min`;
+};
+
 interface AppointmentRowProps {
-	booking: Booking & { sellerNote?: string };
+	booking: Booking;
 	onCancel: (bookingId: string, reason: string) => Promise<void>;
 	onChargeNoShow: (bookingId: string) => Promise<void>;
 	isCharging: boolean;
 }
 
-const isNoShowEligible = (booking: Booking & { sellerNote?: string }): boolean => {
+const isNoShowEligible = (booking: Booking): boolean => {
 	// Must be ACCEPTED status
 	if (booking.status !== 'ACCEPTED') return false;
 
@@ -52,7 +69,7 @@ const isNoShowEligible = (booking: Booking & { sellerNote?: string }): boolean =
 	return true;
 };
 
-const hasBeenCharged = (booking: Booking & { sellerNote?: string }): boolean => {
+const hasBeenCharged = (booking: Booking): boolean => {
 	return booking.sellerNote?.includes('No-show fee charged:') ?? false;
 };
 
@@ -166,6 +183,9 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 	const isActive = booking.status === 'ACCEPTED' || booking.status === 'PENDING';
 	const cardInfo = extractCardInfo(booking.customerNote);
 	const customerName = getCustomerName(booking);
+	const serviceAmount = booking.serviceAmount;
+	const noShowFee = serviceAmount ? calculateNoShowFee(serviceAmount.amountCents) : null;
+	const serviceDetails = booking.serviceDetails;
 
 	return (
 		<>
@@ -174,10 +194,18 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 					{/* Left section: Customer & Booking info */}
 					<div className="flex-1 min-w-0">
 						{/* Customer Name - Prominent */}
-						<div className="flex items-center gap-2 mb-2">
+						<div className="flex items-center gap-2 mb-1">
 							<User size={18} className="text-brand-600" />
 							<h3 className="text-lg font-semibold text-gray-900">{customerName}</h3>
 						</div>
+
+						{/* Service Info */}
+						{serviceDetails && (
+							<p className="text-sm text-gray-600 mb-2 ml-6">
+								{serviceDetails.serviceName || 'Service'}
+								{serviceDetails.durationMinutes && ` • ${formatDuration(serviceDetails.durationMinutes)}`}
+							</p>
+						)}
 
 						<div className="flex items-center gap-3 mb-3 flex-wrap">
 							{/* Status badge */}
@@ -187,11 +215,11 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 								{booking.status.replace(/_/g, ' ')}
 							</span>
 
-							{/* No-show eligible badge */}
+							{/* No-show eligible badge with fee amount */}
 							{noShowEligible && (
 								<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200 flex items-center gap-1">
 									<AlertTriangle size={12} />
-									No-Show Eligible
+									No-Show Eligible{noShowFee ? ` (${formatPrice(noShowFee)})` : ''}
 								</span>
 							)}
 
@@ -235,7 +263,7 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 							</div>
 						)}
 
-						{/* Date & Time */}
+						{/* Date & Time & Price */}
 						<div className="flex flex-wrap gap-4 text-sm text-gray-600">
 							<div className="flex items-center gap-1.5">
 								<Calendar size={14} className="text-gray-400" />
@@ -245,6 +273,12 @@ const AppointmentRow: React.FC<AppointmentRowProps> = ({
 								<Clock size={14} className="text-gray-400" />
 								{formatTime(booking.startAt)}
 							</div>
+							{serviceAmount && (
+								<div className="flex items-center gap-1.5">
+									<DollarSign size={14} className="text-gray-400" />
+									<span className="font-medium text-gray-900">{formatPrice(serviceAmount.amountCents)}</span>
+								</div>
+							)}
 						</div>
 
 						{/* Customer note */}
@@ -363,7 +397,7 @@ export default function AppointmentsPage() {
 	const [showFilterDropdown, setShowFilterDropdown] = useState(false);
 	const filterRef = useRef<HTMLDivElement>(null);
 
-	const { bookings, loading, error, cancelBooking, refreshBookings } = useBookings();
+	const { bookings, loading, refreshing, error, cancelBooking, refreshBookings } = useBookings();
 
 	// Close filter dropdown when clicking outside
 	useEffect(() => {
@@ -515,7 +549,12 @@ export default function AppointmentsPage() {
 			{/* Header with filter */}
 			<div className="flex items-center justify-between mb-6">
 				<div>
-					<h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
+					<div className="flex items-center gap-2">
+						<h1 className="text-2xl font-bold text-gray-900">Appointments</h1>
+						{refreshing && (
+							<Loader2 size={18} className="animate-spin text-gray-400" />
+						)}
+					</div>
 					<p className="text-sm text-gray-500 mt-1">
 						{sortedBookings.length} appointment{sortedBookings.length !== 1 ? 's' : ''}
 						{noShowEligibleCount > 0 && (

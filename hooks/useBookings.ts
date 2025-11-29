@@ -7,12 +7,17 @@ import { Booking } from '@/lib/types/admin';
 export function useBookings(filters: any = {}) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch bookings from API
-  const fetchBookings = useCallback(async () => {
+  const fetchBookings = useCallback(async (isRefresh = false) => {
     try {
-      setLoading(true);
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       
       const response = await fetch('/api/bookings');
@@ -31,6 +36,7 @@ export function useBookings(filters: any = {}) {
       setBookings([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -117,8 +123,8 @@ export function useBookings(filters: any = {}) {
         throw new Error(data.error || 'Failed to cancel booking');
       }
       
-      // Refresh bookings after cancellation
-      await fetchBookings();
+      // Refresh bookings after cancellation (background refresh)
+      await fetchBookings(true);
       
       return { success: true };
     } catch (err) {
@@ -130,14 +136,15 @@ export function useBookings(filters: any = {}) {
     }
   }, [fetchBookings]);
 
-  // Refresh bookings
+  // Refresh bookings (background refresh without loading skeleton)
   const refreshBookings = useCallback(async () => {
-    await fetchBookings();
+    await fetchBookings(true);
   }, [fetchBookings]);
   
   return {
     bookings: filteredBookings,
     loading,
+    refreshing,
     error,
     count: filteredBookings.length,
     cancelBooking,

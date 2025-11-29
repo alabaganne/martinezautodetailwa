@@ -24,6 +24,15 @@ export interface Booking {
   startAt: string;
   locationId: string;
   customerNote?: string;
+  sellerNote?: string;
+  serviceAmount?: {
+    amountCents: number;
+    currency: string;
+  };
+  serviceDetails?: {
+    serviceName: string | null;
+    durationMinutes?: number;
+  };
   status: BookingStatusType;
   appointmentSegments?: Array<{
     durationMinutes: number;

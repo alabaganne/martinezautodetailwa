@@ -1,4 +1,4 @@
-import { bookingsApi, getLocationId, paymentsApi } from '../../../lib/client';
+import { bookingsApi, cardsApi, catalogApi, getLocationId, paymentsApi } from '../../../lib/client';
 import { successResponse, handleSquareError } from '../../../lib/utils';
 import { cookies } from 'next/headers';
 import { randomUUID } from 'crypto';
@@ -68,30 +68,62 @@ export async function POST(
 			);
 		}
 
-		// Extract card ID from seller note
-		const cardIdMatch = booking.sellerNote?.match(/Card ID: (card_[a-zA-Z0-9_-]+)/);
-		if (!cardIdMatch) {
+		// Extract card ID from seller note (flexible pattern to match Square's various card ID formats)
+		const cardIdMatch = booking.sellerNote?.match(/Card ID: ([^\s|]+)/);
+		let cardId = cardIdMatch?.[1];
+
+		// Fallback: If card ID not in seller note, try to get customer's card on file from Square
+		if (!cardId && booking.customerId) {
+			try {
+				const cardsPage = await cardsApi.list({ customerId: booking.customerId });
+				for await (const card of cardsPage as any) {
+					if (card?.enabled && card?.id) {
+						cardId = card.id;
+						break;
+					}
+				}
+			} catch (cardError) {
+				console.warn('Failed to fetch customer cards:', cardError);
+			}
+		}
+
+		if (!cardId) {
 			return new Response(
 				JSON.stringify({ error: 'No card on file for this booking' }),
 				{ status: 400, headers: { 'Content-Type': 'application/json' } }
 			);
 		}
 
-		const cardId = cardIdMatch[1];
-
 		// Extract service amount from seller note
 		const amountMatch = booking.sellerNote?.match(/Service Amount \(cents\): (\d+)/);
 		const currencyMatch = booking.sellerNote?.match(/Currency: ([A-Z]{3})/);
 
-		if (!amountMatch || !currencyMatch) {
+		let fullAmount: bigint | null = amountMatch ? BigInt(amountMatch[1]) : null;
+		let currency: string = currencyMatch?.[1] || 'USD';
+
+		// Fallback: Get amount from catalog if not in seller note
+		if (!fullAmount && booking.appointmentSegments?.[0]?.serviceVariationId) {
+			try {
+				const variationId = booking.appointmentSegments[0].serviceVariationId;
+				const catalogResponse = await catalogApi.object.get({
+					objectId: variationId,
+				});
+				const priceMoney = (catalogResponse.object as any)?.itemVariationData?.priceMoney;
+				if (priceMoney?.amount) {
+					fullAmount = BigInt(priceMoney.amount);
+					currency = priceMoney.currency || 'USD';
+				}
+			} catch (catalogError) {
+				console.warn('Failed to fetch service pricing from catalog:', catalogError);
+			}
+		}
+
+		if (!fullAmount) {
 			return new Response(
 				JSON.stringify({ error: 'Missing amount or currency information for this booking' }),
 				{ status: 400, headers: { 'Content-Type': 'application/json' } }
 			);
 		}
-
-		const fullAmount = BigInt(amountMatch[1]);
-		const currency = currencyMatch[1];
 
 		// Calculate 30% no-show fee
 		const noShowFeeAmount = (fullAmount * BigInt(NO_SHOW_FEE_PERCENTAGE)) / BigInt(100);

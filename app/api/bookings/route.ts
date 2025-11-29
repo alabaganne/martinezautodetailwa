@@ -4,6 +4,129 @@ import { bookingsApi, cardsApi, catalogApi, customersApi, getLocationId, payment
 import { successResponse, handleSquareError } from '../lib/utils';
 import { randomUUID } from 'crypto';
 
+/**
+ * Fetch customer data for a batch of customer IDs
+ */
+async function fetchCustomersBatch(customerIds: string[]): Promise<Map<string, Customer>> {
+	const customerMap = new Map<string, Customer>();
+
+	if (!customerIds.length) {
+		return customerMap;
+	}
+
+	// Square doesn't have a batch retrieve for customers, so we fetch them in parallel
+	const customerPromises = customerIds.map(async (customerId) => {
+		try {
+			const response = await customersApi.get({ customerId });
+			if (response.customer) {
+				return { id: customerId, customer: response.customer };
+			}
+		} catch (error) {
+			console.warn(`Failed to fetch customer ${customerId}:`, error);
+		}
+		return null;
+	});
+
+	const results = await Promise.all(customerPromises);
+
+	for (const result of results) {
+		if (result?.customer) {
+			customerMap.set(result.id, result.customer);
+		}
+	}
+
+	return customerMap;
+}
+
+interface ServiceInfo {
+	amountCents: number;
+	currency: string;
+	serviceName: string;
+	durationMinutes?: number;
+}
+
+/**
+ * Fetch service details for a batch of service variation IDs
+ */
+async function fetchServiceDetailsBatch(variationIds: string[]): Promise<Map<string, ServiceInfo>> {
+	const serviceMap = new Map<string, ServiceInfo>();
+
+	if (!variationIds.length) {
+		return serviceMap;
+	}
+
+	try {
+		// Batch retrieve catalog objects with related objects (to get parent item name)
+		const response = await catalogApi.batchGet({
+			objectIds: variationIds,
+			includeRelatedObjects: true,
+		});
+
+		const objects = response.objects || [];
+		const relatedObjects = response.relatedObjects || [];
+
+		// Create a map of item IDs to their names
+		const itemNameMap = new Map<string, string>();
+		for (const obj of relatedObjects) {
+			if (obj.type === 'ITEM' && obj.itemData?.name) {
+				itemNameMap.set(obj.id, obj.itemData.name);
+			}
+		}
+
+		for (const obj of objects) {
+			if (obj.type === 'ITEM_VARIATION' && obj.itemVariationData) {
+				const variationData = obj.itemVariationData;
+				const priceMoney = variationData.priceMoney;
+				const amount = priceMoney?.amount;
+				
+				// Get parent item name for full service name
+				const parentItemId = variationData.itemId;
+				const parentItemName = parentItemId ? itemNameMap.get(parentItemId) : null;
+				const variationName = variationData.name || '';
+				
+				// Combine parent item name with variation name
+				let serviceName = parentItemName || variationName || 'Service';
+				if (parentItemName && variationName && variationName !== 'Normal') {
+					serviceName = `${parentItemName} (${variationName})`;
+				}
+
+				// Get duration from service variation
+				const durationMs = variationData.serviceDuration;
+				const durationMinutes = durationMs ? Math.round(Number(durationMs) / 60000) : undefined;
+
+				serviceMap.set(obj.id, {
+					amountCents: amount != null ? (typeof amount === 'bigint' ? Number(amount) : Number(amount)) : 0,
+					currency: priceMoney?.currency || 'USD',
+					serviceName,
+					durationMinutes,
+				});
+			}
+		}
+	} catch (error) {
+		console.warn('Failed to fetch service details batch:', error);
+	}
+
+	return serviceMap;
+}
+
+/**
+ * Extract service amount from seller note
+ */
+function extractServiceAmountFromNote(sellerNote?: string): { amountCents: number; currency: string } | null {
+	if (!sellerNote) return null;
+
+	const amountMatch = sellerNote.match(/Service Amount \(cents\): (\d+)/);
+	const currencyMatch = sellerNote.match(/Currency: ([A-Z]{3})/);
+
+	if (amountMatch) {
+		return {
+			amountCents: parseInt(amountMatch[1], 10),
+			currency: currencyMatch?.[1] || 'USD',
+		};
+	}
+	return null;
+}
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 const MAX_SQUARE_WINDOW_DAYS = 31;
 const DEFAULT_PAST_DAYS = 60;
@@ -254,11 +377,53 @@ export async function GET(request) {
 			return dateA - dateB;
 		});
 
+		// Enrich bookings with customer data
+		const customerIds = [...new Set(bookings.map((b: any) => b.customerId).filter(Boolean))] as string[];
+		const customerMap = await fetchCustomersBatch(customerIds);
+
+		// Collect all service variation IDs for service details
+		const variationIds = [...new Set(
+			bookings
+				.filter((b: any) => b.appointmentSegments?.length)
+				.map((b: any) => b.appointmentSegments[0]?.serviceVariationId)
+				.filter(Boolean)
+		)] as string[];
+
+		// Fetch service details from catalog
+		const serviceDetailsMap = await fetchServiceDetailsBatch(variationIds);
+
+		const enrichedBookings = bookings.map((booking: any) => {
+			const variationId = booking.appointmentSegments?.[0]?.serviceVariationId;
+			const catalogDetails = variationId ? serviceDetailsMap.get(variationId) : null;
+			
+			// Try to get service amount from sellerNote first, then from catalog
+			const noteAmount = extractServiceAmountFromNote(booking.sellerNote);
+			
+			// Get duration from appointment segments or catalog
+			const segmentDuration = booking.appointmentSegments?.[0]?.durationMinutes;
+
+			return {
+				...booking,
+				customer: customerMap.get(booking.customerId) || null,
+				serviceAmount: noteAmount || (catalogDetails ? {
+					amountCents: catalogDetails.amountCents,
+					currency: catalogDetails.currency,
+				} : null),
+				serviceDetails: catalogDetails ? {
+					serviceName: catalogDetails.serviceName,
+					durationMinutes: segmentDuration || catalogDetails.durationMinutes,
+				} : (segmentDuration ? {
+					serviceName: null,
+					durationMinutes: segmentDuration,
+				} : null),
+			};
+		});
+
 		return successResponse({
-			bookings,
+			bookings: enrichedBookings,
 			startAtMin: dateRange.start.toISOString(),
 			startAtMax: dateRange.end.toISOString(),
-			count: bookings.length,
+			count: enrichedBookings.length,
 		});
 	} catch (error) {
 		// Bookings API might not be available in all Square accounts
@@ -433,19 +598,19 @@ export async function POST(request) {
                                 idempotencyKey: randomUUID(),
                                 sourceId: paymentToken,
                                 card: {
-                                        customerId: customer.id,
+									customerId: customer.id,
                                 }
                         });
 
                         if (cardResponse.errors?.length) {
-                                const [firstError] = cardResponse.errors;
-                                return new Response(
-                                        JSON.stringify({ error: firstError?.detail || 'Failed to store card information' }),
-                                        {
-                                                status: 400,
-                                                headers: { 'Content-Type': 'application/json' },
-                                        }
-                                );
+							const [firstError] = cardResponse.errors;
+							return new Response(
+								JSON.stringify({ error: firstError?.detail || 'Failed to store card information' }),
+								{
+									status: 400,
+									headers: { 'Content-Type': 'application/json' },
+								}
+							);
                         }
 
                         cardOnFile = cardResponse.card;
