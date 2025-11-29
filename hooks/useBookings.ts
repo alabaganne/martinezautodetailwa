@@ -55,7 +55,13 @@ export function useBookings(options: UseBookingsOptions = {}) {
     }
 
     return params.toString();
-  }, [pageSize, filters]);
+  }, [
+    pageSize,
+    filters.startDate,
+    filters.endDate,
+    filters.customerId,
+    filters.teamMemberId,
+  ]);
 
   // Fetch bookings from API
   const fetchBookings = useCallback(async (isRefresh = false, cursor?: string | null) => {
