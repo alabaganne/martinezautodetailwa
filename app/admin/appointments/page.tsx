@@ -18,12 +18,15 @@ import {
 	Loader2,
 	RefreshCw,
 	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
 	Filter,
 } from 'lucide-react';
 import { Booking, BookingStatus } from '@/lib/types/admin';
 
 const NO_SHOW_WINDOW_HOURS = 48;
 const NO_SHOW_FEE_PERCENTAGE = 30;
+const ITEMS_PER_PAGE = 20;
 
 type FilterOption = 'all' | 'no-show-eligible' | 'accepted' | 'pending' | 'cancelled';
 
@@ -395,9 +398,15 @@ export default function AppointmentsPage() {
 	} | null>(null);
 	const [filter, setFilter] = useState<FilterOption>('all');
 	const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+	const [currentPage, setCurrentPage] = useState(1);
 	const filterRef = useRef<HTMLDivElement>(null);
 
 	const { bookings, loading, refreshing, error, cancelBooking, refreshBookings } = useBookings();
+
+	// Reset to page 1 when filter changes
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [filter]);
 
 	// Close filter dropdown when clicking outside
 	useEffect(() => {
@@ -500,6 +509,20 @@ export default function AppointmentsPage() {
 		return new Date(b.startAt).getTime() - new Date(a.startAt).getTime();
 	});
 
+	// Pagination calculations
+	const totalItems = sortedBookings.length;
+	const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+	const endIndex = startIndex + ITEMS_PER_PAGE;
+	const paginatedBookings = sortedBookings.slice(startIndex, endIndex);
+
+	// Ensure current page is valid
+	useEffect(() => {
+		if (currentPage > totalPages && totalPages > 0) {
+			setCurrentPage(totalPages);
+		}
+	}, [currentPage, totalPages]);
+
 	const filterLabels: Record<FilterOption, string> = {
 		all: 'All Appointments',
 		'no-show-eligible': 'No-Show Eligible',
@@ -508,7 +531,21 @@ export default function AppointmentsPage() {
 		cancelled: 'Cancelled',
 	};
 
+	// Calculate filter counts from full dataset (not paginated) for accurate numbers
 	const noShowEligibleCount = bookings.filter((b: any) => isNoShowEligible(b)).length;
+	const acceptedCount = bookings.filter((b: any) => b.status === 'ACCEPTED').length;
+	const pendingCount = bookings.filter((b: any) => b.status === 'PENDING').length;
+	const cancelledCount = bookings.filter((b: any) =>
+		b.status === 'CANCELLED_BY_CUSTOMER' || b.status === 'CANCELLED_BY_SELLER'
+	).length;
+
+	const filterCounts: Record<FilterOption, number> = {
+		all: bookings.length,
+		'no-show-eligible': noShowEligibleCount,
+		accepted: acceptedCount,
+		pending: pendingCount,
+		cancelled: cancelledCount,
+	};
 
 	if (error) {
 		return (
@@ -556,7 +593,13 @@ export default function AppointmentsPage() {
 						)}
 					</div>
 					<p className="text-sm text-gray-500 mt-1">
-						{sortedBookings.length} appointment{sortedBookings.length !== 1 ? 's' : ''}
+						{totalItems > 0 ? (
+							<>
+								Showing {startIndex + 1}-{Math.min(endIndex, totalItems)} of {totalItems} appointment{totalItems !== 1 ? 's' : ''}
+							</>
+						) : (
+							<>0 appointments</>
+						)}
 						{noShowEligibleCount > 0 && (
 							<span className="ml-2 text-red-600 font-medium">
 								({noShowEligibleCount} no-show eligible)
@@ -577,7 +620,7 @@ export default function AppointmentsPage() {
 					</button>
 
 					{showFilterDropdown && (
-						<div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+						<div className="absolute right-0 top-full mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
 							{(Object.keys(filterLabels) as FilterOption[]).map((option) => (
 								<button
 									key={option}
@@ -589,13 +632,17 @@ export default function AppointmentsPage() {
 										filter === option ? 'text-brand-600 font-medium' : 'text-gray-700'
 									}`}
 								>
-									{filterLabels[option]}
-									{option === 'no-show-eligible' && noShowEligibleCount > 0 && (
-										<span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full">
-											{noShowEligibleCount}
-										</span>
-									)}
-									{filter === option && <Check size={16} />}
+									<span className="flex items-center gap-2">
+										{filterLabels[option]}
+										{filter === option && <Check size={14} />}
+									</span>
+									<span className={`text-xs px-2 py-0.5 rounded-full ${
+										option === 'no-show-eligible' && filterCounts[option] > 0
+											? 'bg-red-100 text-red-800'
+											: 'bg-gray-100 text-gray-600'
+									}`}>
+										{filterCounts[option]}
+									</span>
 								</button>
 							))}
 						</div>
@@ -622,7 +669,7 @@ export default function AppointmentsPage() {
 						</div>
 					))}
 				</div>
-			) : sortedBookings.length === 0 ? (
+			) : paginatedBookings.length === 0 ? (
 				<div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
 					<div className="text-gray-400 mb-2">
 						<Calendar size={48} className="mx-auto" />
@@ -643,17 +690,101 @@ export default function AppointmentsPage() {
 					)}
 				</div>
 			) : (
-				<div className="space-y-3">
-					{sortedBookings.map((booking: any) => (
-						<AppointmentRow
-							key={booking.id}
-							booking={booking}
-							onCancel={handleCancel}
-							onChargeNoShow={handleChargeNoShow}
-							isCharging={chargingBookingId === booking.id}
-						/>
-					))}
-				</div>
+				<>
+					<div className="space-y-3">
+						{paginatedBookings.map((booking: any) => (
+							<AppointmentRow
+								key={booking.id}
+								booking={booking}
+								onCancel={handleCancel}
+								onChargeNoShow={handleChargeNoShow}
+								isCharging={chargingBookingId === booking.id}
+							/>
+						))}
+					</div>
+
+					{/* Pagination */}
+					{totalPages > 1 && (
+						<div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+							<div className="text-sm text-gray-500">
+								Page {currentPage} of {totalPages}
+							</div>
+							<div className="flex items-center gap-2">
+								<button
+									onClick={() => setCurrentPage(1)}
+									disabled={currentPage === 1}
+									className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="First page"
+								>
+									First
+								</button>
+								<button
+									onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+									disabled={currentPage === 1}
+									className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="Previous page"
+								>
+									<ChevronLeft size={18} />
+								</button>
+
+								{/* Page numbers */}
+								<div className="flex items-center gap-1">
+									{Array.from({ length: totalPages }, (_, i) => i + 1)
+										.filter((page) => {
+											// Show first, last, current, and adjacent pages
+											if (page === 1 || page === totalPages) return true;
+											if (Math.abs(page - currentPage) <= 1) return true;
+											return false;
+										})
+										.reduce((acc: (number | string)[], page, index, arr) => {
+											// Add ellipsis if there's a gap
+											if (index > 0 && page - (arr[index - 1] as number) > 1) {
+												acc.push('...');
+											}
+											acc.push(page);
+											return acc;
+										}, [])
+										.map((item, index) => (
+											typeof item === 'string' ? (
+												<span key={`ellipsis-${index}`} className="px-2 text-gray-400">
+													{item}
+												</span>
+											) : (
+												<button
+													key={item}
+													onClick={() => setCurrentPage(item)}
+													className={`min-w-[32px] h-8 text-sm rounded-lg transition-colors ${
+														currentPage === item
+															? 'bg-brand-600 text-white'
+															: 'border border-gray-200 hover:bg-gray-50'
+													}`}
+												>
+													{item}
+												</button>
+											)
+										))}
+								</div>
+
+								<button
+									onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+									disabled={currentPage === totalPages}
+									className="p-1.5 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="Next page"
+								>
+									<ChevronRight size={18} />
+								</button>
+								<button
+									onClick={() => setCurrentPage(totalPages)}
+									disabled={currentPage === totalPages}
+									className="px-3 py-1.5 text-sm border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="Last page"
+								>
+									Last
+								</button>
+							</div>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);
